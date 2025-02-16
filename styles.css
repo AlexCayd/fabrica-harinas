@@ -1,0 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Domine:wght@400..700&family=Lexend:wght@100..900&display=swap');
+
+:root {
+    --colorPrimario: #EBDED0;
+    --blanco: #FFFFFF;
+    --colorSecundario: #4c3325;
+
+    --fuenteHeading: "Domine", serif;
+    --fuenteBody: font-family: "Lexend", serif;
+}
