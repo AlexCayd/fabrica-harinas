@@ -7,7 +7,36 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    
+    <main class="login">
+        <div class="login__contenedor contenedor">
+            <div class="login__contenido">
+                <h1 class="login__titulo">Inicia sesión</h1>
+                <h3 class="login__subtitulo">¡Bienvenido de vuelta al portal de la Fábrica de Harinas Elizondo!</h3>
+                <!-- <p class="alerta__login">¡No tienes permitido acceder!</p>
+                -->
+                <form class="login__login">
+                    <div class="login__campo">
+                        <label for="usuario" class="login__label">Username</label>
+                        <input type="text" class="login__input" required placeholder="Mi usuario">
+                    </div>
+
+                    <div class="login__campo">
+                        <label for="password" class="login__label">Password</label>
+                        <input type="password" class="login__input" required placeholder="Mi password">
+                    </div>
+
+                    <div class="login__submit">
+                        <input class="login__btn" type="submit" value="Iniciar sesión">
+                    </div>
+                </form>
+
+                <a href="menu.html" style="margin-top: 25px;">Atajo a menú</a>
+            </div>
+            <div class="login__imagen">
+                <img src="img/pan-login.jpg" alt="Imagen de login" class="login__img">
+            </div>
+        </div>
+    </main>
     <script src="app.js"></script>
 </body>
 </html>

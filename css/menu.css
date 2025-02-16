@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Domine:wght@400..700&family=Lexend:wght@100..900&display=swap');
+
+:root {
+    --colorPrimario: #EBDED0;
+    --blanco: #FFFFFF;
+    --colorSecundario: #4c3325;
+
+    --fuenteHeading: "Domine", serif;
+    --fuenteBody: "Lexend", serif;
+}
+
+.hoja {
+    background-color: var(--blanco);
+}
+
+.menu {
+    padding: 70px;
+    min-height: 45vh;
+}
+
+.menu__titulo {
+    font-size: 48px;
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.menu__icono {
+    width: 150px;
+    height: 150px;
+    text-align: center;
+}
+
+.menu__grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 50px;
+}
+
+.menu__grid > * {
+    flex: 1 1 20%; 
+    max-width: 20%; 
+}
+
+.menu__card {
+    border: 3px solid var(--colorSecundario);
+    border-radius: 10px;
+    padding: 30px 10px 40px 10px;
+    text-align: center;
+    background-color: var(--colorSecundario);
+    transition: 0.4s all;
+}
+
+.menu__card:hover {
+    transform: scale(0.99);
+}
+
+.menu__texto {
+    margin-top: 35px;
+    height: 25px;
+    padding: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--colorPrimario);
+}
