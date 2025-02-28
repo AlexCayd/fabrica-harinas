@@ -14,27 +14,51 @@
 }
 
 .menu {
-    padding: 70px;
+    padding: 20px;
     min-height: 45vh;
 }
 
+@media screen and (min-width: 768px) {
+  .menu {
+    padding: 70px;
+  }
+}
+
 .menu__titulo {
-    font-size: 48px;
+    font-size: 24px;
     text-align: center;
     margin-bottom: 50px;
 }
 
+@media screen and (min-width: 768px) {
+  .menu__titulo {
+    font-size: 48px;
+  }
+}
+
 .menu__icono {
     width: 150px;
-    height: 150px;
+    height: auto;
     text-align: center;
+}
+
+@media screen and (min-width: 768px) {
+  .menu__icono {
+    height: 150px;
+  }
 }
 
 .menu__grid {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    gap: 25px;
+}
+
+@media screen and (min-width: 768px) {
+  .menu__grid {
     gap: 50px;
+  }
 }
 
 .menu__grid > * {
@@ -45,10 +69,16 @@
 .menu__card {
     border: 3px solid var(--colorSecundario);
     border-radius: 10px;
-    padding: 30px 10px 40px 10px;
+    padding: 10px;
     text-align: center;
     background-color: var(--colorSecundario);
     transition: 0.4s all;
+}
+
+@media screen and (min-width: 768px) {
+  .menu__card {
+        padding: 30px 10px 40px 10px;
+  }
 }
 
 .menu__card:hover {
@@ -56,11 +86,18 @@
 }
 
 .menu__texto {
-    margin-top: 35px;
     height: 25px;
     padding: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
     color: var(--colorPrimario);
+    font-size: 12px;
+}
+
+@media screen and (min-width: 768px) {
+  .menu__texto {
+    font-size: 24px;
+    margin-top: 35px;
+  }
 }
