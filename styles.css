@@ -205,3 +205,139 @@ h1, h2, h3, h4 {
     font-weight: bold;
     font-size: 14px;
 }
+
+/** MODULOS **/
+.contenedor__modulo {
+    padding: 50px;
+}
+
+.heading {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.controles {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+    margin: 50px 0;
+}
+
+.filtros {
+    display: flex;
+    gap: 50px;
+}
+
+.buscador__label,
+.ordenar__label {
+    margin-bottom: 10px;
+}
+
+.buscador__input,
+.ordenar__select {
+    font-family: inherit;
+    padding: 15px;
+    min-width: 250px;
+    color: var(--colorSecundario);
+    font-weight: bold;
+}
+
+.botones__buscar,
+.botones__crear {
+    font-size: 18px;
+    padding: 15px 50px;
+    background-color: var(--colorSecundario);
+    color: var(--colorPrimario);
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.5s all;
+}
+
+.botones__buscar:hover {
+    transform: scale(0.99);
+    font-weight: bold;
+
+}
+
+.botones__buscar {
+    background-color: var(--colorPrimario);
+    color: var(--colorSecundario);
+}
+
+.botones__crear:hover {
+    transform: scale(0.99);
+}
+
+.tabla {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla__encabezado {
+    background-color: var(--colorSecundario);
+    color: var(--colorPrimario);
+}
+
+.tabla__encabezado th {
+    padding: 10px;
+}
+
+.tabla__fila td{
+    padding: 20px;
+    text-align: center;
+}
+
+.tabla__botones {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+}
+
+.tabla__boton {
+    height: 30px;
+    cursor: pointer;
+}
+
+.formulario {
+    max-width: 60%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.formulario__campo {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.formulario__input,
+.formulario__select {
+    padding: 10px;
+    font-family: inherit;
+    color: var(--colorSecundario);
+    font-weight: bold;
+    border: 2px solid var(--colorSecundario);
+}
+
+.formulario__submit {
+    background-color: var(--colorSecundario);
+    border: none;
+    padding: 20px;
+    color: var(--colorPrimario);
+    font-family: inherit;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.atras {
+    background-color: var(--colorSecundario);
+    color: var(--colorPrimario);
+    font-weight: bold;
+    padding: 15px 40px;
+    font-size: 14px;
+}
