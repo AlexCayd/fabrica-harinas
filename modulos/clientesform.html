@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FHE | Reportes Estadísticos</title>
+    <title>FHE | Clientes</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
 </head>
@@ -28,20 +28,28 @@
         </header>
 
         <div class="contenedor__modulo">
-            <a href="../menu.html" class="atras">Ir atrás</a>
-            <h2 class="heading">Reporte Estadístico</h2>
-            <form action="../menu.html" class="formulario">
+            <a href="clientes.html" class="atras">Ir atrás</a>
+            <h2 class="heading">Agregar Cliente</h2>
+            <form action="clientes.html" class="formulario">
                 <div class="formulario__campo">
-                    <label for="fecha_inicio" class="formulario__label">Fecha de inicio</label>
-                    <input type="date" class="formulario__input">
+                    <label for="nombre" class="formulario__label">Nombre</label>
+                    <input type="text" class="formulario__input" placeholder="Nombre">
                 </div>
 
                 <div class="formulario__campo">
-                    <label for="fecha_fin" class="formulario__label">Fecha de fin</label>
-                    <input type="date" class="formulario__input">
+                    <label for="email" class="formulario__label">Correo electrónico</label>
+                    <input type="email" class="formulario__input" placeholder="Correo electrónico">
                 </div>
 
-                <input type="submit" class="formulario__submit" value="Generar certificado">
+                <div class="formulario__campo">
+                    <label for="rol" class="formulario__label">Estado</label>
+                    <select name="categoria" id="categoria" class="formulario__select">
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
+                </div>
+
+                <input type="submit" class="formulario__submit" value="Agregar cliente">
             </form>
         </div>
     </main>
