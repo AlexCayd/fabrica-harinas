@@ -6,6 +6,13 @@
     <title>Fábrica de Harinas Elizondo</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="css/login.css">
+    <?php  
+        //Validamos si existe sesión actica para permitir o denegar el acceso a la página
+        session_start();
+        if (isset($_SESSION['user_id']) && isset($_SESSION['username'])){
+            header("location: /fabrica-harinas/menu.php");
+        } 
+    ?>
 </head>
 <body>
     <main class="login">
@@ -15,22 +22,25 @@
                 <h3 class="login__subtitulo">¡Bienvenido de vuelta al portal de la Fábrica de Harinas Elizondo!</h3>
                 <!-- <p class="alerta__login">¡No tienes permitido acceder!</p>
                 -->
-                <form class="login__login">
+                <form class="login__login" action="/fabrica-harinas/config/login.php" method="post">
                     <div class="login__campo">
-                        <label for="usuario" class="login__label">Username</label>
-                        <input type="text" class="login__input" required placeholder="Mi usuario">
+                        <label for="mail" class="login__label">Correo</label>
+                        <input type="email" name="mail" class="login__input" required placeholder="correo@ejemplo.com">
                     </div>
 
                     <div class="login__campo">
-                        <label for="password" class="login__label">Password</label>
-                        <input type="password" class="login__input" required placeholder="Mi password">
+                        <label for="password" class="login__label">Contraseña</label>
+                        <input type="password" name="passwd" class="login__input" required placeholder="">
                     </div>
 
                     <div class="login__submit">
                         <input class="login__btn" type="submit" value="Iniciar sesión">
                     </div>
                 </form>
-
+                <!-- Muestra errores en el login -->
+                <?php if (isset($_GET['error'])): ?>
+                    <p style="color:red;">⚠️ <?= htmlspecialchars($_GET['error']) ?></p>
+                <?php endif; ?> 
                 <a href="menu.html" style="margin-top: 25px;">Atajo a menú</a>
             </div>
             <div class="login__imagen">

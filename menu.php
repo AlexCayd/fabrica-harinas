@@ -6,6 +6,18 @@
     <title>FHE | Menú Principal</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="css/menu.css">
+
+    <?php
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start(); // Solo inicia la sesión si no está activa
+        }  
+        
+        if (!isset($_SESSION['user_id'])){
+            header('Location: /fabrica-harinas/index.php');
+        } 
+    
+    ?>
+    
 </head>
 <body>
     <main class="contenedor hoja">
@@ -20,7 +32,7 @@
                     <p class="header__textoicono">Home</p>
                 </a>
 
-                <a href="index.html" class="header__btn">
+                <a href="/fabrica-harinas/config/logout.php" class="header__btn">
                     <img class="header__icono" src="img/exit.svg" alt="Home">
                     <p class="header__textoicono">Salir</p>
                 </a>
