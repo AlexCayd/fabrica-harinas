@@ -1,8 +1,15 @@
 <?php
-    session_start();
-
     require '../config/conn.php';
 
+    // Validar permisos de TI
+    if (session_status() == PHP_SESSION_NONE){ //Solo inicia sesión si no está activa
+        session_start();
+    }
+    if (isset($_SESSION['rol']) && $_SESSION['rol'] !== 'TI'){
+        $_SESSION['error'] = 'No tienes permisos para esta sección. Comunícate con el Departamento de Tecnologías de la Información';
+        header('location: usuarios.php');
+        exit;
+    }
     $update = isset($_GET['id']);
 
     $usuario = [
@@ -16,6 +23,12 @@
         $stmt = $pdo -> prepare("SELECT * FROM usuarios WHERE id_usuario = ?");
         $stmt->execute([$_GET['id']]);
         $usuario = $stmt->fetch();
+
+        if (empty($usuario)){
+            $_SESSION['error'] = "ID no válido";
+            header('Location: usuarios.php');
+            exit;
+        }
     }
 
 ?>
@@ -77,8 +90,8 @@
                 
                 <?php if ($update): ?>
                     <div class="formulario__campo">
-                        <label for="id" class="formulario__label">Id usuario</label>
-                        <input type="text" value="<?php echo $usuario['id_usuario']?>" name="id" class="formulario__input" disabled>
+                        <label for="id" class="formulario__label">Id usuario [lectura]</label>
+                        <input type="text" value="<?php echo $usuario['id_usuario']?>" name="id" id="id" class="formulario__input" readonly>
                     </div>
                 <?php endif; ?>
                 
@@ -95,20 +108,33 @@
                 <div class="formulario__campo tooltip-container">
                     <label for="password" class="formulario__label">Contraseña</label>
                     <input type="password" name="passwd" id="passwd" class="formulario__input" placeholder="<?php echo $update?'Nueva contraseña (opcional)':'Contraseña'; ?>">
-                    <div class="info__tooltip" id="tooltip">⚠️ Si llenas este campo, la contraseña se actualizará. Si lo dejas vacío, se mantendrá igual.</div>
+                    <?php if ($update): ?>
+                        <div class="info__tooltip" id="tooltip">⚠️ Si llenas este campo, la contraseña se actualizará. Si lo dejas vacío, se mantendrá igual.</div>
+                    <?php endif; ?>
                 </div>
                 
                 <div class="formulario__campo">
                     <label for="rol" class="formulario__label">Rol</label>
                     <select name="rol" id="rol" class="formulario__select">
-                        <option value="TI">Departamento de Tecnologías de la Información</option>
-                        <option value="Gerencia de Control de Calidad">Gerencia de Control de Calidad</option>
-                        <option value="Laboratorio">Laboratorio</option>
-                        <option value="Gerencia de Aseguramiento de Calidad">Gerencia de Aseguramiento de Calidad</option>
-                        <option value="Gerente de Planta">Gerente de Planta</option>
-                        <option value="Director de Operaciones">Director de Operaciones</option>
+                        <option value="" disabled selected>Seleccionar rol ...</option>
+                        <?php  
+                            $roles = [
+                                "TI" => "Departamento de Tecnologías de la Información",
+                                "Gerencia de Control de Calidad" => "Gerencia de Control de Calidad",
+                                "Laboratorio" => "Laboratorio",
+                                "Gerencia de Aseguramiento de Calidad" => "Gerencia de Aseguramiento de Calidad",
+                                "Gerente de Planta" => "Gerente de Planta",
+                                "Director de Operaciones" => "Director de Operaciones",
+                            ];
+
+                            foreach ($roles as $clave => $rol){
+                                 echo '<option value="'. $clave .'"';
+                                 echo ($usuario['rol'] == $clave)?' selected':'';
+                                 echo '>'. $rol .'</option>';                           
+                            }
+                        ?>
+                        
                     </select>
-                    <!-- 'TI','Gerencia de Control de Calidad','Laboratorio','Gerencia de Aseguramiento de Calidad','Gerente de Planta','Director de Operaciones' -->
                 </div>
                  <!-- Muestra errores en el registro -->
                  <?php if (isset($_GET['error'])): ?>
@@ -117,7 +143,7 @@
                     <p style="color:green;">✅ <?= htmlspecialchars($_GET['success']) ?></p>
                 <?php endif; ?>             
                 
-                <input type="submit" class="formulario__submit" value="Agregar usuario">
+                <input type="submit" class="formulario__submit" value="<?php echo $update?'Actualizar usuario':'Agregar usuario'; ?>">
             </form>
         </div>
     </main>
@@ -134,7 +160,6 @@
             }
         });
 
-        // Opcional: mostrar también al hacer hover
         passwordInput.addEventListener('mouseenter', () => {
             if (passwordInput.value.trim().length === 0) {
                 tooltip.style.display = 'block';

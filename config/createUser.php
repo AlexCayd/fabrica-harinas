@@ -9,7 +9,7 @@
         $rol = test_data($_POST['rol']);
 
         // Verificamos que el correo no esté registrado
-        $stmtMail = $pdo -> prepare("SELECT correo FROM usuarios WHERE correo =?");
+        $stmtMail = $pdo -> prepare("SELECT correo FROM usuarios WHERE correo = ?");
         $stmtMail -> execute([$mail]);
         $resMail = $stmtMail -> fetch();
 

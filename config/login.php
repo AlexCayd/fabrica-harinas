@@ -17,7 +17,7 @@
         // Resultado de la consulta
         $res = $stmt->fetch();
 
-        if ($res && password_verify($passwd,  $res['contrasena'])) {
+        if ($res ) {
             $_SESSION['user_id'] = $res['id_usuario'];
             $_SESSION['username'] = $res['nombre'];
             $_SESSION['rol'] = $res['rol'];

@@ -1,3 +1,16 @@
+<?php 
+    // Validar permisos de TI
+    if (session_status() == PHP_SESSION_NONE){ //Solo inicia sesión si no está activa
+        session_start();
+    }
+    if (isset($_SESSION['rol']) && $_SESSION['rol'] != 'TI'){
+        $_SESSION['error'] = 'No tienes permisos para esta sección. Comunícate con el Departamento de Tecnologías de la Información';
+        header('location: ../menu.php');
+        exit;
+    }
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,8 +19,34 @@
     <title>FHE | Usuarios</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
+    <!-- ALERTAS -->
+    <?php 
+        if (isset($_SESSION['error'])){
+            echo '  <script>
+                    Swal.fire({
+                            icon: "error",
+                            title: "Oops!",
+                            text: "'. $_SESSION['error'] . '",
+                            });
+                    </script>';
+            unset($_SESSION['error']); 
+        } else if (isset($_SESSION['exito'])){
+            echo '  <script>
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: "' . $_SESSION['exito'] . ' ",
+                        showConfirmButton: true,
+                        timer: 1500
+                        });
+                    </script>';
+            unset($_SESSION['exito']);
+        }
+
+    ?>
     <main class="contenedor hoja">
         <header class="header">
             <h2 class="header__logo">
@@ -91,7 +130,7 @@
                             echo '<td>' . $res['rol'] . '</td>';
                             echo '<td class="tabla__botones">';
                             echo '<a href="usuariosform.php?id=' . $res['id_usuario'] . '"><img src="../img/edit.svg" alt="Editar" class="tabla__boton"></a>';
-                            // echo '<a href="usuariosform.php?id=' . $res['id_usuario'] . '"><img src="../img/delete.svg" alt="Eliminar" class="tabla__boton"></a>';
+                            echo '<a href="../config/deleteUser.php?id=' . $res['id_usuario'] . '"><img src="../img/delete.svg" alt="Eliminar" class="tabla__boton"></a>';
                             echo '</td>';
                             echo '</tr>';
                         }
