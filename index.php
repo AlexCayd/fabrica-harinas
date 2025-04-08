@@ -41,7 +41,7 @@
                 <?php if (isset($_GET['error'])): ?>
                     <p style="color:red;">⚠️ <?= htmlspecialchars($_GET['error']) ?></p>
                 <?php endif; ?> 
-                <a href="menu.html" style="margin-top: 25px;">Atajo a menú</a>
+                <a href="menu.php" style="margin-top: 25px;">Atajo a menú</a>
             </div>
             <div class="login__imagen">
                 <img src="img/pan-login.jpg" alt="Imagen de login" class="login__img">
