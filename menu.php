@@ -43,7 +43,7 @@
             <h1 class="menu__titulo">Menú Principal</h1>
 
             <div class="menu__grid">
-                <a href="modulos/usuarios.html" class="menu__card">
+                <a href="/fabrica-harinas/modulos/usuarios.php" class="menu__card">
                     <img src="img/usuarios.svg" alt="Reportes" class="menu__icono">
                     <h2 class="menu__texto">Usuarios</h2>
                 </a>

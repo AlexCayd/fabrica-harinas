@@ -1,7 +1,7 @@
 <?php 
     require 'conn.php';
     
-    include 'test_input.php';
+    include 'functions.php';
 
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST'){
@@ -17,7 +17,7 @@
         // Resultado de la consulta
         $res = $stmt->fetch();
 
-        if ($res) {
+        if ($res && password_verify($passwd,  $res['contrasena'])) {
             $_SESSION['user_id'] = $res['id_usuario'];
             $_SESSION['username'] = $res['nombre'];
             $_SESSION['rol'] = $res['rol'];
