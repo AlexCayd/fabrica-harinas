@@ -1,3 +1,12 @@
+<?php
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start(); // Solo inicia la sesión si no está activa
+    }  
+        
+    if (!isset($_SESSION['user_id'])){
+        header('Location: /fabrica-harinas/index.php');
+    } 
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,20 +15,25 @@
     <title>FHE | Menú Principal</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="css/menu.css">
-
-    <?php
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start(); // Solo inicia la sesión si no está activa
-        }  
-    
-    ?>
-    
 </head>
 <body>
+    <!-- ALERTAS -->
+    <?php 
+        if (isset($_SESSION['error'])){
+            echo '<script>
+                    Swal.fire({
+                            icon: "error",
+                            title: "Oops!",
+                            text: "'. $_SESSION['error'] . '",
+                            });
+                    </script>';
+            unset($_SESSION['error']); 
+        }
+    ?>
     <main class="contenedor hoja">
         <header class="header">
             <h2 class="header__logo">
-                F.H. Elizondo
+                F.H. Elizondo 
             </h2>
 
             <nav class="header__nav">
