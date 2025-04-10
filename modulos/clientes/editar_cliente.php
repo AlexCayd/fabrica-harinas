@@ -16,10 +16,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $telefono = test_data($_POST['numero-telefonico']);
     $direccion_fiscal = test_data($_POST['direccion-fiscal']);
     $parametros = test_data($_POST['parametros']);
+    $estado = test_data($_POST['estado']);
 
     $sql = "UPDATE Clientes SET req_certificado = $certificado, nombre = '$nombre', rfc = '$rfc', nombre_contacto = '$nombre', 
     puesto_contacto = '$puesto', correo_contacto = '$correo', telefono_contacto = '$telefono', 
-    direccion_fiscal = '$direccion_fiscal', parametros = '$parametros' WHERE id_cliente = $id";
+    direccion_fiscal = '$direccion_fiscal', parametros = '$parametros', estado = '$estado' WHERE id_cliente = $id";
 
     $stmt = $pdo -> prepare($sql);
     $stmt -> execute();
