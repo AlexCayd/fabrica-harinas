@@ -8,7 +8,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $id_cliente = $_GET['id'];
     $estado = test_data($_POST['categoria']);
 
-    $sql = "UPDATE Clientes SET estado = '$estado' WHERE id_cliente = $id_cliente";
+    $sql = "DELETE FROM Clientes WHERE id_cliente = $id_cliente";
     echo $sql;
     $stmt = $pdo -> prepare($sql);
 
