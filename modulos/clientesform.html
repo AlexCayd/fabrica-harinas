@@ -30,15 +30,43 @@
         <div class="contenedor__modulo">
             <a href="clientes.html" class="atras">Ir atrás</a>
             <h2 class="heading">Agregar Cliente</h2>
-            <form action="clientes.html" class="formulario">
+            <form action="clientes/agregar_cliente.php" class="formulario" method="post">
                 <div class="formulario__campo">
                     <label for="nombre" class="formulario__label">Nombre</label>
-                    <input type="text" class="formulario__input" placeholder="Nombre">
+                    <input type="text" name="nombre" class="formulario__input" placeholder="Nombre">
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="certificado" class="formulario__label"> Requiere certificado </label>
+                    <select name="certificado" id="categoria" class="formulario__select">
+                        <option value="1"> Si </option>
+                        <option value="0"> No </option>
+                    </select>
                 </div>
 
                 <div class="formulario__campo">
                     <label for="email" class="formulario__label">Correo electrónico</label>
-                    <input type="email" class="formulario__input" placeholder="Correo electrónico">
+                    <input type="email" name="email" class="formulario__input" placeholder="Correo electrónico">
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="rfc" class="formulario__label"> RFC </label>
+                    <input type="text" name="rfc" class="formulario__input" placeholder="RFC">
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="puesto" class="formulario__label"> Puesto </label>
+                    <input type="text" name="puesto" class="formulario__input" placeholder="Correo electrónico">
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="numero-telefonico" class="formulario__label"> Numero telefónico </label>
+                    <input type="text" name="numero-telefonico" class="formulario__input" placeholder="Correo electrónico">
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="direccion-fiscal" class="formulario__label"> Direccion fiscal </label>
+                    <input type="text" name="direccion-fiscal" class="formulario__input" placeholder="Correo electrónico">
                 </div>
 
                 <div class="formulario__campo">
@@ -46,6 +74,14 @@
                     <select name="categoria" id="categoria" class="formulario__select">
                         <option value="activo">Activo</option>
                         <option value="inactivo">Inactivo</option>
+                    </select>
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="parametros" class="formulario__label"> Parametros </label>
+                    <select name="parametros" id="categoria" class="formulario__select">
+                        <option value="Internacionales"> Internacionales </option>
+                        <option value="Personalizados"> Personalizados </option>
                     </select>
                 </div>
 
