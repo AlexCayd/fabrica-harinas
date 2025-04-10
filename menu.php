@@ -54,7 +54,7 @@
                     <h2 class="menu__texto">Análisis de Calidad</h2>
                 </a>
 
-                <a href="modulos/clientes.html" class="menu__card">
+                <a href="modulos/clientes.php" class="menu__card">
                     <img src="img/clientes.svg" alt="Clientes" class="menu__icono">
                     <h2 class="menu__texto">Clientes</h2>
                 </a>
