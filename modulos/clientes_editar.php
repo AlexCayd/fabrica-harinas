@@ -92,6 +92,14 @@ $result = $stmt->fetch();
                     </select>
                 </div>
 
+                <div class="formulario__campo">
+                        <label for="rol" class="formulario__label">Estado</label>
+                        <select name="estado" id="categoria" class="formulario__select" value="<?php echo $result['estado']; ?>">
+                            <option value="activo" <?= $result['estado'] == 'Activo' ? 'selected': ''; ?>> Activo</option>
+                            <option value="inactivo" <?= $result['estado'] == 'Inactivo' ? 'selected': ''; ?>>Inactivo</option>
+                        </select>
+                    </div>
+
                 <input type="submit" class="formulario__submit" value="Editar cliente">
             </form>
         </div>
