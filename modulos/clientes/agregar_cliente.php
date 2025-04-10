@@ -28,10 +28,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $res = $stmt -> fetch();
 
     if($res){
-        header("Location: /fabrica-harinas/menu.php?error=consulta");
+        header("Location: /fabrica-harinas/modulos/clientes.php?error=consulta");
         exit;
     }else{
-        header("Location: /fabrica-harinas/menu.php?success"); 
+        header("Location: /fabrica-harinas/modulos/clientes.php?success"); 
     }
 
 }else{
