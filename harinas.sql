@@ -1,4 +1,5 @@
-USE DATABASE harinas;
+CREATE DATABASE harinas;
+USE harinas;
 -- Tabla Usuarios
 CREATE TABLE Usuarios (
     id_usuario INT PRIMARY KEY AUTO_INCREMENT,
