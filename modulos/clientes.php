@@ -40,11 +40,11 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <header class="header">
             <h2 class="header__logo">F.H. Elizondo</h2>
             <nav class="header__nav">
-                <a href="../menu.html" class="header__btn">
+                <a href="../menu.php" class="header__btn">
                     <img class="header__icono" src="../img/home.svg" alt="Home">
                     <p class="header__textoicono">Home</p>
                 </a>
-                <a href="../index.html" class="header__btn">
+                <a href="../index.php" class="header__btn">
                     <img class="header__icono" src="../img/exit.svg" alt="Salir">
                     <p class="header__textoicono">Salir</p>
                 </a>

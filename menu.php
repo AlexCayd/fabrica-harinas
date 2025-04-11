@@ -58,12 +58,12 @@
                     <h2 class="menu__texto">Usuarios</h2>
                 </a>
 
-                <a href="modulos/laboratorios.html" class="menu__card">
+                <a href="modulos/laboratorios.php" class="menu__card">
                     <img src="img/laboratorios.svg" alt="Laboratorio" class="menu__icono">
                     <h2 class="menu__texto">Equipos de Laboratorio</h2>
                 </a>
 
-                <a href="modulos/analisiscalidad.html" class="menu__card">
+                <a href="modulos/analisiscalidad.php" class="menu__card">
                     <img src="img/quality.svg" alt="Análisis" class="menu__icono">
                     <h2 class="menu__texto">Análisis de Calidad</h2>
                 </a>

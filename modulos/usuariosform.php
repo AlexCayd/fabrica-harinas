@@ -71,12 +71,12 @@
             </h2>
 
             <nav class="header__nav">
-                <a href="../menu.html" class="header__btn">
+                <a href="../menu.php" class="header__btn">
                     <img class="header__icono" src="../img/home.svg" alt="Home">
                     <p class="header__textoicono">Home</p>
                 </a>
 
-                <a href="../index.html" class="header__btn">
+                <a href="../index.php" class="header__btn">
                     <img class="header__icono" src="../img/exit.svg" alt="Home">
                     <p class="header__textoicono">Salir</p>
                 </a>
