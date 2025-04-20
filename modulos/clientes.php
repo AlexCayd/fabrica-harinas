@@ -2,7 +2,7 @@
 include '../config/conn.php';
 
 // Consulta para recuperar a todos los clientes
-$estado = $_GET['estado'];
+$estado = $_GET['estado'] ?? 'activo';
 $busqueda = $_GET['busqueda'];
 
 $sql = "SELECT id_cliente, nombre, correo_contacto, estado FROM Clientes WHERE estado = '$estado'";
