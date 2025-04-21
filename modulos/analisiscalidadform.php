@@ -1,3 +1,5 @@
+<?php require '../config/validar_permisos.php'; ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,24 +11,8 @@
 </head>
 <body>
     <main  class="contenedor hoja">
-        <header class="header">
-            <h2 class="header__logo">
-                F.H. Elizondo
-            </h2>
-
-            <nav class="header__nav">
-                <a href="../menu.html" class="header__btn">
-                    <img class="header__icono" src="../img/home.svg" alt="Home">
-                    <p class="header__textoicono">Home</p>
-                </a>
-
-                <a href="../index.html" class="header__btn">
-                    <img class="header__icono" src="../img/exit.svg" alt="Home">
-                    <p class="header__textoicono">Salir</p>
-                </a>
-            </nav>
-        </header>
-
+        <?php include '../includes/header.php'; ?>
+        
         <div class="contenedor__modulo">
             <a href="analisiscalidad.html" class="atras">Ir atrás</a>
             <h2 class="heading">Agregar análisis de calidad</h2>
@@ -40,13 +26,13 @@
                     <label for="secuencia" class="formulario__label">Secuencia de inspección</label>
                     <input type="text" class="formulario__input" placeholder="A">
                 </div>
-
+                
                 <div class="formulario__campo">
                     <label for="valor_parametro" class="formulario__label">Valor del parámetro 1</label>
                     <input type="number" class="formulario__input" placeholder="50">
                 </div>
-
-
+                
+                
                 <div class="formulario__campo">
                     <label for="equipo_laboratorio" class="formulario__label">Rol</label>
                     <select name="categoria" id="categoria" class="formulario__select">
@@ -54,11 +40,12 @@
                         <option value="farinografos">Farinógrafos</option>
                     </select>
                 </div>
-
-
+                
+                
                 <input type="submit" class="formulario__submit" value="Agregar análisis de calidad">
             </form>
         </div>
+        <?php include '../includes/footer.php'; ?>
     </main>
 </body>
 </html>

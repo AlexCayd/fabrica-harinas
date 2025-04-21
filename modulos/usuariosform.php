@@ -1,15 +1,8 @@
 <?php
+    require '../config/validar_permisos.php'; 
+
     require '../config/conn.php';
 
-    // Validar permisos de TI
-    if (session_status() == PHP_SESSION_NONE){ //Solo inicia sesión si no está activa
-        session_start();
-    }
-    if (isset($_SESSION['rol']) && $_SESSION['rol'] !== 'TI'){
-        $_SESSION['error'] = 'No tienes permisos para esta sección. Comunícate con el Departamento de Tecnologías de la Información';
-        header('location: ../menu.php');
-        exit;
-    }
     $update = isset($_GET['id']);
 
     $usuario = [
@@ -65,18 +58,13 @@
     }
 </style>
 <body>
-    <script>
-        function valCambios(){
-
-        }
-    </script>
     <main  class="contenedor hoja">
         <?php include '../includes/header.php'; ?>
 
         <div class="contenedor__modulo">
             <a href="usuarios.php" class="atras">Ir atrás</a>
             <h2 class="heading"><?php echo $update?'Editar':'Agregar'; ?> Usuario</h2>
-            <form action="<?= $update ? '/fabrica-harinas/config/updateUser.php' : '/fabrica-harinas/config/createUser.php'; ?>" method="post" class="formulario">
+            <form id="formUsuario" action="<?= $update ? '/fabrica-harinas/config/usuarios/updateUser.php' : '/fabrica-harinas/config/usuarios/createUser.php'; ?>" method="post" class="formulario">
                 
                 <?php if ($update): ?>
                     <div class="formulario__campo">
@@ -126,7 +114,9 @@
                         
                     </select>
                 </div>
-                <input type="submit" class="formulario__submit" value="<?php echo $update?'Actualizar usuario':'Agregar usuario'; ?>">
+                <<button type="button" id="btnSubmit" class="formulario__submit">
+                    <?php echo $update ? 'Actualizar usuario' : 'Agregar usuario'; ?>
+                </button>
             </form>
         </div>
         <?php include '../includes/footer.php'; ?>
@@ -155,5 +145,37 @@
                 tooltip.style.display = 'none';
             }
         });
+
+
+        document.getElementById('btnSubmit').addEventListener('click', function() {
+        const form = document.getElementById('formUsuario');
+        const nombre = form.name.value.trim();
+        const correo = form.mail.value.trim();
+        const rol = form.rol.value;
+        const passwd = form.passwd.value.trim();
+
+        let resumen = `<b>Nombre:</b> ${nombre}<br><b>Correo:</b> ${correo}<br><b>Rol:</b> ${rol}`;
+       
+        if (<?php echo $update ? 'true' : 'false'; ?>){
+            if (passwd) {
+                resumen += `<br><b>Contraseña:</b> Se actualizará`;
+            } else {
+                resumen += `<br><b>Contraseña:</b> Sin cambios`;
+            }
+        } 
+
+        Swal.fire({
+            title: 'Confirma los datos antes de continuar',
+            html: resumen,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Confirmar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
 </script>
 </html>

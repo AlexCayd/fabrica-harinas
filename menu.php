@@ -37,31 +37,31 @@
                         'roles' => ['TI']
                     ],
                     'laboratorios' => [
-                        'url' => 'modulos/laboratorios.html',
+                        'url' => '/fabrica-harinas/modulos/laboratorios.php',
                         'img' => 'img/laboratorios.svg',
                         'texto' => 'Equipos de Laboratorio',
                         'roles' => ['Laboratorio', 'TI', 'Gerencia de Control de Calidad']
                     ],
                     'clientes' => [
-                        'url' => 'modulos/clientes.html',
+                        'url' => '/fabrica-harinas/modulos/clientes.php',
                         'img' => 'img/clientes.svg',
                         'texto' => 'Clientes',
                         'roles' => ['Laboratorio', 'TI', 'Gerencia de Control de Calidad']
                     ],
                     'analisiscalidad' => [
-                        'url' => 'modulos/analisiscalidad.html',
+                        'url' => '/fabrica-harinas/modulos/analisiscalidad.php',
                         'img' => 'img/quality.svg',
                         'texto' => 'Análisis de Calidad',
                         'roles' => ['Laboratorio', 'TI', 'Gerencia de Control de Calidad']
                     ],
                     'historico' => [
-                        'url' => 'modulos/historico.html',
+                        'url' => '/fabrica-harinas/modulos/historico.php',
                         'img' => 'img/historico.svg',
                         'texto' => 'Certificados',
                         'roles' => ['Laboratorio', 'TI', 'Gerencia de Control de Calidad']
                     ],
                     'estadisticos' => [
-                        'url' => 'modulos/estadisticos.html',
+                        'url' => '/fabrica-harinas/modulos/estadisticos.php',
                         'img' => 'img/stats.svg',
                         'texto' => 'Reportes estadísticos',
                         'roles' => ['Gerencia de Aseguramiento de Calidad', 'TI', 'Gerente de Planta', 'Director de Operaciones']

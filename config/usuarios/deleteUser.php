@@ -1,5 +1,5 @@
 <?php 
-    require 'conn.php';
+    require '../conn.php';
     session_start();
     if  (isset($_GET['id'])){
         $id = intval($_GET['id']);

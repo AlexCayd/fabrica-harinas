@@ -1,3 +1,4 @@
+<?php require '../config/validar_permisos.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,24 +10,8 @@
 </head>
 <body>
     <main  class="contenedor hoja">
-        <header class="header">
-            <h2 class="header__logo">
-                F.H. Elizondo
-            </h2>
-
-            <nav class="header__nav">
-                <a href="../menu.html" class="header__btn">
-                    <img class="header__icono" src="../img/home.svg" alt="Home">
-                    <p class="header__textoicono">Home</p>
-                </a>
-
-                <a href="../index.html" class="header__btn">
-                    <img class="header__icono" src="../img/exit.svg" alt="Home">
-                    <p class="header__textoicono">Salir</p>
-                </a>
-            </nav>
-        </header>
-
+        <?php include '../includes/header.php'; ?>
+        
         <div class="contenedor__modulo">
             <a href="historico.html" class="atras">Ir atrás</a>
             <h2 class="heading">Agregar Certificado</h2>
@@ -40,17 +25,17 @@
                     <label for="orden_compra" class="formulario__label">Número de compra</label>
                     <input type="number" class="formulario__input" placeholder="Número de compra">
                 </div>
-
+                
                 <div class="formulario__campo">
                     <label for="cantidad_solicitada" class="formulario__label">Cantidad solicitada (kg)</label>
                     <input type="number" class="formulario__input" placeholder="Cantidad solicitada">
                 </div>
-
+                
                 <div class="formulario__campo">
                     <label for="cantidad_entregada" class="formulario__label">Cantidad entregada (kg)</label>
                     <input type="number" class="formulario__input" placeholder="Cantidad entregada">
                 </div>
-
+                
                 <div class="formulario__campo">
                     <label for="resultados" class="formulario__label">Resultados del análisis</label>
                     <select name="categoria" id="categoria" class="formulario__select">
@@ -58,7 +43,7 @@
                         <option value="desaprobado">Desaprobado</option>
                     </select>
                 </div>
-
+                
                 <div class="formulario__campo">
                     <label for="comparacion" class="formulario__label">Comparación con valores de referencia</label>
                     <select name="categoria" id="categoria" class="formulario__select">
@@ -66,10 +51,11 @@
                         <option value="fuera_rango">Fuera de rango</option>
                     </select>
                 </div>
-
+                
                 <input type="submit" class="formulario__submit" value="Agregar certificado">
             </form>
         </div>
+        <?php include '../includes/footer.php'; ?>
     </main>
 </body>
 </html>
