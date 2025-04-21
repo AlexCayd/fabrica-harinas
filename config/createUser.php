@@ -3,6 +3,7 @@
     include 'functions.php';
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST'){
+        session_start();
         $name = test_data($_POST['name']);
         $mail = test_data($_POST['mail']);
         $passwd = test_data($_POST['passwd']);
@@ -14,19 +15,22 @@
         $resMail = $stmtMail -> fetch();
 
         if ($resMail){
-            header("Location: /fabrica-harinas/modulos/usuariosform.php?error=El correo ya ha sido registrado.");
+            $_SESSION['error'] = 'El correo ya ha sido registrado.';
+            header("Location: /fabrica-harinas/modulos/usuariosform.php");
             exit;
         } 
-
+        
         $hashed_pwd = password_hash($passwd, PASSWORD_DEFAULT);
         
         $stmt = $pdo -> prepare("INSERT INTO usuarios (nombre, correo, contrasena, rol) VALUES (?, ?, ?, ?)");
         
         if ($stmt -> execute([$name, $mail, $hashed_pwd, $rol])){
-            header("Location: /fabrica-harinas/modulos/usuariosform.php?success=Usuario registrado.");
+            $_SESSION['exito'] = 'Usuario registrado.';
+            header("Location: /fabrica-harinas/modulos/usuarios.php");
             exit;
         } else{
-            header("Location: /fabrica-harinas/modulos/usuariosform.php?error=Ocurrió un error en el registro.");
+            $_SESSION['error'] = 'Ocurrió un error en el registro del usuario.';
+            header("Location: /fabrica-harinas/modulos/usuariosform.php");
             exit;
         }
     } else{

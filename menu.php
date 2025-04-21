@@ -15,79 +15,73 @@
     <title>FHE | Menú Principal</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="css/menu.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <!-- ALERTAS -->
-    <?php 
-        if (isset($_SESSION['error'])){
-            echo '<script>
-                    Swal.fire({
-                            icon: "error",
-                            title: "Oops!",
-                            text: "'. $_SESSION['error'] . '",
-                            });
-                    </script>';
-            unset($_SESSION['error']); 
-        }
-    ?>
     <main class="contenedor hoja">
-        <header class="header">
-            <h2 class="header__logo">
-                F.H. Elizondo 
-            </h2>
-
-            <nav class="header__nav">
-                <a href="#" class="header__btn">
-                    <img class="header__icono" src="img/home.svg" alt="Home">
-                    <p class="header__textoicono">Home</p>
-                </a>
-
-                <a href="/fabrica-harinas/config/logout.php" class="header__btn">
-                    <img class="header__icono" src="img/exit.svg" alt="Home">
-                    <p class="header__textoicono">Salir</p>
-                </a>
-            </nav>
-        </header>
-
+        
+        <?php include 'includes/header.php'; ?>
         <div class="menu">
             <h1 class="menu__titulo">Menú Principal</h1>
 
             <div class="menu__grid">
-                <a href="/fabrica-harinas/modulos/usuarios.php" class="menu__card">
-                    <img src="img/usuarios.svg" alt="Reportes" class="menu__icono">
-                    <h2 class="menu__texto">Usuarios</h2>
-                </a>
-
-                <a href="modulos/laboratorios.html" class="menu__card">
-                    <img src="img/laboratorios.svg" alt="Laboratorio" class="menu__icono">
-                    <h2 class="menu__texto">Equipos de Laboratorio</h2>
-                </a>
-
-                <a href="modulos/analisiscalidad.html" class="menu__card">
-                    <img src="img/quality.svg" alt="Análisis" class="menu__icono">
-                    <h2 class="menu__texto">Análisis de Calidad</h2>
-                </a>
-
-                <a href="modulos/clientes.php" class="menu__card">
-                    <img src="img/clientes.svg" alt="Clientes" class="menu__icono">
-                    <h2 class="menu__texto">Clientes</h2>
-                </a>
+            <?php 
+                $rol = $_SESSION['rol'];
                 
-                <a href="modulos/historico.html" class="menu__card">
-                    <img src="img/historico.svg" alt="Certificados" class="menu__icono">
-                    <h2 class="menu__texto">Certificados</h2>
-                </a>
-
-                <a href="modulos/estadisticos.html" class="menu__card">
-                    <img src="img/stats.svg" alt="Estadísticos" class="menu__icono">
-                    <h2 class="menu__texto">Reportes estadísticos</h2>
-                </a>
+                // Definir módulos y los roles que tienen acceso
+                $modulos = [
+                    'usuarios' => [
+                        'url' => '/fabrica-harinas/modulos/usuarios.php',
+                        'img' => 'img/usuarios.svg',
+                        'texto' => 'Usuarios',
+                        'roles' => ['TI']
+                    ],
+                    'laboratorios' => [
+                        'url' => 'modulos/laboratorios.html',
+                        'img' => 'img/laboratorios.svg',
+                        'texto' => 'Equipos de Laboratorio',
+                        'roles' => ['Laboratorio', 'TI', 'Gerencia de Control de Calidad']
+                    ],
+                    'clientes' => [
+                        'url' => 'modulos/clientes.html',
+                        'img' => 'img/clientes.svg',
+                        'texto' => 'Clientes',
+                        'roles' => ['Laboratorio', 'TI', 'Gerencia de Control de Calidad']
+                    ],
+                    'analisiscalidad' => [
+                        'url' => 'modulos/analisiscalidad.html',
+                        'img' => 'img/quality.svg',
+                        'texto' => 'Análisis de Calidad',
+                        'roles' => ['Laboratorio', 'TI', 'Gerencia de Control de Calidad']
+                    ],
+                    'historico' => [
+                        'url' => 'modulos/historico.html',
+                        'img' => 'img/historico.svg',
+                        'texto' => 'Certificados',
+                        'roles' => ['Laboratorio', 'TI', 'Gerencia de Control de Calidad']
+                    ],
+                    'estadisticos' => [
+                        'url' => 'modulos/estadisticos.html',
+                        'img' => 'img/stats.svg',
+                        'texto' => 'Reportes estadísticos',
+                        'roles' => ['Gerencia de Aseguramiento de Calidad', 'TI', 'Gerente de Planta', 'Director de Operaciones']
+                    ],
+                ];
+                
+                // Recorrer módulos y mostrar solo los que coincidan con el rol
+                foreach ($modulos as $modulo) {
+                    if (in_array($rol, $modulo['roles'])) {
+                        echo '
+                            <a href="' . $modulo['url'] . '" class="menu__card">
+                                <img src="' . $modulo['img'] . '" alt="' . $modulo['texto'] . '" class="menu__icono">
+                                <h2 class="menu__texto">' . $modulo['texto'] . '</h2>
+                            </a>';
+                    }
+                }
+                ?>
             </div>
         </div>
-
-        <div class="footer">
-            <p class="footer__texto">Fábrica de Harinas Elizondo. Todos los derechos reservados &copy; 2025.</p>
-        </div>
+        <?php include 'includes/footer.php'; ?>
     </main>
 </body>
 </html>

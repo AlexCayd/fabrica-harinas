@@ -22,48 +22,23 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <!-- ALERTAS -->
-    <?php 
-        if (isset($_SESSION['error'])){
-            echo '  <script>
-                    Swal.fire({
-                            icon: "error",
-                            title: "Oops!",
-                            text: "'. $_SESSION['error'] . '",
-                            });
-                    </script>';
-            unset($_SESSION['error']); 
-        } else if (isset($_SESSION['exito'])){
-            echo '  <script>
-                    Swal.fire({
-                        position: "center",
-                        icon: "success",
-                        title: "' . $_SESSION['exito'] . ' ",
-                        showConfirmButton: true,
-                        timer: 1500
-                        });
-                    </script>';
-            unset($_SESSION['exito']);
+    <script>
+        function deleteUser(id, name){
+            Swal.fire({
+                title: `¿Estás seguro?`,
+                text: `Estás a punto de eliminar el usuario ${name}, no podrás revetir estos cambios.`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Confirmar",
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href =  `../config/deleteUser.php?id=${id}`;
+                } 
+            });
         }
-
-    ?>
+    </script>
     <main class="contenedor hoja">
-        <header class="header">
-            <h2 class="header__logo">
-                F.H. Elizondo
-            </h2>
-
-            <nav class="header__nav">
-                <a href="../menu.html" class="header__btn">
-                    <img class="header__icono" src="../img/home.svg" alt="Home">
-                    <p class="header__textoicono">Home</p>
-                </a>
-                <a href="../index.html" class="header__btn">
-                    <img class="header__icono" src="../img/exit.svg" alt="Home">
-                    <p class="header__textoicono">Salir</p>
-                </a>
-            </nav>
-        </header>
+       <?php include '../includes/header.php'; ?>
 
         <div class="contenedor__modulo">
             <h2 class="heading">Usuarios</h2>
@@ -75,7 +50,7 @@
                 </div>
 
                 <div class="ordenar">
-                    <h4 class="ordenar__label">Ordenar por</h4>
+                    <h4 class="ordenar__label">Filtrar por rol:</h4>
                     <select name="orden" id="ordenarPor" class="ordenar__select">
                         <option  selected value="">Seleccionar rol ...</option>
                         <option value="TI">Departamento de Tecnologías de la Información</option>
@@ -130,7 +105,7 @@
                             echo '<td>' . $res['rol'] . '</td>';
                             echo '<td class="tabla__botones">';
                             echo '<a href="usuariosform.php?id=' . $res['id_usuario'] . '"><img src="../img/edit.svg" alt="Editar" class="tabla__boton"></a>';
-                            echo '<a href="../config/deleteUser.php?id=' . $res['id_usuario'] . '"><img src="../img/delete.svg" alt="Eliminar" class="tabla__boton"></a>';
+                            echo '<a href="#" onclick="deleteUser('. $res['id_usuario'] .', \'' . $res['nombre'] . '\'); return false;"><img src="../img/delete.svg" alt="Eliminar" class="tabla__boton"></a>';
                             echo '</td>';
                             echo '</tr>';
                         }
@@ -140,9 +115,8 @@
                 </tr>
                 </tbody>
             </table>
-            <!-- Cierra la conexión a la base de datos -->
         </div>
-        
+        <?php include '../includes/footer.php'; ?>
     </main>
 </body>
 <script>

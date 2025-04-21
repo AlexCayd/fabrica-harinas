@@ -7,7 +7,7 @@
     }
     if (isset($_SESSION['rol']) && $_SESSION['rol'] !== 'TI'){
         $_SESSION['error'] = 'No tienes permisos para esta sección. Comunícate con el Departamento de Tecnologías de la Información';
-        header('location: usuarios.php');
+        header('location: ../menu.php');
         exit;
     }
     $update = isset($_GET['id']);
@@ -41,6 +41,7 @@
     <title>FHE | Usuarios</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <style>
     .tooltip-container {
@@ -64,24 +65,13 @@
     }
 </style>
 <body>
+    <script>
+        function valCambios(){
+
+        }
+    </script>
     <main  class="contenedor hoja">
-        <header class="header">
-            <h2 class="header__logo">
-                F.H. Elizondo
-            </h2>
-
-            <nav class="header__nav">
-                <a href="../menu.html" class="header__btn">
-                    <img class="header__icono" src="../img/home.svg" alt="Home">
-                    <p class="header__textoicono">Home</p>
-                </a>
-
-                <a href="../index.html" class="header__btn">
-                    <img class="header__icono" src="../img/exit.svg" alt="Home">
-                    <p class="header__textoicono">Salir</p>
-                </a>
-            </nav>
-        </header>
+        <?php include '../includes/header.php'; ?>
 
         <div class="contenedor__modulo">
             <a href="usuarios.php" class="atras">Ir atrás</a>
@@ -136,16 +126,10 @@
                         
                     </select>
                 </div>
-                 <!-- Muestra errores en el registro -->
-                 <?php if (isset($_GET['error'])): ?>
-                    <p style="color:red;">⚠️ <?= htmlspecialchars($_GET['error']) ?></p>
-                <?php elseif (isset($_GET['success'])): ?>
-                    <p style="color:green;">✅ <?= htmlspecialchars($_GET['success']) ?></p>
-                <?php endif; ?>             
-                
                 <input type="submit" class="formulario__submit" value="<?php echo $update?'Actualizar usuario':'Agregar usuario'; ?>">
             </form>
         </div>
+        <?php include '../includes/footer.php'; ?>
     </main>
 </body>
 <script>
@@ -171,7 +155,5 @@
                 tooltip.style.display = 'none';
             }
         });
-</script>
-
 </script>
 </html>
