@@ -1,6 +1,6 @@
 <?php
 include '../config/conn.php';
-
+session_start();
 // Consulta para recuperar a todos los clientes
 $estado = $_GET['estado'] ?? 'activo';
 $busqueda = $_GET['busqueda'];
@@ -91,7 +91,7 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </a>
 
                                 <a href="clientes/baja_cliente.php?id=<?php echo $cliente['id_cliente']; ?>"
-                                    onclick="return confirm('¿Estás seguro de que deseas eliminar este cliente?');">
+                                    class="eliminar-cliente">
                                     <img src="../img/delete.svg" alt="Eliminar" class="tabla__boton">
                                 </a>
 
@@ -103,6 +103,7 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // Script para actualizar las tablas
         document.addEventListener("DOMContentLoaded", function() {
@@ -132,7 +133,55 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 location.reload();
             });
         });
+
+        // Script para mandar mensaje de confirmacion cuando se quiere eliminar a un cliente
+        document.addEventListener('DOMContentLoaded', function() {
+            const enlacesEliminar = document.querySelectorAll('.eliminar-cliente');
+
+            enlacesEliminar.forEach(function(enlace) {
+                enlace.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = this.getAttribute('href');
+
+                    Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: "¡Esta acción no se puede deshacer!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Sí, eliminar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = url;
+                        }
+                    });
+                });
+            });
+        });
     </script>
+
+    <?php if (isset($_SESSION['mensaje'])): ?>
+        <script>
+            <?php if ($_SESSION['mensaje'] == 'exito'): ?>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Cliente editado correctamente',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            <?php elseif ($_SESSION['mensaje'] == 'error'): ?>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al editar el cliente',
+                    text: 'Ocurrió un problema en el servidor',
+                    showConfirmButton: true
+                });
+            <?php endif; ?>
+        </script>
+        <?php unset($_SESSION['mensaje']); ?>
+    <?php endif; ?>
 
 </body>
 
