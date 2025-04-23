@@ -1,11 +1,12 @@
 <?php
-    if (session_status() === PHP_SESSION_NONE) {
+    /* if (session_status() === PHP_SESSION_NONE) {
         session_start(); // Solo inicia la sesión si no está activa
     }  
         
     if (!isset($_SESSION['user_id'])){
         header('Location: /fabrica-harinas/index.php');
     } 
+    */
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -45,12 +46,12 @@
                     <h2 class="menu__texto">Clientes</h2>
                 </a>
                 
-                <a href="modulos/historico.html" class="menu__card">
+                <a href="modulos/historico.php" class="menu__card">
                     <img src="img/historico.svg" alt="Certificados" class="menu__icono">
                     <h2 class="menu__texto">Certificados</h2>
                 </a>
 
-                <a href="modulos/estadisticos.html" class="menu__card">
+                <a href="modulos/estadisticos.php" class="menu__card">
                     <img src="img/stats.svg" alt="Estadísticos" class="menu__icono">
                     <h2 class="menu__texto">Reportes estadísticos</h2>
                 </a>
