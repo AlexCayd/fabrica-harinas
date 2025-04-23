@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 // Incluir el archivo de configuración de la base de datos
 require '../config/conn.php';
@@ -78,12 +79,16 @@ if ($editando && !empty($parametros_equipo)) {
     }
 }
 ?>
+=======
+<?php require '../config/validar_permisos.php'; ?>
+>>>>>>> origin/crud-login
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
     <title>FHE | <?php echo $editando ? 'Editar' : 'Agregar'; ?> Equipo de Laboratorio</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
@@ -210,35 +215,75 @@ if ($editando && !empty($parametros_equipo)) {
                 <div class="formulario__campo">
                     <label for="marca" class="formulario__label">Marca</label>
                     <input type="text" class="formulario__input" placeholder="Marca" name="marca" value="<?php echo $editando ? htmlspecialchars($equipo['marca']) : ''; ?>">
+=======
+    <title>FHE | Usuarios</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../css/menu.css">
+</head>
+<body>
+    <main  class="contenedor hoja">
+        <?php include '../includes/header.php'; ?>
+
+
+        <div class="contenedor__modulo">
+            <a href="laboratorios.html" class="atras">Ir atrás</a>
+            <h2 class="heading">Agregar Equipo de Laboratorio</h2>
+            <form action="laboratorios.html" class="formulario">
+                <div class="formulario__campo">
+                    <label for="clave" class="formulario__label">Clave del equipo</label>
+                    <input type="text" class="formulario__input" placeholder="Clave del equipo">
+                </div>
+                
+                <div class="formulario__campo">
+                    <label for="apellido" class="formulario__label">Marca</label>
+                    <input type="text" class="formulario__input" placeholder="Marca">
+>>>>>>> origin/crud-login
                 </div>
 
                 <div class="formulario__campo">
                     <label for="modelo" class="formulario__label">Modelo</label>
+<<<<<<< HEAD
                     <input type="text" class="formulario__input" placeholder="Modelo" name="modelo" value="<?php echo $editando ? htmlspecialchars($equipo['modelo']) : ''; ?>">
+=======
+                    <input type="text" class="formulario__input" placeholder="Modelo">
+>>>>>>> origin/crud-login
                 </div>
 
                 <div class="formulario__campo">
                     <label for="serie" class="formulario__label">Serie</label>
+<<<<<<< HEAD
                     <input type="text" class="formulario__input" placeholder="Serie" name="serie" value="<?php echo $editando ? htmlspecialchars($equipo['serie']) : ''; ?>" required>
                 </div>
                 
                 <div class="formulario__campo">
                     <label for="proveedor" class="formulario__label">Proveedor</label>
                     <input type="text" class="formulario__input" placeholder="Proveedor" name="proveedor" value="<?php echo $editando ? htmlspecialchars($equipo['proveedor']) : ''; ?>">
+=======
+                    <input type="text" class="formulario__input" placeholder="Serie">
+>>>>>>> origin/crud-login
                 </div>
 
                 <div class="formulario__campo">
                     <label for="descripcion_larga" class="formulario__label">Descripción larga</label>
+<<<<<<< HEAD
                     <textarea name="desc_larga" id="descripcion_larga" class="formulario__input"><?php echo $editando ? htmlspecialchars($equipo['desc_larga']) : ''; ?></textarea>
+=======
+                    <textarea name="descripcion_larga" id="descripcion_larga" class="formulario__input"></textarea>
+>>>>>>> origin/crud-login
                 </div>
 
                 <div class="formulario__campo">
                     <label for="descripcion_corta" class="formulario__label">Descripción corta</label>
+<<<<<<< HEAD
                     <input type="text" class="formulario__input" placeholder="Descripción corta" name="desc_corta" value="<?php echo $editando ? htmlspecialchars($equipo['desc_corta']) : ''; ?>" required>
+=======
+                    <input type="text" class="formulario__input" placeholder="Descripción corta">
+>>>>>>> origin/crud-login
                 </div>
 
                 <div class="formulario__campo">
                     <label for="garantia" class="formulario__label">Garantía</label>
+<<<<<<< HEAD
                     <input type="text" class="formulario__input" placeholder="Garantía" name="garantia" value="<?php echo $editando ? htmlspecialchars($equipo['garantia']) : ''; ?>">
                 </div>
 
@@ -294,10 +339,19 @@ if ($editando && !empty($parametros_equipo)) {
                         </div>
                     </div>
                     <?php endforeach; ?>
+=======
+                    <input type="text" class="formulario__input" placeholder="Garantía">
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="valores_referencia" class="formulario__label">Valores de referencia</label>
+                    <input type="text" class="formulario__input" placeholder="Valores de referencia">
+>>>>>>> origin/crud-login
                 </div>
 
                 <div class="formulario__campo">
                     <label for="encargado" class="formulario__label">Encargado del equipo</label>
+<<<<<<< HEAD
                     <select class="formulario__input" name="id_responsable" required>
                         <option value="" disabled <?php echo !$editando ? 'selected' : ''; ?>>-- Seleccione un Responsable --</option>
                         <?php foreach($responsables as $resp): ?>
@@ -336,6 +390,31 @@ if ($editando && !empty($parametros_equipo)) {
                 <input type="submit" class="formulario__submit" value="<?php echo $editando ? 'Guardar cambios' : 'Agregar equipo'; ?>">
             </form>
         </div>
+=======
+                    <input type="text" class="formulario__input" placeholder="Encargado del equipo">
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="serie" class="formulario__label">Ubicación del equipo</label>
+                    <input type="text" class="formulario__input" placeholder="Ubicación">
+                </div>
+
+                
+                <div class="formulario__campo">
+                    <label for="vigencia" class="formulario__label">Vigencia de la garantía</label>
+                    <input type="date" class="formulario__input">
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="adquisicion" class="formulario__label">Fecha de adquisición</label>
+                    <input type="date" class="formulario__input">
+                </div>
+
+                <input type="submit" class="formulario__submit" value="Agregar equipo">
+            </form>
+        </div>
+        <?php include '../includes/footer.php'; ?>
+>>>>>>> origin/crud-login
     </main>
 </body>
 </html>

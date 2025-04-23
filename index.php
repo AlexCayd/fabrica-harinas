@@ -6,6 +6,7 @@
     <title>Fábrica de Harinas Elizondo</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="css/login.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <?php  
         //Validamos si existe sesión actica para permitir o denegar el acceso a la página
         session_start();
@@ -15,6 +16,20 @@
     ?>
 </head>
 <body>
+    <!-- ALERTAS -->
+<?php
+if (isset($_SESSION['error'])) {
+    echo '  <script>
+                    Swal.fire({
+                            icon: "error",
+                            title: "Oops!",
+                            text: "' . $_SESSION['error'] . '",
+                            });
+                    </script>';
+    unset($_SESSION['error']);
+} 
+ 
+?>
     <main class="login">
         <div class="login__contenedor contenedor">
             <div class="login__contenido">
@@ -37,10 +52,6 @@
                         <input class="login__btn" type="submit" value="Iniciar sesión">
                     </div>
                 </form>
-                <!-- Muestra errores en el login -->
-                <?php if (isset($_GET['error'])): ?>
-                    <p style="color:red;">⚠️ <?= htmlspecialchars($_GET['error']) ?></p>
-                <?php endif; ?> 
                 <a href="menu.php" style="margin-top: 25px;">Atajo a menú</a>
             </div>
             <div class="login__imagen">

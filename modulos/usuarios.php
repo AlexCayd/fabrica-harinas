@@ -1,18 +1,12 @@
-<?php 
-    // Validar permisos de TI
-    if (session_status() == PHP_SESSION_NONE){ //Solo inicia sesión si no está activa
-        session_start();
-    }
-    if (isset($_SESSION['rol']) && $_SESSION['rol'] != 'TI'){
-        $_SESSION['error'] = 'No tienes permisos para esta sección. Comunícate con el Departamento de Tecnologías de la Información';
-        header('location: ../menu.php');
-        exit;
-    }
+<?php
+require '../config/validar_permisos.php';
+$orden = $_GET['orden'] ?? ''; // por defecto vacío
 ?>
 
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,33 +14,27 @@
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
-<body>
-    <!-- ALERTAS -->
-    <?php 
-        if (isset($_SESSION['error'])){
-            echo '  <script>
-                    Swal.fire({
-                            icon: "error",
-                            title: "Oops!",
-                            text: "'. $_SESSION['error'] . '",
-                            });
-                    </script>';
-            unset($_SESSION['error']); 
-        } else if (isset($_SESSION['exito'])){
-            echo '  <script>
-                    Swal.fire({
-                        position: "center",
-                        icon: "success",
-                        title: "' . $_SESSION['exito'] . ' ",
-                        showConfirmButton: true,
-                        timer: 1500
-                        });
-                    </script>';
-            unset($_SESSION['exito']);
-        }
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
-    ?>
+</head>
+<script>
+    function deleteUser(id, name) {
+        Swal.fire({
+            title: `¿Estás seguro?`,
+            html: `Estás a punto de eliminar el usuario <b>${name}</b>, no podrás revetir estos cambios.`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Confirmar",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = `../config/usuarios/deleteUser.php?id=${id}`;
+            }
+        });
+    }
+
+</script>
+
+<body>
     <main class="contenedor hoja">
         <header class="header">
             <h2 class="header__logo">
@@ -71,57 +59,60 @@
             <div class="controles">
                 <div class="buscador">
                     <h4 class="buscador__label">Buscar</h4>
-                    <input type="text" class="buscador__input" placeholder="Nombre del usuario">
+                    <input type="text" id="searchBar" class="buscador__input" placeholder="Busqueda">
                 </div>
 
                 <div class="ordenar">
-                    <h4 class="ordenar__label">Ordenar por</h4>
+                    <h4 class="ordenar__label">Filtrar por rol:</h4>
                     <select name="orden" id="ordenarPor" class="ordenar__select">
-                        <option  selected value="">Seleccionar rol ...</option>
-                        <option value="TI">Departamento de Tecnologías de la Información</option>
-                        <option value="Gerencia de Control de Calidad">Gerencia de Control de Calidad</option>
-                        <option value="Laboratorio">Laboratorio</option>
-                        <option value="Gerencia de Aseguramiento de Calidad">Gerencia de Aseguramiento de Calidad</option>
-                        <option value="Gerente de Planta">Gerente de Planta</option>
-                        <option value="Director de Operaciones">Director de Operaciones</option>
+                        <option value="" <?= (empty($orden)) ? 'selected' : '' ?>>
+                            Mostrar todos</option>
+                        <option value="TI" <?= ($orden == 'TI') ? 'selected' : ''; ?>>
+                            Departamento de Tecnologías de la Información</option>
+                        <option value="Gerencia de Control de Calidad" <?= ($orden == 'Gerencia de Control de Calidad') ? 'selected' : ''; ?>>
+                            Gerencia de Control de Calidad</option>
+                        <option value="Laboratorio" <?= ($orden == 'Laboratorio') ? 'selected' : ''; ?>>Laboratorio
+                        </option>
+                        <option value="Gerencia de Aseguramiento de Calidad" <?= ($orden == 'Gerencia de Aseguramiento de Calidad') ? 'selected' : ''; ?>>Gerencia de Aseguramiento de Calidad</option>
+                        <option value="Gerente de Planta" <?= ($orden == 'Gerente de Planta') ? 'selected' : ''; ?>>Gerente
+                            de Planta</option>
+                        <option value="Director de Operaciones" <?= ($orden == 'Director de Operaciones') ? 'selected' : ''; ?>>Director de Operaciones</option>
                     </select>
                 </div>
 
-                <h2 class="botones__buscar">Buscar</h2>
+                <!-- <button class="botones__buscar" onclick="buscar()">Buscar</button> -->
                 <a href="usuariosform.php" class="botones__crear">Agregar usuario</a>
             </div>
 
             <table class="tabla">
-            <thead>
-                <tr class="tabla__encabezado">
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Correo</th>
-                    <th>Rol</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="tabla__fila">
+                <thead>
+                    <tr class="tabla__encabezado">
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="tabla__fila">
 
-                    <?php 
+                        <?php
                         require '../config/conn.php';
 
-                        $orden = $_GET['orden'] ?? ''; // por defecto vacío
                         $params = [];
                         $sql = "SELECT * FROM usuarios";
-                        
+
                         // Aplica filtro si hay valor de ordenamiento
                         if (!empty($orden)) {
+
                             $sql .= " WHERE rol = ?";
                             $params[] = $orden;
                         }
-                        
-                        $sql .= " ORDER BY nombre"; // Puedes cambiar el criterio
-                        
+
                         $stmt = $pdo->prepare($sql);
                         $stmt->execute($params);
-                        
+
                         while ($res = $stmt->fetch()) {
                             echo '<tr class="tabla__fila">';
                             echo '<td>' . $res['id_usuario'] . '</td>';
@@ -130,25 +121,50 @@
                             echo '<td>' . $res['rol'] . '</td>';
                             echo '<td class="tabla__botones">';
                             echo '<a href="usuariosform.php?id=' . $res['id_usuario'] . '"><img src="../img/edit.svg" alt="Editar" class="tabla__boton"></a>';
-                            echo '<a href="../config/deleteUser.php?id=' . $res['id_usuario'] . '"><img src="../img/delete.svg" alt="Eliminar" class="tabla__boton"></a>';
+                            echo '<a href="#" onclick="deleteUser(' . $res['id_usuario'] . ', \'' . $res['nombre'] . '\'); return false;"><img src="../img/delete.svg" alt="Eliminar" class="tabla__boton"></a>';
                             echo '</td>';
                             echo '</tr>';
                         }
-                        
-                    ?>
-                    </td>
-                </tr>
+
+                        ?>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
-            <!-- Cierra la conexión a la base de datos -->
         </div>
-        
+        <?php include '../includes/footer.php'; ?>
     </main>
 </body>
 <script>
-    document.getElementById('ordenarPor').addEventListener('change', function() {
-        const seleccion = this.value;
-        window.location.href = "?orden=" + encodeURIComponent(seleccion);
+     // Filtros por rol
+     const filtro_rol = document.getElementById('ordenarPor');
+
+    filtro_rol.addEventListener('change', () => {
+        const seleccion = filtro_rol.value;
+        if (seleccion === "") {
+            window.location.href = "usuarios.php";
+        } else {
+            window.location.href = "?orden=" + seleccion;
+        }
     });
+
+     // Buscar por nombre
+    const buscador = document.getElementById('searchBar');
+    const filasUsuarios = document.querySelectorAll('.tabla__fila');
+
+    buscador.addEventListener('input', () => {
+        busquedaUsuario = buscador.value.toLowerCase();
+       
+        filasUsuarios.forEach((fila) => {
+            const contenidoFila = fila.textContent.toLocaleLowerCase();
+
+            if(contenidoFila.includes(busquedaUsuario)){
+                fila.style.display = '';
+            } else {
+                fila.style.display = 'none';
+            }
+        });
+    });
+    // string = buscador.value;
 </script>
 </html>
