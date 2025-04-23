@@ -1,12 +1,11 @@
 <?php
-    /* if (session_status() === PHP_SESSION_NONE) {
+    if (session_status() === PHP_SESSION_NONE) {
         session_start(); // Solo inicia la sesión si no está activa
     }  
         
     if (!isset($_SESSION['user_id'])){
         header('Location: /fabrica-harinas/index.php');
     } 
-    */
 ?>
 <!DOCTYPE html>
 <html lang="en">
