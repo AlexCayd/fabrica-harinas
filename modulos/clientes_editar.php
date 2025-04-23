@@ -1,4 +1,5 @@
 <?php
+require '../config/validar_permisos.php';
 
 include '../config/conn.php';
 include '../config/functions.php';
@@ -24,23 +25,8 @@ $result = $stmt->fetch();
 
 <body>
     <main class="contenedor hoja">
-        <header class="header">
-            <h2 class="header__logo">
-                F.H. Elizondo
-            </h2>
+    <?php include '../includes/header.php' ?>
 
-            <nav class="header__nav">
-                <a href="../menu.php" class="header__btn">
-                    <img class="header__icono" src="../img/home.svg" alt="Home">
-                    <p class="header__textoicono">Home</p>
-                </a>
-
-                <a href="../index.php" class="header__btn">
-                    <img class="header__icono" src="../img/exit.svg" alt="Home">
-                    <p class="header__textoicono">Salir</p>
-                </a>
-            </nav>
-        </header>
 
         <div class="contenedor__modulo">
             <a href="clientes.php" class="atras">Ir atrás</a>
@@ -104,6 +90,7 @@ $result = $stmt->fetch();
                 <input type="submit" class="formulario__submit" value="Editar cliente">
             </form>
         </div>
+    <?php include '../includes/footer.php' ?>
     </main>
 </body>
 

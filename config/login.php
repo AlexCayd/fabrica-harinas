@@ -17,15 +17,17 @@
         // Resultado de la consulta
         $res = $stmt->fetch();
 
+        // if ($res && password_verify($passwd, $res['contrasena']) ) {
         if ($res ) {
             $_SESSION['user_id'] = $res['id_usuario'];
             $_SESSION['username'] = $res['nombre'];
             $_SESSION['rol'] = $res['rol'];
+            $_SESSION['exito'] = 'Bienvenido ' . $res['nombre'] ;
             header("Location: /fabrica-harinas/menu.php");
             exit;
         } else {
-            // --AGREGAR NOTIFICACION CON JS--
-            header("Location: /fabrica-harinas/index.php?error=Credenciales+incorrectas");
+            $_SESSION['error'] = 'Credenciales incorrectas';
+            header("Location: /fabrica-harinas/index.php");
             exit;
         }
     } else {

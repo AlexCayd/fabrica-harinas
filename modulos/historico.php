@@ -1,34 +1,20 @@
+<?php require '../config/validar_permisos.php'; ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FHE | Análisis de Calidad</title>
-    <link rel="stylesheet" href="../css/menu.css">
+    <title>FHE | Certificados</title>
     <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../css/menu.css">
 </head>
 <body>
     <main class="contenedor hoja">
-        <header class="header">
-            <h2 class="header__logo">
-                F.H. Elizondo
-            </h2>
-
-            <nav class="header__nav">
-                <a href="../menu.html" class="header__btn">
-                    <img class="header__icono" src="../img/home.svg" alt="Home">
-                    <p class="header__textoicono">Home</p>
-                </a>
-
-                <a href="../index.html" class="header__btn">
-                    <img class="header__icono" src="../img/exit.svg" alt="Home">
-                    <p class="header__textoicono">Salir</p>
-                </a>
-            </nav>
-        </header>
+        <?php include '../includes/header.php' ?>
 
         <div class="contenedor__modulo">
-            <h2 class="heading">Análisis de Calidad</h2>
+            <h2 class="heading">Certificados</h2>
 
             <div class="controles">
                 <div class="buscador">
@@ -37,33 +23,37 @@
                 </div>
 
                 <div class="ordenar">
-                    <h4 class="ordenar__label">Filtrar</h4>
+                    <h4 class="ordenar__label">Resultados</h4>
                     <select name="categoria" id="categoria" class="ordenar__select">
-                        <option value="alveografos">Alveógrafos</option>
-                        <option value="farinografos">Farinógrafos</option>
+                        <option value="aprobado">Aprobado</option>
+                        <option value="desaprobado">Desaprobado</option>
                     </select>
                 </div>
 
                 <h2 class="botones__buscar">Buscar</h2>
-                <a href="analisiscalidadform.html" class="botones__crear">Agregar análisis</a>
+                <a href="certificadosform.html" class="botones__crear">Agregar certificado</a>
             </div>
 
             <table class="tabla">
             <thead>
                 <tr class="tabla__encabezado">
                     <th>Lote de producción</th>
-                    <th>Secuencia de inspección</th>
-                    <th>Valor del parámetro</th>
-                    <th>Equipo de laboratorio</th>
+                    <th>Número de orden</th>
+                    <th>Cantidad solicitada (kg)</th>
+                    <th>Cantidad entregada (kg)</th>
+                    <th>Resultados del análisis</th>
+                    <th>Comparación</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 <tr class="tabla__fila">
-                    <td>BARBS12024</td>
-                    <td>A</td>
-                    <td>50</td>
-                    <td>Equipo de laboratorio</td>
+                    <td>BARBS1012</td>
+                    <td>38</td>
+                    <td>90</td>
+                    <td>85</td>
+                    <td>Aprobado</td>
+                    <td>Dentro de rango</td>
                     <td class="tabla__botones">
                         <img src="../img/edit.svg" alt="Editar" class="tabla__boton">
                         <img src="../img/delete.svg" alt="Eliminar" class="tabla__boton">
@@ -71,10 +61,12 @@
                 </tr>
 
                 <tr class="tabla__fila">
-                    <td>BARBS12024</td>
-                    <td>A</td>
-                    <td>50</td>
-                    <td>Equipo de laboratorio</td>
+                    <td>BARBS1012</td>
+                    <td>38</td>
+                    <td>90</td>
+                    <td>85</td>
+                    <td>Aprobado</td>
+                    <td>Dentro de rango</td>
                     <td class="tabla__botones">
                         <img src="../img/edit.svg" alt="Editar" class="tabla__boton">
                         <img src="../img/delete.svg" alt="Eliminar" class="tabla__boton">
@@ -82,10 +74,12 @@
                 </tr>
 
                 <tr class="tabla__fila">
-                    <td>BARBS12024</td>
-                    <td>A</td>
-                    <td>50</td>
-                    <td>Equipo de laboratorio</td>
+                    <td>BARBS1012</td>
+                    <td>38</td>
+                    <td>90</td>
+                    <td>85</td>
+                    <td>Aprobado</td>
+                    <td>Dentro de rango</td>
                     <td class="tabla__botones">
                         <img src="../img/edit.svg" alt="Editar" class="tabla__boton">
                         <img src="../img/delete.svg" alt="Eliminar" class="tabla__boton">
@@ -93,20 +87,21 @@
                 </tr>
 
                 <tr class="tabla__fila">
-                    <td>BARBS12024</td>
-                    <td>A</td>
-                    <td>50</td>
-                    <td>Equipo de laboratorio</td>
+                    <td>BARBS1012</td>
+                    <td>38</td>
+                    <td>90</td>
+                    <td>85</td>
+                    <td>Aprobado</td>
+                    <td>Dentro de rango</td>
                     <td class="tabla__botones">
                         <img src="../img/edit.svg" alt="Editar" class="tabla__boton">
                         <img src="../img/delete.svg" alt="Eliminar" class="tabla__boton">
                     </td>
                 </tr>
-
                 </tbody>
             </table>
         </div>
-        
+        <?php include '../includes/footer.php' ?>
     </main>
 </body>
 </html>

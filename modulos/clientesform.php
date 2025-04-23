@@ -1,3 +1,4 @@
+<?php require '../config/validar_permisos.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,23 +10,8 @@
 </head>
 <body>
     <main  class="contenedor hoja">
-        <header class="header">
-            <h2 class="header__logo">
-                F.H. Elizondo
-            </h2>
+        <?php include '../includes/header.php' ?>
 
-            <nav class="header__nav">
-                <a href="../menu.html" class="header__btn">
-                    <img class="header__icono" src="../img/home.svg" alt="Home">
-                    <p class="header__textoicono">Home</p>
-                </a>
-
-                <a href="../index.html" class="header__btn">
-                    <img class="header__icono" src="../img/exit.svg" alt="Home">
-                    <p class="header__textoicono">Salir</p>
-                </a>
-            </nav>
-        </header>
 
         <div class="contenedor__modulo">
             <a href="clientes.html" class="atras">Ir atrás</a>
@@ -88,6 +74,7 @@
                 <input type="submit" class="formulario__submit" value="Agregar cliente">
             </form>
         </div>
+    <?php include '../includes/footer.php' ?>
     </main>
 </body>
 </html>

@@ -15,40 +15,12 @@
     <title>FHE | Menú Principal</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="css/menu.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <!-- ALERTAS -->
-    <?php 
-        if (isset($_SESSION['error'])){
-            echo '<script>
-                    Swal.fire({
-                            icon: "error",
-                            title: "Oops!",
-                            text: "'. $_SESSION['error'] . '",
-                            });
-                    </script>';
-            unset($_SESSION['error']); 
-        }
-    ?>
     <main class="contenedor hoja">
-        <header class="header">
-            <h2 class="header__logo">
-                F.H. Elizondo 
-            </h2>
-
-            <nav class="header__nav">
-                <a href="#" class="header__btn">
-                    <img class="header__icono" src="img/home.svg" alt="Home">
-                    <p class="header__textoicono">Home</p>
-                </a>
-
-                <a href="/fabrica-harinas/config/logout.php" class="header__btn">
-                    <img class="header__icono" src="img/exit.svg" alt="Home">
-                    <p class="header__textoicono">Salir</p>
-                </a>
-            </nav>
-        </header>
-
+        
+        <?php include 'includes/header.php'; ?>
         <div class="menu">
             <h1 class="menu__titulo">Menú Principal</h1>
 
@@ -73,21 +45,18 @@
                     <h2 class="menu__texto">Clientes</h2>
                 </a>
                 
-                <a href="modulos/historico.html" class="menu__card">
+                <a href="modulos/historico.php" class="menu__card">
                     <img src="img/historico.svg" alt="Certificados" class="menu__icono">
                     <h2 class="menu__texto">Certificados</h2>
                 </a>
 
-                <a href="modulos/estadisticos.html" class="menu__card">
+                <a href="modulos/estadisticos.php" class="menu__card">
                     <img src="img/stats.svg" alt="Estadísticos" class="menu__icono">
                     <h2 class="menu__texto">Reportes estadísticos</h2>
                 </a>
             </div>
         </div>
-
-        <div class="footer">
-            <p class="footer__texto">Fábrica de Harinas Elizondo. Todos los derechos reservados &copy; 2025.</p>
-        </div>
+        <?php include 'includes/footer.php'; ?>
     </main>
 </body>
 </html>
