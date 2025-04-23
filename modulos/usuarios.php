@@ -165,6 +165,5 @@ $orden = $_GET['orden'] ?? ''; // por defecto vacío
             }
         });
     });
-    // string = buscador.value;
 </script>
 </html>
