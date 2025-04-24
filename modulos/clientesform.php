@@ -89,7 +89,7 @@ $parametros_farinografo = [
 
                 <div class="formulario__campo">
                     <label for="certificado" class="formulario__label"> Requiere certificado </label>
-                    <select name="certificado" id="categoria" class="formulario__select">
+                    <select name="certificado" id="certificado" class="formulario__select" required>
                         <option value="1"> Si </option>
                         <option value="0"> No </option>
                     </select>
@@ -97,32 +97,32 @@ $parametros_farinografo = [
 
                 <div class="formulario__campo">
                     <label for="email" class="formulario__label">Correo electrónico</label>
-                    <input type="email" name="email" class="formulario__input" placeholder="Correo electrónico">
+                    <input type="email" name="email" class="formulario__input" placeholder="Correo electrónico" required>
                 </div>
 
                 <div class="formulario__campo">
                     <label for="rfc" class="formulario__label"> RFC </label>
-                    <input type="text" name="rfc" class="formulario__input" placeholder="RFC">
+                    <input type="text" name="rfc" class="formulario__input" placeholder="RFC" required>
                 </div>
 
                 <div class="formulario__campo">
                     <label for="puesto" class="formulario__label"> Puesto </label>
-                    <input type="text" name="puesto" class="formulario__input" placeholder="Puesto">
+                    <input type="text" name="puesto" class="formulario__input" placeholder="Puesto" required>
                 </div>
 
                 <div class="formulario__campo">
                     <label for="numero-telefonico" class="formulario__label"> Numero telefónico </label>
-                    <input type="text" name="numero-telefonico" class="formulario__input" placeholder="Numero telefonico">
+                    <input type="text" name="numero-telefonico" class="formulario__input" placeholder="Numero telefonico" required>
                 </div>
 
                 <div class="formulario__campo">
                     <label for="direccion-fiscal" class="formulario__label"> Direccion fiscal </label>
-                    <input type="text" name="direccion-fiscal" class="formulario__input" placeholder="Direccion fiscal">
+                    <input type="text" name="direccion-fiscal" class="formulario__input" placeholder="Direccion fiscal" required>
                 </div>
 
                 <div class="formulario__campo">
                     <label for="rol" class="formulario__label">Estado</label>
-                    <select name="categoria" id="categoria" class="formulario__select">
+                    <select name="categoria" id="categoria" class="formulario__select" required>
                         <option value="activo">Activo</option>
                         <option value="inactivo">Inactivo</option>
                     </select>
@@ -130,7 +130,7 @@ $parametros_farinografo = [
 
                 <div class="formulario__campo">
                     <label for="parametros" class="formulario__label"> Parametros </label>
-                    <select name="parametros" id="parametros" class="formulario__select">
+                    <select name="parametros" id="parametros" class="formulario__select" required>
                         <option value="Internacionales"> Internacionales </option>
                         <option value="Personalizados"> Personalizados </option>
                     </select>
@@ -140,8 +140,8 @@ $parametros_farinografo = [
                     <label for="tipo_equipo" class="formulario__label">Tipo de Equipo</label>
                     <select class="formulario__input" id="tipo_equipo" name="tipo_equipo" required>
                         <option value="" disabled <?php echo !$editando ? 'selected' : ''; ?>>-- Seleccione tipo de equipo --</option>
-                        <option value="Alveógrafo" <?php echo ($editando && count($equipos_seleccionados) > 0 && in_array($equipos_seleccionados[0], array_column($equipos_alveografo, 'id_equipo'))) ? 'selected' : ''; ?>>Alveógrafo</option>
-                        <option value="Farinógrafo" <?php echo ($editando && count($equipos_seleccionados) > 0 && in_array($equipos_seleccionados[0], array_column($equipos_farinografo, 'id_equipo'))) ? 'selected' : ''; ?>>Farinógrafo</option>
+                        <option value="Alveografo" <?php echo ($editando && count($equipos_seleccionados) > 0 && in_array($equipos_seleccionados[0], array_column($equipos_alveografo, 'id_equipo'))) ? 'selected' : ''; ?>>Alveógrafo</option>
+                        <option value="Farinografo" <?php echo ($editando && count($equipos_seleccionados) > 0 && in_array($equipos_seleccionados[0], array_column($equipos_farinografo, 'id_equipo'))) ? 'selected' : ''; ?>>Farinógrafo</option>
                     </select>
                 </div>
 
@@ -160,15 +160,13 @@ $parametros_farinografo = [
                         <div class="parametro-inputs">
                             <div>
                                 <input type="number" step="0.01" class="parametro-input" 
-                                       name="alveografo[<?php echo $param['id_parametro']; ?>][min]" 
-                                       value="<?php echo htmlspecialchars($param['lim_Inferior']); ?>" 
+                                       name="alveografo[<?php echo $param['id_parametro']; ?>][min]"  
                                        placeholder="Mínimo">
                                 <div class="parametro-label">Límite inferior</div>
                             </div>
                             <div>
                                 <input type="number" step="0.01" class="parametro-input" 
-                                       name="alveografo[<?php echo $param['id_parametro']; ?>][max]" 
-                                       value="<?php echo htmlspecialchars($param['lim_Superior']); ?>" 
+                                       name="alveografo[<?php echo $param['id_parametro']; ?>][max]"  
                                        placeholder="Máximo">
                                 <div class="parametro-label">Límite superior</div>
                             </div>
@@ -187,8 +185,7 @@ $parametros_farinografo = [
                         <div class="parametro-inputs">
                             <div>
                                 <input type="number" step="0.01" class="parametro-input" 
-                                       name="farinografo[<?php echo $param['id_parametro']; ?>][min]" 
-                                       value="<?php echo htmlspecialchars($param['lim_Inferior']); ?>" 
+                                       name="farinografo[<?php echo $param['id_parametro']; ?>][min]"  
                                        placeholder="Mínimo">
                                 <div class="parametro-label">Límite inferior</div>
                             </div>
@@ -232,12 +229,12 @@ $parametros_farinografo = [
             }
             
             // Show/hide sections based on equipment type when "Personalizados" is selected
-            if (tipoSeleccionado === 'Alveógrafo') {
+            if (tipoSeleccionado === 'Alveografo') {
                 seccionAlveografo.style.display = 'block';
                 if (seccionFarinografo) {
                     seccionFarinografo.style.display = 'none';
                 }
-            } else if (tipoSeleccionado === 'Farinógrafo') {
+            } else if (tipoSeleccionado === 'Farinografo') {
                 seccionAlveografo.style.display = 'none';
                 if (seccionFarinografo) {
                     seccionFarinografo.style.display = 'block';
