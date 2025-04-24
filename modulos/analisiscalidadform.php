@@ -1,18 +1,22 @@
 <?php
-// Incluir el archivo de configuración de la base de datos
 require '../config/conn.php';
 
 // Variable para determinar si estamos editando un análisis existente
 $editando = false;
-$inspeccion = null;
+$equipo = null;
+
 $equipos_seleccionados = [];
 
-// Verificar si se ha recibido un ID de inspección para editar
+
+
+
+// Si se recibe un ID para editar por medio de GET entonces...
 if (isset($_GET['id']) && !empty($_GET['id'])) {
     $id_inspeccion = $_GET['id'];
     $editando = true;
     
-    // Consultar los datos de la inspección a editar
+    // Consulta para encontrar que inspección se está editando
+
     $sql_inspeccion = "SELECT * FROM Inspeccion WHERE id_inspeccion = :id_inspeccion";
     $stmt_inspeccion = $pdo->prepare($sql_inspeccion);
     $stmt_inspeccion->bindParam(':id_inspeccion', $id_inspeccion);
@@ -21,6 +25,7 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
     $inspeccion = $stmt_inspeccion->fetch(PDO::FETCH_ASSOC);
     
     // Si no se encuentra la inspección, redirigir a la lista
+    // Plantear si podría marcar con algun error
     if (!$inspeccion) {
         header('Location: analisiscalidad.php');
         exit;

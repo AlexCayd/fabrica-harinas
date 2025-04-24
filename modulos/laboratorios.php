@@ -1,12 +1,9 @@
 <?php
-// Incluir el archivo de configuración de la base de datos
 require '../config/conn.php';
 
-// Inicializar variables de búsqueda
 $busqueda = '';
 $orderBy = 'clave';
 
-// Procesar parámetros de búsqueda si existen
 if (isset($_GET['busqueda'])) {
     $busqueda = $_GET['busqueda'];
 }
@@ -14,6 +11,8 @@ if (isset($_GET['ordenar'])) {
     $orderBy = $_GET['ordenar'];
 }
 
+
+//Omitir porque esto se puede hacer con frontend
 // Construir la consulta SQL con filtros si es necesario
 $sql_equipos = "SELECT e.*, u.nombre as nombre_responsable 
                 FROM Equipos_Laboratorio e
@@ -42,25 +41,11 @@ if (!empty($busqueda)) {
 $stmt_equipos->execute();
 $equipos = $stmt_equipos->fetchAll(PDO::FETCH_ASSOC);
 
-// Consulta para obtener los parámetros correspondientes a cada equipo
-$sql_parametros = "SELECT id_equipo, 
-                  GROUP_CONCAT(CONCAT(nombre_parametro, ': ', lim_Inferior, '-', lim_Superior) SEPARATOR ', ') as valores_referencia
-                  FROM Parametros 
-                  WHERE tipo = 'Internacional'
-                  GROUP BY id_equipo";
-
-$stmt_parametros = $pdo->query($sql_parametros);
-$parametros = [];
-while ($row = $stmt_parametros->fetch(PDO::FETCH_ASSOC)) {
-    $parametros[$row['id_equipo']] = $row['valores_referencia'];
-}
-
 // Consulta para obtener responsables (para el formulario de agregar o editar)
 $sql_responsables = "SELECT id_usuario, nombre FROM Usuarios 
                     WHERE rol IN ('Gerencia de Control de Calidad', 'Laboratorio')
                     ORDER BY nombre";
 $responsables = $pdo->query($sql_responsables)->fetchAll(PDO::FETCH_ASSOC);
-
 ?>
 
 <!DOCTYPE html>
@@ -71,52 +56,43 @@ $responsables = $pdo->query($sql_responsables)->fetchAll(PDO::FETCH_ASSOC);
     <title>FHE | Equipos de Laboratorio</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
-    <!--<style>
-    /*   /* Estilos para corregir el desbordamiento de la tabla */
-        .contenedor__modulo {
-            overflow-x: auto; /* Permite desplazamiento horizontal */
-            max-width: 100%; /* Asegura que no sea más ancho que su contenedor */
+    <style>
+        .tabla-container {
+            overflow-x: auto;
+            max-width: 100%;
         }
         
         .tabla {
-            width: 100%; /* Tabla ocupa todo el ancho disponible */
-            table-layout: fixed; /* Ayuda a controlar el ancho de columnas */
+            width: 100%;
+            table-layout: fixed;
         }
         
-        /* Ajustar anchos de columnas específicas */
         .tabla th, .tabla td {
-            word-wrap: break-word; /* Permite que el texto se rompa */
+            word-wrap: break-word;
             overflow-wrap: break-word;
-            max-width: 200px; /* Ancho máximo para celdas con mucho texto */
+            padding: 8px;
         }
         
-        /* Columnas con textos cortos */
-        .tabla th:nth-child(1), .tabla td:nth-child(1), /* Clave */
-        .tabla th:nth-child(2), .tabla td:nth-child(2), /* Marca */
-        .tabla th:nth-child(3), .tabla td:nth-child(3), /* Modelo */
-        .tabla th:nth-child(4), .tabla td:nth-child(4), /* Serie */
-        .tabla th:nth-child(6), .tabla td:nth-child(6), /* Desc. corta */
-        .tabla th:nth-child(7), .tabla td:nth-child(7), /* Garantía */
-        .tabla th:nth-child(9), .tabla td:nth-child(9), /* Encargado */
-        .tabla th:nth-child(10), .tabla td:nth-child(10), /* Ubicación */
-        .tabla th:nth-child(11), .tabla td:nth-child(11) { /* Acciones */
-            width: auto; /* Ancho automático para textos cortos */
-        }
-        
-        /* Columnas con textos largos */
-        .tabla th:nth-child(5), .tabla td:nth-child(5), /* Desc. larga */
-        .tabla th:nth-child(8), .tabla td:nth-child(8) { /* Valores de referencia */
-            width: 20%; /* Asignar más espacio a textos largos */
-        }
-        
-        /* Estilo para columna de acciones */
         .tabla__botones {
-            white-space: nowrap; /* Evita que los botones se separen */
-            width: 80px !important; /* Ancho fijo pequeño */
+            white-space: nowrap;
+            width: 80px !important;
         }
-    */
+        
+        .estado-activo {
+            color: green;
+            font-weight: bold;
+        }
+        
+        .estado-inactivo {
+            color: orange;
+            font-weight: bold;
+        }
+        
+        .estado-baja {
+            color: red;
+            font-weight: bold;
+        }
     </style>
-    -->
 </head>
 <body>
     <main class="contenedor hoja">
@@ -141,6 +117,29 @@ $responsables = $pdo->query($sql_responsables)->fetchAll(PDO::FETCH_ASSOC);
         <div class="contenedor__modulo">
             <h2 class="heading">Equipos de Laboratorio</h2>
 
+            <!-- Verificar si hay mensajes de éxito o error -->
+            <?php if (isset($_GET['success']) && $_GET['success'] == '1'): ?>
+                <div class="mensaje mensaje-exito">
+                    <?php 
+                    $accion = isset($_GET['action']) ? $_GET['action'] : '';
+                    
+                    if ($accion == 'insert') {
+                        echo 'El equipo ha sido registrado correctamente.';
+                    } elseif ($accion == 'update') {
+                        echo 'El equipo ha sido actualizado correctamente.';
+                    } elseif ($accion == 'delete') {
+                        echo 'El equipo ha sido eliminado correctamente.';
+                    }
+                    ?>
+                </div>
+            <?php endif; ?>
+            
+            <?php if (isset($_GET['error']) && $_GET['error'] == '1'): ?>
+                <div class="mensaje mensaje-error">
+                    <?php echo isset($_GET['message']) ? urldecode($_GET['message']) : 'Ha ocurrido un error al procesar la solicitud.'; ?>
+                </div>
+            <?php endif; ?>
+
             <form action="" method="GET" class="controles">
                 <div class="buscador">
                     <h4 class="buscador__label">Buscar</h4>
@@ -153,6 +152,9 @@ $responsables = $pdo->query($sql_responsables)->fetchAll(PDO::FETCH_ASSOC);
                         <option value="clave" <?php echo $orderBy == 'clave' ? 'selected' : ''; ?>>Clave de equipo</option>
                         <option value="marca" <?php echo $orderBy == 'marca' ? 'selected' : ''; ?>>Marca</option>
                         <option value="modelo" <?php echo $orderBy == 'modelo' ? 'selected' : ''; ?>>Modelo</option>
+                        <option value="tipo_equipo" <?php echo $orderBy == 'tipo_equipo' ? 'selected' : ''; ?>>Tipo de equipo</option>
+                        <option value="fecha_adquisicion" <?php echo $orderBy == 'fecha_adquisicion' ? 'selected' : ''; ?>>Fecha de adquisición</option>
+                        <option value="estado" <?php echo $orderBy == 'estado' ? 'selected' : ''; ?>>Estado</option>
                     </select>
                 </div>
 
@@ -168,12 +170,13 @@ $responsables = $pdo->query($sql_responsables)->fetchAll(PDO::FETCH_ASSOC);
                             <th>Marca</th>
                             <th>Modelo</th>
                             <th>Serie</th>
-                            <th>Descripción larga</th>
+                            <th>Tipo de equipo</th>
                             <th>Descripción corta</th>
-                            <th>Garantía</th>
-                            <th>Valores de referencia</th>
                             <th>Encargado</th>
+                            <th>Fecha adquisición</th>
+                            <th>Garantía</th>
                             <th>Ubicación</th>
+                            <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -185,12 +188,18 @@ $responsables = $pdo->query($sql_responsables)->fetchAll(PDO::FETCH_ASSOC);
                                 <td><?php echo htmlspecialchars($equipo['marca']); ?></td>
                                 <td><?php echo htmlspecialchars($equipo['modelo']); ?></td>
                                 <td><?php echo htmlspecialchars($equipo['serie']); ?></td>
-                                <td><?php echo htmlspecialchars($equipo['desc_larga']); ?></td>
+                                <td><?php echo htmlspecialchars($equipo['tipo_equipo']); ?></td>
                                 <td><?php echo htmlspecialchars($equipo['desc_corta']); ?></td>
-                                <td><?php echo htmlspecialchars($equipo['garantia']); ?></td>
-                                <td><?php echo isset($parametros[$equipo['id_equipo']]) ? htmlspecialchars($parametros[$equipo['id_equipo']]) : ''; ?></td>
                                 <td><?php echo htmlspecialchars($equipo['nombre_responsable']); ?></td>
+                                <td><?php echo !empty($equipo['fecha_adquisicion']) ? date('d/m/Y', strtotime($equipo['fecha_adquisicion'])) : ''; ?></td>
+                                <td><?php echo htmlspecialchars($equipo['garantia']); ?></td>
                                 <td><?php echo htmlspecialchars($equipo['ubicacion']); ?></td>
+                                <td class="<?php 
+                                    echo $equipo['estado'] == 'Activo' ? 'estado-activo' : 
+                                         ($equipo['estado'] == 'Inactivo' ? 'estado-inactivo' : 'estado-baja'); 
+                                ?>">
+                                    <?php echo htmlspecialchars($equipo['estado']); ?>
+                                </td>
                                 <td class="tabla__botones">
                                     <a href="laboratoriosform.php?id=<?php echo $equipo['id_equipo']; ?>">
                                         <img src="../img/edit.svg" alt="Editar" class="tabla__boton">
@@ -203,7 +212,7 @@ $responsables = $pdo->query($sql_responsables)->fetchAll(PDO::FETCH_ASSOC);
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="11" style="text-align: center;">No se encontraron equipos</td>
+                                <td colspan="12" style="text-align: center;">No se encontraron equipos</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
