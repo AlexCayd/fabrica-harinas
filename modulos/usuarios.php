@@ -54,6 +54,7 @@ $orden = $_GET['orden'] ?? ''; // por defecto vacío
         </header>
 
         <div class="contenedor__modulo">
+            <a href="../menu.php" class="atras">Ir atrás</a>
             <h2 class="heading">Usuarios</h2>
 
             <div class="controles">

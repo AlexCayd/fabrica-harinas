@@ -139,6 +139,7 @@ $responsables = $pdo->query($sql_responsables)->fetchAll(PDO::FETCH_ASSOC);
         </header>
 
         <div class="contenedor__modulo">
+            <a href="../menu.php" class="atras">Ir atrás</a>
             <h2 class="heading">Equipos de Laboratorio</h2>
 
             <form action="" method="GET" class="controles">

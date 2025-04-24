@@ -1,7 +1,6 @@
 <?php
 require '../config/validar_permisos.php';
 include '../config/conn.php';
-session_start();
 // Consulta para recuperar a todos los clientes
 $estado = $_GET['estado'] ?? 'activo';
 
@@ -29,6 +28,7 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
         <div class="contenedor__modulo">
+            <a href="../menu.php" class="atras">Ir atrás</a>
             <h2 class="heading">Clientes</h2>
 
             <div class="controles">

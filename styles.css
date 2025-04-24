@@ -200,6 +200,11 @@ h1, h2, h3, h4 {
     cursor: pointer;
 }
 
+.tabla__descargar {
+    font-weight: bold;
+    color: var(--colorSecundario);
+}
+
 .formulario {
     max-width: 60%;
     margin: 0 auto;
@@ -246,4 +251,30 @@ h1, h2, h3, h4 {
     font-size: 14px;
     display: inline-block;
     margin-bottom: 30px;
+}
+
+/* RESULTADOS */
+.resultados {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    text-align: center;
+}
+
+.resultados__texto {
+    margin-top: 30px;
+    min-height: 45px;
+    border-bottom: 3px solid var(--colorSecundario);
+    font-size: 20px;
+}
+
+.resultados__numero {
+    display: inline-block;
+    margin-top: 15px;
+    height: 30px;
+    width: 30px;
+    background-color: var(--colorSecundario);
+    color: var(--colorPrimario);
+    padding: 10px;
+    border-radius: 50%;
 }
