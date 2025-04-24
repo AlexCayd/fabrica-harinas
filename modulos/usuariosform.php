@@ -89,7 +89,7 @@ if ($update) {
                     <input type="email" name="mail" value="<?php echo $usuario['correo'] ?>" class="formulario__input">
                 </div>
 
-                <div class="formulario__campo tooltip-container">
+                <div class="formulario__campo tooltip-container ">
                     <label for="password" class="formulario__label">Contraseña</label>
                     <input type="password" name="passwd" id="passwd" class="formulario__input"
                         placeholder="<?php echo $update ? 'Nueva contraseña (opcional)' : 'Contraseña'; ?>">
