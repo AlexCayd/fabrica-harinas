@@ -1,5 +1,3 @@
--- Eliminar la base de datos si existe y crearla de nuevo
-DROP DATABASE IF EXISTS harinas;
 CREATE DATABASE harinas;
 USE harinas;
 -- Tabla Usuarios
@@ -93,10 +91,10 @@ CREATE TABLE Parametros (
     FOREIGN KEY (id_equipo) REFERENCES Equipos_Laboratorio(id_equipo),
     FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente)
 );
--- Tabla Inspeccion (modificada para permitir id_cliente NULL)
+-- Tabla Inspeccion
 CREATE TABLE Inspeccion (
     id_inspeccion INT PRIMARY KEY AUTO_INCREMENT,
-    id_cliente INT NULL,
+    id_cliente INT NOT NULL,
     lote VARCHAR(10),
     secuencia CHAR(3),
     clave VARCHAR(13) NOT NULL,
@@ -133,45 +131,15 @@ CREATE TABLE Resultado_Inspeccion (
 CREATE TABLE Equipo_Inspeccion (
     id_equipo INT NOT NULL,
     id_inspeccion INT NOT NULL,
-    fecha_analisis TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id_equipo, id_inspeccion),
     FOREIGN KEY (id_equipo) REFERENCES Equipos_Laboratorio(id_equipo),
     FOREIGN KEY (id_inspeccion) REFERENCES Inspeccion(id_inspeccion)
-);
--- Tabla Resultado_Inspeccion (nueva tabla)
--- Tabla Resultado_Inspeccion (corregida sin id_equipo)
-CREATE TABLE Resultado_Inspeccion (
-    id_resultado INT PRIMARY KEY AUTO_INCREMENT,
-    id_inspeccion INT NOT NULL,
-    nombre_parametro ENUM(
-        'Humedad',
-        'Cenizas',
-        'Gluten_Humedo',
-        'Gluten_Seco',
-        'Indice_Gluten',
-        'Indice_Caida',
-        'Alveograma_P',
-        'Alveograma_L',
-        'Alveograma_PL',
-        'Alveograma_W',
-        'Alveograma_IE',
-        'Almidon_Danado',
-        'Farinograma_Absorcion_Agua',
-        'Farinograma_Tiempo_Desarrollo',
-        'Farinograma_Estabilidad',
-        'Farinograma_Grado_Decaimiento'
-    ) NOT NULL,
-    valor_obtenido DECIMAL(10, 2) NOT NULL,
-    aprobado BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (id_inspeccion) REFERENCES Inspeccion(id_inspeccion),
-    INDEX (id_inspeccion),
-    UNIQUE KEY (id_inspeccion, nombre_parametro)
 );
 -- Tabla Certificados
 CREATE TABLE Certificados (
     id_certificado INT PRIMARY KEY AUTO_INCREMENT,
     id_inspeccion INT NOT NULL,
-    fecha_emision TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_emision TIMESTAMP,
     Cantidad_solicitada INT NOT NULL,
     Cantidad_recibida INT NOT NULL,
     fecha_envio DATE,
@@ -182,7 +150,7 @@ CREATE TABLE Certificados (
 -- Tabla Hist_Certificados
 CREATE TABLE Hist_Certificados (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_subida TIMESTAMP,
     id_certificado INT NOT NULL,
     FOREIGN KEY (id_certificado) REFERENCES Certificados(id_certificado)
 );
