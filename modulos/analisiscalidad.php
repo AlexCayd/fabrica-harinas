@@ -169,7 +169,7 @@ function analisisAprobado($total_parametros, $parametros_fallidos) {
                             <th>Lote de producción</th>
                             <th>Secuencia</th>
                             <th>Fecha</th>
-                            <th>Cliente</th>
+                            <!--<th>Cliente</th>-->
                             <th>Equipo</th>
                             <th>Tipo</th>
                             <th>Estado</th>
@@ -184,8 +184,7 @@ function analisisAprobado($total_parametros, $parametros_fallidos) {
                             <tr class="tabla__fila">
                                 <td><?php echo htmlspecialchars($item['lote']); ?></td>
                                 <td><?php echo htmlspecialchars($item['secuencia']); ?></td>
-                                <td><?php echo date('d/m/Y H:i', strtotime($item['fecha_inspeccion'])); ?></td>
-                                <td><?php echo htmlspecialchars($item['cliente_nombre'] ?? 'Sin cliente'); ?></td>
+                                <td><?php echo date('d/m/Y H:i', strtotime($item['fecha_inspeccion'])); ?></td>                            
                                 <td><?php echo htmlspecialchars($item['equipo_clave']); ?> (<?php echo htmlspecialchars($item['marca']); ?> <?php echo htmlspecialchars($item['modelo']); ?>)</td>
                                 <td><?php echo htmlspecialchars($item['tipo_equipo']); ?></td>
                                 <td class="<?php echo $aprobado ? 'estado-aprobado' : 'estado-fallido'; ?>">
