@@ -520,7 +520,7 @@ if (isset($datos_form)) {
                            required>
                 </div>
 
-                <!-- Botón para enviar el formulario -->
+                
                 <input type="submit" class="formulario__submit" value="<?php echo $editando ? 'Guardar cambios' : 'Agregar equipo'; ?>">
             </form>
         </div>
