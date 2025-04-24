@@ -3,6 +3,7 @@ require '../config/validar_permisos.php';
 
 include '../config/conn.php';
 include '../config/functions.php';
+session_start();
 $id = $_GET['id'];
 $sql = "SELECT * FROM Clientes WHERE id_cliente = $id";
 $stmt = $pdo->prepare($sql);
@@ -20,15 +21,17 @@ $result = $stmt->fetch();
     <title>FHE | Clientes</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
     <main class="contenedor hoja">
     <?php include '../includes/header.php' ?>
 
+
         <div class="contenedor__modulo">
             <a href="clientes.php" class="atras">Ir atrás</a>
-            <h2 class="heading">Agregar Cliente</h2>
+            <h2 class="heading"> Editar Cliente</h2>
             <form action="clientes/editar_cliente.php?id=<?php echo $result['id_cliente']; ?>" class="formulario" method="post">
                 <div class="formulario__campo">
                     <label for="nombre" class="formulario__label">Nombre</label>
@@ -78,12 +81,12 @@ $result = $stmt->fetch();
                 </div>
 
                 <div class="formulario__campo">
-                        <label for="rol" class="formulario__label">Estado</label>
-                        <select name="estado" id="categoria" class="formulario__select" value="<?php echo $result['estado']; ?>">
-                            <option value="activo" <?= $result['estado'] == 'Activo' ? 'selected': ''; ?>> Activo</option>
-                            <option value="inactivo" <?= $result['estado'] == 'Inactivo' ? 'selected': ''; ?>>Inactivo</option>
-                        </select>
-                    </div>
+                    <label for="rol" class="formulario__label">Estado</label>
+                    <select name="estado" id="categoria" class="formulario__select">
+                        <option value="activo" <?= $result['estado'] == 'Activo' ? 'selected' : ''; ?>> Activo</option>
+                        <option value="inactivo" <?= $result['estado'] == 'Inactivo' ? 'selected' : ''; ?>>Inactivo</option>
+                    </select>
+                </div>
 
                 <input type="submit" class="formulario__submit" value="Editar cliente">
             </form>

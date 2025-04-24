@@ -106,6 +106,7 @@ if (isset($_GET['error']) && $_GET['error'] == '1') {
         <?php include '../includes/header.php'; ?>
 
         <div class="contenedor__modulo">
+            <a href="../menu.php" class="atras">Ir atrás</a>
             <h2 class="heading">Análisis de Calidad</h2>
             
             <?php if (!empty($mensajeExito)): ?>

@@ -13,9 +13,9 @@
         <?php include '../includes/header.php' ?>
 
         <div class="contenedor__modulo">
-            <a href="../menu.html" class="atras">Ir atrás</a>
+            <a href="../menu.php" class="atras">Ir atrás</a>
             <h2 class="heading">Reporte Estadístico</h2>
-            <form action="../menu.html" class="formulario">
+            <form action="resultadosestadisticos.php" class="formulario">
                 <div class="formulario__campo">
                     <label for="fecha_inicio" class="formulario__label">Fecha de inicio</label>
                     <input type="date" class="formulario__input">
@@ -26,7 +26,7 @@
                     <input type="date" class="formulario__input">
                 </div>
 
-                <input type="submit" class="formulario__submit" value="Generar certificado">
+                <input type="submit" class="formulario__submit" value="Generar estadísticos">
             </form>
         </div>
         <?php include '../includes/footer.php' ?>

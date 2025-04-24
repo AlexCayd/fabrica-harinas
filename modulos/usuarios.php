@@ -37,6 +37,7 @@ $orden = $_GET['orden'] ?? ''; // por defecto vacío
         <?php include '../includes/header.php'; ?>
 
         <div class="contenedor__modulo">
+            <a href="../menu.php" class="atras">Ir atrás</a>
             <h2 class="heading">Usuarios</h2>
 
             <div class="controles">
@@ -148,6 +149,5 @@ $orden = $_GET['orden'] ?? ''; // por defecto vacío
             }
         });
     });
-    // string = buscador.value;
 </script>
 </html>

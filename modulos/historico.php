@@ -14,6 +14,7 @@
         <?php include '../includes/header.php' ?>
 
         <div class="contenedor__modulo">
+            <a href="../menu.php" class="atras">Ir atrás</a>
             <h2 class="heading">Certificados</h2>
 
             <div class="controles">
@@ -31,71 +32,66 @@
                 </div>
 
                 <h2 class="botones__buscar">Buscar</h2>
-                <a href="certificadosform.html" class="botones__crear">Agregar certificado</a>
             </div>
 
             <table class="tabla">
             <thead>
                 <tr class="tabla__encabezado">
                     <th>Lote de producción</th>
-                    <th>Número de orden</th>
+                    <th>Id inspección</th>
+                    <th>Cliente</th>
                     <th>Cantidad solicitada (kg)</th>
-                    <th>Cantidad entregada (kg)</th>
+                    <th>Cantidad recibida (kg)</th>
                     <th>Resultados del análisis</th>
-                    <th>Comparación</th>
-                    <th>Acciones</th>
+                    <th>Certificado</th>
                 </tr>
             </thead>
             <tbody>
                 <tr class="tabla__fila">
                     <td>BARBS1012</td>
                     <td>38</td>
+                    <td>Martín Jiménez</td>
                     <td>90</td>
                     <td>85</td>
                     <td>Aprobado</td>
-                    <td>Dentro de rango</td>
-                    <td class="tabla__botones">
-                        <img src="../img/edit.svg" alt="Editar" class="tabla__boton">
-                        <img src="../img/delete.svg" alt="Eliminar" class="tabla__boton">
+                    <td>
+                        <a href="../certificados/Certificado.pdf" class="tabla__descargar" download>Descargar PDF</a>
                     </td>
                 </tr>
 
                 <tr class="tabla__fila">
                     <td>BARBS1012</td>
                     <td>38</td>
+                    <td>Martín Jiménez</td>
                     <td>90</td>
                     <td>85</td>
                     <td>Aprobado</td>
-                    <td>Dentro de rango</td>
-                    <td class="tabla__botones">
-                        <img src="../img/edit.svg" alt="Editar" class="tabla__boton">
-                        <img src="../img/delete.svg" alt="Eliminar" class="tabla__boton">
+                    <td>
+                        <a href="../certificados/Certificado.pdf" class="tabla__descargar" download>Descargar PDF</a>
                     </td>
                 </tr>
 
                 <tr class="tabla__fila">
                     <td>BARBS1012</td>
                     <td>38</td>
+                    <td>Martín Jiménez</td>
                     <td>90</td>
                     <td>85</td>
                     <td>Aprobado</td>
-                    <td>Dentro de rango</td>
-                    <td class="tabla__botones">
-                        <img src="../img/edit.svg" alt="Editar" class="tabla__boton">
-                        <img src="../img/delete.svg" alt="Eliminar" class="tabla__boton">
+                    <td>
+                        <a href="../certificados/Certificado.pdf" class="tabla__descargar" download>Descargar PDF</a>
                     </td>
                 </tr>
 
                 <tr class="tabla__fila">
                     <td>BARBS1012</td>
                     <td>38</td>
+                    <td>Martín Jiménez</td>
                     <td>90</td>
                     <td>85</td>
                     <td>Aprobado</td>
-                    <td>Dentro de rango</td>
-                    <td class="tabla__botones">
-                        <img src="../img/edit.svg" alt="Editar" class="tabla__boton">
-                        <img src="../img/delete.svg" alt="Eliminar" class="tabla__boton">
+                    <td>
+                        <a href="../certificados/Certificado.pdf" class="tabla__descargar" download>Descargar PDF</a>
                     </td>
                 </tr>
                 </tbody>

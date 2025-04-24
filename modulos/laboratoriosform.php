@@ -88,6 +88,7 @@ if ($editando && !empty($parametros_equipo)) {
     <title>FHE | <?php echo $editando ? 'Editar' : 'Agregar'; ?> Equipo de Laboratorio</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .parametros-section {
             margin-top: 20px;

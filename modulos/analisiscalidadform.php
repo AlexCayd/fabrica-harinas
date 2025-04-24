@@ -149,6 +149,7 @@ if ($editando && !empty($equipos_seleccionados) && !empty($inspeccion['id_client
     <title>FHE | <?php echo $editando ? 'Editar' : 'Agregar'; ?> Análisis de Calidad</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .parametro-group {
             margin-bottom: 15px;

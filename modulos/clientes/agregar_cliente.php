@@ -19,6 +19,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $sql = "INSERT INTO Clientes (req_certificado, nombre, rfc, nombre_contacto, puesto_contacto, correo_contacto, telefono_contacto,
     direccion_fiscal, estado, parametros) VALUES ($certificado, '$nombre', '$rfc', '$nombre', '$puesto', 
     '$correo', '$telefono', '$direccion_fiscal', '$estado', '$parametros')";
+
+    $sql = "INSERT INTO Parametros (nombre_parametro, lim_Inferior, lim_Superior) VALUES ('Tiempo de desarrollo', 5, 10), ('Estabilidad', 8, 12)";
     
     $stmt = $pdo -> prepare($sql);
     // Ejecutar la consulta

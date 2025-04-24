@@ -1,5 +1,5 @@
 <?php 
-
+session_start();
 include '../../config/conn.php';
 include '../../config/functions.php';
 
@@ -28,13 +28,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $res = $stmt -> fetch();
 
     if($res){
-        header("Location: /fabrica-harinas/modulos/clientes.php?error=consulta");
-        exit;
+        $_SESSION['mensaje'] = 'error';
     }else{
-        header("Location: /fabrica-harinas/modulos/clientes.php?success"); 
-        exit;
+        $_SESSION['mensaje'] = 'exito';
     }
+
+    header("Location: /fabrica-harinas/modulos/clientes.php");
 }else{
+    echo "no papa ff";
     header("Location: /fabrica-harinas/menu.php");
     exit;
 }
