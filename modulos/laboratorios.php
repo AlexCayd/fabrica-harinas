@@ -1,4 +1,6 @@
 <?php
+
+require '../config/validar_permisos.php';
 require '../config/conn.php';
 
 $orden_permitido = ['clave', 'marca', 'modelo', 'tipo_equipo', 'fecha_adquisicion', 'estado'];
