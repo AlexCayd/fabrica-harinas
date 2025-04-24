@@ -13,6 +13,8 @@ $parametros_farinografo = [
     ['nombre' => 'Tiempo de desarrollo (min)', 'id_parametro' => 'tiempo_desarrollo', 'lim_Inferior' => '', 'lim_Superior' => ''],
     ['nombre' => 'Estabilidad (min)', 'id_parametro' => 'estabilidad', 'lim_Inferior' => '', 'lim_Superior' => '']
 ];
+
+$editando = '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -140,8 +142,8 @@ $parametros_farinografo = [
                     <label for="tipo_equipo" class="formulario__label">Tipo de Equipo</label>
                     <select class="formulario__input" id="tipo_equipo" name="tipo_equipo" required>
                         <option value="" disabled <?php echo !$editando ? 'selected' : ''; ?>>-- Seleccione tipo de equipo --</option>
-                        <option value="Alveografo" <?php echo ($editando && count($equipos_seleccionados) > 0 && in_array($equipos_seleccionados[0], array_column($equipos_alveografo, 'id_equipo'))) ? 'selected' : ''; ?>>Alveógrafo</option>
-                        <option value="Farinografo" <?php echo ($editando && count($equipos_seleccionados) > 0 && in_array($equipos_seleccionados[0], array_column($equipos_farinografo, 'id_equipo'))) ? 'selected' : ''; ?>>Farinógrafo</option>
+                        <option value="Alveografo" >Alveógrafo</option>
+                        <option value="Farinografo">Farinógrafo</option>
                     </select>
                 </div>
 
