@@ -1,3 +1,5 @@
+-- Eliminar la base de datos si existe y crearla de nuevo
+DROP DATABASE IF EXISTS harinas;
 CREATE DATABASE harinas;
 USE harinas;
 -- Tabla Usuarios
@@ -6,14 +8,15 @@ CREATE TABLE Usuarios (
     nombre VARCHAR(100) NOT NULL,
     correo VARCHAR(100) UNIQUE NOT NULL,
     contrasena VARCHAR(255) NOT NULL,
-    rol ENUM('TI',
-            'Gerencia de Control de Calidad', 
-            'Laboratorio', 
-            'Gerencia de Aseguramiento de Calidad', 
-            'Gerente de Planta', 
-            'Director de Operaciones') NOT NULL
+    rol ENUM(
+        'TI',
+        'Gerencia de Control de Calidad',
+        'Laboratorio',
+        'Gerencia de Aseguramiento de Calidad',
+        'Gerente de Planta',
+        'Director de Operaciones'
+    ) NOT NULL
 );
-
 -- Tabla Equipos_Laboratorio
 CREATE TABLE Equipos_Laboratorio (
     id_equipo INT PRIMARY KEY AUTO_INCREMENT,
@@ -30,10 +33,9 @@ CREATE TABLE Equipos_Laboratorio (
     garantia VARCHAR(50) UNIQUE,
     vencimiento_garantia DATE,
     ubicacion VARCHAR(100),
-    estado ENUM('Activo','Inactivo', 'Baja') NOT NULL DEFAULT 'Activo',
+    estado ENUM('Activo', 'Inactivo', 'Baja') NOT NULL DEFAULT 'Activo',
     FOREIGN KEY (id_responsable) REFERENCES Usuarios(id_usuario)
 );
-
 -- Tabla Clientes
 CREATE TABLE Clientes (
     id_cliente INT PRIMARY KEY AUTO_INCREMENT,
@@ -48,7 +50,6 @@ CREATE TABLE Clientes (
     estado ENUM('Activo', 'Inactivo', 'Baja') NOT NULL DEFAULT 'Activo',
     parametros ENUM('Internacionales', 'Personalizados')
 );
-
 -- Tabla Direcciones
 CREATE TABLE Direcciones (
     id_direccion INT PRIMARY KEY AUTO_INCREMENT,
@@ -63,7 +64,6 @@ CREATE TABLE Direcciones (
     notas TEXT,
     FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente)
 );
-
 -- Tabla Parametros
 CREATE TABLE Parametros (
     id_parametro INT PRIMARY KEY AUTO_INCREMENT,
@@ -88,23 +88,21 @@ CREATE TABLE Parametros (
         'Farinograma_Grado_Decaimiento'
     ) NOT NULL,
     tipo ENUM('Personalizado', 'Internacional') NOT NULL,
-    lim_Superior DECIMAL(10,2) NOT NULL,
-    lim_Inferior DECIMAL(10,2) NOT NULL,
+    lim_Superior DECIMAL(10, 2) NOT NULL,
+    lim_Inferior DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (id_equipo) REFERENCES Equipos_Laboratorio(id_equipo),
     FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente)
 );
-
--- Tabla Inspeccion
+-- Tabla Inspeccion (modificada para permitir id_cliente NULL)
 CREATE TABLE Inspeccion (
     id_inspeccion INT PRIMARY KEY AUTO_INCREMENT,
-    id_cliente INT NOT NULL,
+    id_cliente INT NULL,
     lote VARCHAR(10),
     secuencia CHAR(3),
     clave VARCHAR(13) NOT NULL,
     fecha_inspeccion TIMESTAMP,
     FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente)
 );
-
 -- Tabla Resultados_Inspeccion
 CREATE TABLE Resultado_Inspeccion (
     id_resultado INT PRIMARY KEY AUTO_INCREMENT,
@@ -127,39 +125,66 @@ CREATE TABLE Resultado_Inspeccion (
         'Farinograma_Estabilidad',
         'Farinograma_Grado_Decaimiento'
     ) NOT NULL,
-    valor_obtenido DECIMAL(10,2) NOT NULL,
+    valor_obtenido DECIMAL(10, 2) NOT NULL,
     aprobado BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (id_inspeccion) REFERENCES Inspeccion(id_inspeccion)
 );
-
 -- Tabla intermedia Equipo_Inspeccion
 CREATE TABLE Equipo_Inspeccion (
     id_equipo INT NOT NULL,
     id_inspeccion INT NOT NULL,
+    fecha_analisis TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id_equipo, id_inspeccion),
     FOREIGN KEY (id_equipo) REFERENCES Equipos_Laboratorio(id_equipo),
     FOREIGN KEY (id_inspeccion) REFERENCES Inspeccion(id_inspeccion)
 );
-
+-- Tabla Resultado_Inspeccion (nueva tabla)
+-- Tabla Resultado_Inspeccion (corregida sin id_equipo)
+CREATE TABLE Resultado_Inspeccion (
+    id_resultado INT PRIMARY KEY AUTO_INCREMENT,
+    id_inspeccion INT NOT NULL,
+    nombre_parametro ENUM(
+        'Humedad',
+        'Cenizas',
+        'Gluten_Humedo',
+        'Gluten_Seco',
+        'Indice_Gluten',
+        'Indice_Caida',
+        'Alveograma_P',
+        'Alveograma_L',
+        'Alveograma_PL',
+        'Alveograma_W',
+        'Alveograma_IE',
+        'Almidon_Danado',
+        'Farinograma_Absorcion_Agua',
+        'Farinograma_Tiempo_Desarrollo',
+        'Farinograma_Estabilidad',
+        'Farinograma_Grado_Decaimiento'
+    ) NOT NULL,
+    valor_obtenido DECIMAL(10, 2) NOT NULL,
+    aprobado BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (id_inspeccion) REFERENCES Inspeccion(id_inspeccion),
+    INDEX (id_inspeccion),
+    UNIQUE KEY (id_inspeccion, nombre_parametro)
+);
 -- Tabla Certificados
 CREATE TABLE Certificados (
     id_certificado INT PRIMARY KEY AUTO_INCREMENT,
     id_inspeccion INT NOT NULL,
-    fecha_emision TIMESTAMP,
+    fecha_emision TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     Cantidad_solicitada INT NOT NULL,
     Cantidad_recibida INT NOT NULL,
     fecha_envio DATE,
     fecha_caducidad DATE NOT NULL,
-    desviacion DECIMAL(10,2),
+    desviacion DECIMAL(10, 2),
     FOREIGN KEY (id_inspeccion) REFERENCES Inspeccion(id_inspeccion)
 );
-
 -- Tabla Hist_Certificados
 CREATE TABLE Hist_Certificados (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    fecha_subida TIMESTAMP,
+    fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     id_certificado INT NOT NULL,
     FOREIGN KEY (id_certificado) REFERENCES Certificados(id_certificado)
 );
-
-INSERT INTO Usuarios (nombre, correo, contrasena, rol) VALUES ('admin', 'admin@correo.com', '1', 'TI');
+INSERT INTO Usuarios (nombre, correo, contrasena, rol)
+VALUES ('admin', 'admin@correo.com', '1', 'TI');
