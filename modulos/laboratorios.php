@@ -1,4 +1,5 @@
 <?php
+require '../config/validar_permisos.php';
 // Incluir el archivo de configuración de la base de datos
 require '../config/conn.php';
 
@@ -210,6 +211,7 @@ $responsables = $pdo->query($sql_responsables)->fetchAll(PDO::FETCH_ASSOC);
                 </table>
             </div>
         </div>
+        <?php include '../includes/footer.php'; ?>
     </main>
 </body>
 </html>

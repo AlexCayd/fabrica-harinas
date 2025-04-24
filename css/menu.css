@@ -101,3 +101,12 @@
     margin-top: 35px;
   }
 }
+
+.toggle-btn{
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  background: none;
+  border: none;
+  cursor: pointer;
+}

@@ -1,4 +1,5 @@
 <?php
+require '../config/validar_permisos.php';
 // Incluir el archivo de configuración de la base de datos
 require '../config/conn.php';
 
@@ -165,23 +166,7 @@ if ($editando && !empty($parametros_equipo)) {
 </head>
 <body>
     <main class="contenedor hoja">
-        <header class="header">
-            <h2 class="header__logo">
-                F.H. Elizondo
-            </h2>
-
-            <nav class="header__nav">
-                <a href="../menu.php" class="header__btn">
-                    <img class="header__icono" src="../img/home.svg" alt="Home">
-                    <p class="header__textoicono">Home</p>
-                </a>
-
-                <a href="../index.php" class="header__btn">
-                    <img class="header__icono" src="../img/exit.svg" alt="Home">
-                    <p class="header__textoicono">Salir</p>
-                </a>
-            </nav>
-        </header>
+        <?php include '../includes/header.php'; ?>
 
         <div class="contenedor__modulo">
             <a href="laboratorios.php" class="atras">Ir atrás</a>
@@ -336,6 +321,7 @@ if ($editando && !empty($parametros_equipo)) {
                 <input type="submit" class="formulario__submit" value="<?php echo $editando ? 'Guardar cambios' : 'Agregar equipo'; ?>">
             </form>
         </div>
+        <?php include '../includes/footer.php'; ?>
     </main>
 </body>
 </html>
