@@ -55,6 +55,7 @@ foreach ($parametros as $param) {
     <title>FHE | Editar Cliente</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>

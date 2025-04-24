@@ -25,35 +25,60 @@
             <h1 class="menu__titulo">Menú Principal</h1>
 
             <div class="menu__grid">
-                <a href="/fabrica-harinas/modulos/usuarios.php" class="menu__card">
-                    <img src="img/usuarios.svg" alt="Reportes" class="menu__icono">
-                    <h2 class="menu__texto">Usuarios</h2>
-                </a>
-
-                <a href="modulos/laboratorios.php" class="menu__card">
-                    <img src="img/laboratorios.svg" alt="Laboratorio" class="menu__icono">
-                    <h2 class="menu__texto">Equipos de Laboratorio</h2>
-                </a>
-
-                <a href="modulos/analisiscalidad.php" class="menu__card">
-                    <img src="img/quality.svg" alt="Análisis" class="menu__icono">
-                    <h2 class="menu__texto">Análisis de Calidad</h2>
-                </a>
-
-                <a href="modulos/clientes.php" class="menu__card">
-                    <img src="img/clientes.svg" alt="Clientes" class="menu__icono">
-                    <h2 class="menu__texto">Clientes</h2>
-                </a>
+            <?php 
+                $rol = $_SESSION['rol'];
                 
-                <a href="modulos/historico.php" class="menu__card">
-                    <img src="img/historico.svg" alt="Certificados" class="menu__icono">
-                    <h2 class="menu__texto">Certificados</h2>
-                </a>
-
-                <a href="modulos/estadisticos.php" class="menu__card">
-                    <img src="img/stats.svg" alt="Estadísticos" class="menu__icono">
-                    <h2 class="menu__texto">Reportes estadísticos</h2>
-                </a>
+                // Definir módulos y los roles que tienen acceso
+                $modulos = [
+                    'usuarios' => [
+                        'url' => '/fabrica-harinas/modulos/usuarios.php',
+                        'img' => 'img/usuarios.svg',
+                        'texto' => 'Usuarios',
+                        'roles' => ['TI']
+                    ],
+                    'laboratorios' => [
+                        'url' => '/fabrica-harinas/modulos/laboratorios.php',
+                        'img' => 'img/laboratorios.svg',
+                        'texto' => 'Equipos de Laboratorio',
+                        'roles' => ['Laboratorio', 'TI', 'Gerencia de Control de Calidad']
+                    ],
+                    'clientes' => [
+                        'url' => '/fabrica-harinas/modulos/clientes.php',
+                        'img' => 'img/clientes.svg',
+                        'texto' => 'Clientes',
+                        'roles' => ['Laboratorio', 'TI', 'Gerencia de Control de Calidad']
+                    ],
+                    'analisiscalidad' => [
+                        'url' => '/fabrica-harinas/modulos/analisiscalidad.php',
+                        'img' => 'img/quality.svg',
+                        'texto' => 'Análisis de Calidad',
+                        'roles' => ['Laboratorio', 'TI', 'Gerencia de Control de Calidad']
+                    ],
+                    'historico' => [
+                        'url' => '/fabrica-harinas/modulos/historico.php',
+                        'img' => 'img/historico.svg',
+                        'texto' => 'Certificados',
+                        'roles' => ['Laboratorio', 'TI', 'Gerencia de Control de Calidad']
+                    ],
+                    'estadisticos' => [
+                        'url' => '/fabrica-harinas/modulos/estadisticos.php',
+                        'img' => 'img/stats.svg',
+                        'texto' => 'Reportes estadísticos',
+                        'roles' => ['Gerencia de Aseguramiento de Calidad', 'TI', 'Gerente de Planta', 'Director de Operaciones']
+                    ],
+                ];
+                
+                // Recorrer módulos y mostrar solo los que coincidan con el rol
+                foreach ($modulos as $modulo) {
+                    if (in_array($rol, $modulo['roles'])) {
+                        echo '
+                            <a href="' . $modulo['url'] . '" class="menu__card">
+                                <img src="' . $modulo['img'] . '" alt="' . $modulo['texto'] . '" class="menu__icono">
+                                <h2 class="menu__texto">' . $modulo['texto'] . '</h2>
+                            </a>';
+                    }
+                }
+                ?>
             </div>
         </div>
         <?php include 'includes/footer.php'; ?>

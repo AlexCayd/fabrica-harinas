@@ -1,18 +1,22 @@
 <?php
-// Incluir el archivo de configuración de la base de datos
 require '../config/conn.php';
 
 // Variable para determinar si estamos editando un análisis existente
 $editando = false;
-$inspeccion = null;
+$equipo = null;
+
 $equipos_seleccionados = [];
 
-// Verificar si se ha recibido un ID de inspección para editar
+
+
+
+// Si se recibe un ID para editar por medio de GET entonces...
 if (isset($_GET['id']) && !empty($_GET['id'])) {
     $id_inspeccion = $_GET['id'];
     $editando = true;
     
-    // Consultar los datos de la inspección a editar
+    // Consulta para encontrar que inspección se está editando
+
     $sql_inspeccion = "SELECT * FROM Inspeccion WHERE id_inspeccion = :id_inspeccion";
     $stmt_inspeccion = $pdo->prepare($sql_inspeccion);
     $stmt_inspeccion->bindParam(':id_inspeccion', $id_inspeccion);
@@ -21,6 +25,7 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
     $inspeccion = $stmt_inspeccion->fetch(PDO::FETCH_ASSOC);
     
     // Si no se encuentra la inspección, redirigir a la lista
+    // Plantear si podría marcar con algun error
     if (!$inspeccion) {
         header('Location: analisiscalidad.php');
         exit;
@@ -148,6 +153,7 @@ if ($editando && !empty($equipos_seleccionados) && !empty($inspeccion['id_client
     <title>FHE | <?php echo $editando ? 'Editar' : 'Agregar'; ?> Análisis de Calidad</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .parametro-group {
             margin-bottom: 15px;
@@ -399,23 +405,7 @@ if ($editando && !empty($equipos_seleccionados) && !empty($inspeccion['id_client
 </head>
 <body>
     <main class="contenedor hoja">
-        <header class="header">
-            <h2 class="header__logo">
-                F.H. Elizondo
-            </h2>
-
-            <nav class="header__nav">
-                <a href="../menu.php" class="header__btn">
-                    <img class="header__icono" src="../img/home.svg" alt="Home">
-                    <p class="header__textoicono">Home</p>
-                </a>
-
-                <a href="../index.php" class="header__btn">
-                    <img class="header__icono" src="../img/exit.svg" alt="Home">
-                    <p class="header__textoicono">Salir</p>
-                </a>
-            </nav>
-        </header>
+    <?php include '../includes/header.php'; ?>
 
         <div class="contenedor__modulo">
             <a href="analisiscalidad.php" class="atras">Ir atrás</a>
@@ -602,6 +592,7 @@ if ($editando && !empty($equipos_seleccionados) && !empty($inspeccion['id_client
                 <input type="submit" class="formulario__submit" value="<?php echo $editando ? 'Guardar cambios' : 'Registrar análisis'; ?>">
             </form>
         </div>
+        <?php include '../includes/footer.php'; ?>
     </main>
 </body>
 </html>
