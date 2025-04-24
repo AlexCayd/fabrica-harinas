@@ -2,28 +2,23 @@
 // Incluir el archivo de configuración de la base de datos
 require '../config/conn.php';
 
-// Iniciar sesión para recuperar datos y errores
 session_start();
 
-// Variable para determinar si estamos editando un equipo existente
 $editando = false;
 $equipo = null;
 $errores = [];
 
-// Recuperar errores de la sesión si existen
 if (isset($_SESSION['form_errors'])) {
     $errores = $_SESSION['form_errors'];
     unset($_SESSION['form_errors']);
 }
 
-// Recuperar datos del formulario de la sesión si existen
 $datos_form = [];
 if (isset($_SESSION['form_data'])) {
     $datos_form = $_SESSION['form_data'];
     unset($_SESSION['form_data']);
 }
 
-// Verificar si se ha recibido un ID de equipo para editar
 if (isset($_GET['id']) && !empty($_GET['id'])) {
     $id_equipo = $_GET['id'];
     $editando = true;
@@ -105,7 +100,7 @@ if ($editando) {
     $ubicacion_personalizada = !in_array($equipo['ubicacion'], $ubicaciones);
 }
 
-// También comprobar si hay datos del formulario previo con valores personalizados
+// Comprobar si se han enviado datos del formulario
 if (isset($datos_form)) {
     if (isset($datos_form['marca_select']) && $datos_form['marca_select'] == 'Otra') {
         $marca_personalizada = true;
@@ -127,26 +122,17 @@ if (isset($datos_form)) {
     <title>FHE | <?php echo $editando ? 'Editar' : 'Agregar'; ?> Equipo de Laboratorio</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
     <style>
         .campo-error {
             color: red;
             font-size: 0.8rem;
             margin-top: 5px;
-        }
-        
+        }  
         .input-error {
             border-color: red !important;
-        }
-        
-        .mensaje-error {
-            background-color: #ffebee;
-            border-left: 5px solid #f44336;
-            padding: 10px 15px;
-            margin-bottom: 20px;
-            color: #b71c1c;
-            border-radius: 4px;
-        }
-        
+        }        
         .campo-personalizado {
             margin-top: 10px;
             display: none;
@@ -156,8 +142,10 @@ if (isset($datos_form)) {
             display: block;
         }
         
+      
     </style>
-    // Reemplaza todo el bloque del script en laboratoriosform.php con este código:
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Referencias a elementos
@@ -199,27 +187,29 @@ if (isset($datos_form)) {
                     const fechaVenc = new Date(fechaVencimiento.value);
                     
                     if (fechaAdq > fechaVenc) {
-                        alert("Error: La fecha de adquisición no puede ser posterior a la fecha de vencimiento de la garantía.");
+                        Swal.fire({
+                            title: 'Error de validación',
+                            text: 'La fecha de adquisición no puede ser posterior a la fecha de vencimiento de la garantía.',
+                            icon: 'error',
+                            confirmButtonText: 'Entendido'
+                        });
                         return false;
                     }
                 }
                 return true;
             }
-            
-            // Asignar eventos a los selects para mostrar/ocultar campos personalizados
+                        
             if (marcaSelect) {
                 marcaSelect.addEventListener('change', function() {
                     toggleCampoPersonalizado(marcaSelect, marcaPersonalizada);
                 });
-                // Inicializar estado
                 toggleCampoPersonalizado(marcaSelect, marcaPersonalizada);
             }
             
             if (proveedorSelect) {
                 proveedorSelect.addEventListener('change', function() {
                     toggleCampoPersonalizado(proveedorSelect, proveedorPersonalizado);
-                });
-                // Inicializar estado
+                });        
                 toggleCampoPersonalizado(proveedorSelect, proveedorPersonalizado);
             }
             
@@ -227,7 +217,6 @@ if (isset($datos_form)) {
                 ubicacionSelect.addEventListener('change', function() {
                     toggleCampoPersonalizado(ubicacionSelect, ubicacionPersonalizada);
                 });
-                // Inicializar estado
                 toggleCampoPersonalizado(ubicacionSelect, ubicacionPersonalizada);
             }
                 
@@ -238,7 +227,12 @@ if (isset($datos_form)) {
                 
                 if (!tipoSeleccionado) {
                     event.preventDefault();
-                    alert('Por favor, seleccione un tipo de equipo.');
+                    Swal.fire({
+                        title: 'Error de validación',
+                        text: 'Por favor, seleccione un tipo de equipo.',
+                        icon: 'error',
+                        confirmButtonText: 'Entendido'
+                    });
                     return false;
                 }
                 
@@ -268,8 +262,26 @@ if (isset($datos_form)) {
                 }
             });
             
+            // Mostrar errores con SweetAlert si existen
+            <?php if (!empty($errores)): ?>
+            Swal.fire({
+                title: 'Error al procesar el formulario',
+                html: `
+                    <div class="error-list">
+                        <strong>Por favor corrija los siguientes errores:</strong>
+                        <ul>
+                            <?php foreach ($errores as $error): ?>
+                            <li><?php echo $error; ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                `,
+                icon: 'error',
+                confirmButtonText: 'Entendido'
+            });
+            <?php endif; ?>
         });
-</script>
+    </script>
 </head>
 <body>
     <main class="contenedor hoja">
@@ -294,17 +306,6 @@ if (isset($datos_form)) {
         <div class="contenedor__modulo">
             <a href="laboratorios.php" class="atras">Ir atrás</a>
             <h2 class="heading"><?php echo $editando ? 'Editar' : 'Agregar'; ?> Equipo de Laboratorio</h2>
-            
-            <?php if (!empty($errores)): ?>
-            <div class="mensaje-error">
-                <strong>Por favor corrija los siguientes errores:</strong>
-                <ul>
-                    <?php foreach ($errores as $error): ?>
-                    <li><?php echo $error; ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-            <?php endif; ?>
             
             <form action="../config/procesar_equipo.php" class="formulario" method="POST">
                 <!-- Campo oculto para identificar si estamos editando -->

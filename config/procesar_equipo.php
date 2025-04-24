@@ -247,23 +247,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Definir los parámetros predeterminados según el tipo de equipo
         $parametros = [];
         
+        // Parámetros generales (solo para referencia, no se insertan directamente)
+        $parametros_generales = [
+            'Humedad' => ['min' => 12.00, 'max' => 15.00],
+            'Cenizas' => ['min' => 0.50, 'max' => 0.65],
+            'Gluten_Humedo' => ['min' => 25.00, 'max' => 35.00],
+            'Gluten_Seco' => ['min' => 8.00, 'max' => 12.00],
+            'Indice_Gluten' => ['min' => 75.00, 'max' => 95.00],
+            'Indice_Caida' => ['min' => 250.00, 'max' => 350.00],
+            'Almidon_Danado' => ['min' => 16.00, 'max' => 23.00]
+        ];
+        
         if ($tipo_equipo == 'Alveógrafo') {
             $parametros = [
-                'alveograma_p' => ['min' => 60, 'max' => 90],   // Valores de ejemplo para tenacidad
-                'alveograma_l' => ['min' => 70, 'max' => 110],  // Valores de ejemplo para extensibilidad
-                'alveograma_w' => ['min' => 230, 'max' => 300], // Valores de ejemplo para fuerza panadera
-                'alveograma_pl' => ['min' => 0.6, 'max' => 1.2], // Valores de ejemplo para equilibrio
-                'alveograma_ie' => ['min' => 45, 'max' => 65]   // Valores de ejemplo para elasticidad
+                'alveograma_p' => ['min' => 60.00, 'max' => 120.00],
+                'alveograma_l' => ['min' => 80.00, 'max' => 120.00],
+                'alveograma_w' => ['min' => 180.00, 'max' => 300.00],
+                'alveograma_pl' => ['min' => 0.40, 'max' => 0.80],
+                'alveograma_ie' => ['min' => 45.00, 'max' => 60.00]
             ];
         } else if ($tipo_equipo == 'Farinógrafo') {
             $parametros = [
-                'absorcion_agua' => ['min' => 55, 'max' => 65],    // Valores de ejemplo para absorción de agua
-                'tiempo_desarrollo' => ['min' => 4, 'max' => 8],   // Valores de ejemplo para tiempo de desarrollo
-                'estabilidad' => ['min' => 7, 'max' => 15]         // Valores de ejemplo para estabilidad
+                'farinograma_absorcion_agua' => ['min' => 55.00, 'max' => 65.00],
+                'farinograma_tiempo_desarrollo' => ['min' => 3.00, 'max' => 8.00],
+                'farinograma_estabilidad' => ['min' => 8.00, 'max' => 15.00],
+                'farinograma_grado_decaimiento' => ['min' => 30.00, 'max' => 70.00]
             ];
         }
         
-        // Insertar los parámetros predeterminados
+        // Insertar los parámetros específicos del equipo
         if (!empty($parametros)) {
             $sql_insert_param = "INSERT INTO Parametros (id_equipo, nombre_parametro, tipo, lim_Inferior, lim_Superior) 
                                 VALUES (:id_equipo, :nombre_parametro, 'Internacional', :lim_inferior, :lim_superior)";
