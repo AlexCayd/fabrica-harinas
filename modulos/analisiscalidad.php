@@ -1,4 +1,5 @@
 <?php
+require '../config/validar_permisos.php';
 require '../config/conn.php';
 
 $busqueda = '';

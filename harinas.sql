@@ -94,7 +94,7 @@ CREATE TABLE Parametros (
 -- Tabla Inspeccion
 CREATE TABLE Inspeccion (
     id_inspeccion INT PRIMARY KEY AUTO_INCREMENT,
-    id_cliente INT NOT NULL,
+    id_cliente INT,
     lote VARCHAR(10),
     secuencia CHAR(3),
     clave VARCHAR(13) NOT NULL,
