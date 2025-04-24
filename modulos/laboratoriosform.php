@@ -3,8 +3,6 @@ require '../config/validar_permisos.php';
 // Incluir el archivo de configuración de la base de datos
 require '../config/conn.php';
 
-session_start();
-
 $editando = false;
 $equipo = null;
 $errores = [];
