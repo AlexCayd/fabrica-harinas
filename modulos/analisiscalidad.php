@@ -12,13 +12,13 @@ if (isset($_GET['filtro']) && !empty($_GET['filtro'])) {
     $filtro = $_GET['filtro'];
 }
 
-// Construir la consulta SQL con filtros si es necesario
+// Construir la consulta SQL con filtros
 $sql_analisis = "SELECT 
                 i.id_inspeccion, i.lote, i.secuencia, i.fecha_inspeccion, i.clave,
                 e.id_equipo, e.clave as equipo_clave, e.tipo_equipo, e.marca, e.modelo,
                 c.nombre as cliente_nombre,
                 COUNT(DISTINCT ri.id_resultado) as total_parametros,
-                SUM(CASE WHEN ri.aprobado = 0 THEN 1 ELSE 0 END) as parametros_fallidos
+                SUM(CASE WHEN ri.aprobado IS NULL OR ri.aprobado = 0 THEN 1 ELSE 0 END) as parametros_fallidos
                 FROM Inspeccion i
                 INNER JOIN Equipo_Inspeccion ei ON i.id_inspeccion = ei.id_inspeccion
                 INNER JOIN Equipos_Laboratorio e ON ei.id_equipo = e.id_equipo
@@ -26,6 +26,14 @@ $sql_analisis = "SELECT
                 LEFT JOIN Resultado_Inspeccion ri ON i.id_inspeccion = ri.id_inspeccion";
 
 $where_added = false;
+$params = [];
+
+// Añadir filtro por búsqueda si existe
+if (!empty($busqueda)) {
+    $sql_analisis .= " WHERE i.lote LIKE :busqueda";
+    $where_added = true;
+    $params[':busqueda'] = "%$busqueda%";
+}$where_added = false;
 $params = [];
 
 
@@ -54,21 +62,21 @@ $stmt_analisis->execute();
 $analisis = $stmt_analisis->fetchAll(PDO::FETCH_ASSOC);
 
 
-// Obtener los resultados de parámetros de un análisis específico
+// Función para obtener parámetros de un análisis
 function obtenerParametros($pdo, $id_inspeccion) {
-    $sql_params = "SELECT ri.nombre_parametro, ri.valor_obtenido, ri.aprobado
+    $sql_params = "SELECT ri.id_resultado, ri.nombre_parametro, ri.valor_obtenido, ri.aprobado
                   FROM Resultado_Inspeccion ri
                   WHERE ri.id_inspeccion = :id_inspeccion
                   ORDER BY ri.nombre_parametro";
     
     $stmt_params = $pdo->prepare($sql_params);
-    $stmt_params->bindParam(':id_inspeccion', $id_inspeccion);
+    $stmt_params->bindParam(':id_inspeccion', $id_inspeccion, PDO::PARAM_INT);
     $stmt_params->execute();
     
     return $stmt_params->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Mostrar los parámetros específicos según el tipo de equipo
+// Función para mostrar parámetros
 function mostrarParametros($pdo, $id_inspeccion, $tipo_equipo) {
     $parametros = obtenerParametros($pdo, $id_inspeccion);
     
@@ -76,42 +84,22 @@ function mostrarParametros($pdo, $id_inspeccion, $tipo_equipo) {
         return "No hay parámetros registrados";
     }
     
-    // Filtrar los parámetros según el tipo de equipo
-    $parametros_filtrados = [];
-    foreach ($parametros as $param) {
-        $prefijo = '';
-        if (strpos($param['nombre_parametro'], 'Alveograma_') === 0) {
-            $prefijo = 'Alveograma_';
-        } elseif (strpos($param['nombre_parametro'], 'Farinograma_') === 0) {
-            $prefijo = 'Farinograma_';
-        }
-        
-        // Incluir los parámetros correspondientes al tipo de equipo
-        if (($tipo_equipo == 'Alveógrafo' && $prefijo == 'Alveograma_') || 
-            ($tipo_equipo == 'Farinógrafo' && $prefijo == 'Farinograma_')) {
-            $parametros_filtrados[] = $param;
-        }
-    }
-    
-    if (empty($parametros_filtrados)) {
-        return "No hay parámetros para este tipo de equipo";
-    }
-    
-    // Manejo de error
     $resultado = "";
-    foreach ($parametros_filtrados as $param) {
+    foreach ($parametros as $param) {
+        // Eliminar prefijos para mostrar nombres limpios
         $nombre = str_replace(['Alveograma_', 'Farinograma_'], '', $param['nombre_parametro']);
-        $clase = $param['aprobado'] ? 'param-ok' : 'param-fallo';
+        $clase = ($param['aprobado'] === null || $param['aprobado'] == 0) ? 'param-fallo' : 'param-ok';
         $resultado .= '<span class="' . $clase . '">' . $nombre . ': ' . $param['valor_obtenido'] . '</span>, ';
     }
     
     return rtrim($resultado, ', ');
 }
 
-// Determinar si un análisis está aprobado
+// Función para determinar si un análisis está aprobado
 function analisisAprobado($total_parametros, $parametros_fallidos) {
+    // Si no hay parámetros, considerar como aprobado (depende de tu lógica de negocio)
     if ($total_parametros == 0) {
-        return false; // No hay parámetros para evaluar
+        return true;
     }
     return $parametros_fallidos == 0;
 }
@@ -144,6 +132,7 @@ function analisisAprobado($total_parametros, $parametros_fallidos) {
             color: red;
             font-weight: bold;
         }
+
     </style>
 </head>
 <body>
@@ -157,15 +146,15 @@ function analisisAprobado($total_parametros, $parametros_fallidos) {
             <form action="" method="GET" class="controles">
                 <div class="buscador">
                     <h4 class="buscador__label">Buscar</h4>
-                    <input id="searchBar" type="text" name="busqueda" value="" class="buscador__input" placeholder="Lote de producción">
+                    <input id="searchBar" type="text" name="busqueda" value="<?= htmlspecialchars($busqueda) ?>" class="buscador__input" placeholder="Lote de producción">
                 </div>
 
                 <div class="ordenar">
                     <h4 class="ordenar__label">Filtrar</h4>
                     <select id="filtroEquipo" name="filtro" class="ordenar__select">
-                        <option value="" <?php echo empty($filtro) ? 'selected' : ''; ?>>Todos los equipos</option>
-                        <option value="Alveógrafo" <?php echo $filtro == 'Alveógrafo' ? 'selected' : ''; ?>>Alveógrafos</option>
-                        <option value="Farinógrafo" <?php echo $filtro == 'Farinógrafo' ? 'selected' : ''; ?>>Farinógrafos</option>
+                        <option value="" <?= empty($filtro) ? 'selected' : '' ?>>Todos los equipos</option>
+                        <option value="Alveógrafo" <?= $filtro == 'Alveógrafo' ? 'selected' : '' ?>>Alveógrafos</option>
+                        <option value="Farinógrafo" <?= $filtro == 'Farinógrafo' ? 'selected' : '' ?>>Farinógrafos</option>
                     </select>
                 </div>
 
@@ -180,7 +169,6 @@ function analisisAprobado($total_parametros, $parametros_fallidos) {
                             <th>Lote de producción</th>
                             <th>Secuencia</th>
                             <th>Fecha</th>
-                            <!--<th>Cliente</th>-->
                             <th>Equipo</th>
                             <th>Tipo</th>
                             <th>Estado</th>
@@ -191,22 +179,29 @@ function analisisAprobado($total_parametros, $parametros_fallidos) {
                     <tbody>
                         <?php if(count($analisis) > 0): ?>
                             <?php foreach ($analisis as $item): ?>
-                            <?php $aprobado = analisisAprobado($item['total_parametros'], $item['parametros_fallidos']); ?>
+                            <?php 
+                                $aprobado = analisisAprobado($item['total_parametros'], $item['parametros_fallidos']);
+                                // Debug: Mostrar valores para verificación
+                                // var_dump($item);
+                            ?>
                             <tr class="tabla__fila">
-                                <td><?php echo htmlspecialchars($item['lote']); ?></td>
-                                <td><?php echo htmlspecialchars($item['secuencia']); ?></td>
-                                <td><?php echo date('d/m/Y H:i', strtotime($item['fecha_inspeccion'])); ?></td>                            
-                                <td><?php echo htmlspecialchars($item['equipo_clave']); ?> (<?php echo htmlspecialchars($item['marca']); ?> <?php echo htmlspecialchars($item['modelo']); ?>)</td>
-                                <td><?php echo htmlspecialchars($item['tipo_equipo']); ?></td>
-                                <td class="<?php echo $aprobado ? 'estado-aprobado' : 'estado-fallido'; ?>">
-                                    <?php echo $aprobado ? 'Aprobado' : 'Fallido'; ?>
+                                <td><?= htmlspecialchars($item['lote']) ?></td>
+                                <td><?= htmlspecialchars($item['secuencia']) ?></td>
+                                <td><?= date('d/m/Y H:i', strtotime($item['fecha_inspeccion'])) ?></td>
+                                <td><?= htmlspecialchars($item['equipo_clave']) ?> (<?= htmlspecialchars($item['marca']) ?> <?= htmlspecialchars($item['modelo']) ?>)</td>
+                                <td><?= htmlspecialchars($item['tipo_equipo']) ?></td>
+                                <td class="<?= $aprobado ? 'estado-aprobado' : 'estado-fallido' ?>">
+                                    <?= $aprobado ? 'Aprobado' : 'Fallido' ?>
+                                    <?php if($item['total_parametros'] > 0): ?>
+                                        <small>(<?= $item['parametros_fallidos'] ?>/<?= $item['total_parametros'] ?>)</small>
+                                    <?php endif; ?>
                                 </td>
-                                <td><?php echo mostrarParametros($pdo, $item['id_inspeccion'], $item['tipo_equipo']); ?></td>
+                                <td><?= mostrarParametros($pdo, $item['id_inspeccion'], $item['tipo_equipo']) ?></td>
                                 <td class="tabla__botones">
-                                    <a href="analisiscalidadform.php?id=<?php echo $item['id_inspeccion']; ?>">
+                                    <a href="analisiscalidadform.php?id=<?= $item['id_inspeccion'] ?>">
                                         <img src="../img/edit.svg" alt="Editar" class="tabla__boton">
                                     </a>
-                                    <a href="javascript:void(0);" onclick="deleteAnalisis(<?php echo $item['id_inspeccion']; ?>, '<?php echo htmlspecialchars($item['lote']); ?>')">
+                                    <a href="javascript:void(0);" onclick="deleteAnalisis(<?= $item['id_inspeccion'] ?>, '<?= htmlspecialchars($item['lote']) ?>')">
                                         <img src="../img/delete.svg" alt="Eliminar" class="tabla__boton">
                                     </a>
                                 </td>
@@ -214,7 +209,7 @@ function analisisAprobado($total_parametros, $parametros_fallidos) {
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="9" style="text-align: center;">No se encontraron análisis</td>
+                                <td colspan="8" style="text-align: center;">No se encontraron análisis</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -226,34 +221,23 @@ function analisisAprobado($total_parametros, $parametros_fallidos) {
 
     <script>
         // Filtro por tipo de equipo
-        const filtroEquipo = document.getElementById('filtroEquipo');
-        
-        filtroEquipo.addEventListener('change', () => {
-            const seleccion = filtroEquipo.value;
-            const searchParams = new URLSearchParams(window.location.search);
-            
-            if (seleccion === "") {
-                searchParams.delete('filtro');
-            } else {
-                searchParams.set('filtro', seleccion);
-            }
-            
-            // Mantener el parámetro de búsqueda si existe
-            const busqueda = document.getElementById('searchBar').value;
-            if (busqueda) {
-                searchParams.set('busqueda', busqueda);
-            }
-            
-            window.location.href = "?" + searchParams.toString();
+        document.getElementById('filtroEquipo').addEventListener('change', function() {
+            this.form.submit();
         });
 
-        // Buscar por lote de producción (filtro dinámico)
-        const buscador = document.getElementById('searchBar');
-        
-        function filtrarPorLote(lote) {
-            document.getElementById('searchBar').value = lote;
-            document.querySelector('form.controles').submit();
-        }
+        // Buscador en tiempo real
+        document.getElementById('searchBar').addEventListener('input', function() {
+            const filtro = this.value.toLowerCase();
+            const filas = document.querySelectorAll('.tabla tbody tr');
+
+            filas.forEach(fila => {
+                const celdaLote = fila.querySelector('td:nth-child(1)');
+                if (celdaLote) {
+                    const textoLote = celdaLote.textContent.toLowerCase();
+                    fila.style.display = textoLote.includes(filtro) ? '' : 'none';
+                }
+            });
+        });
 
         // Manejar alertas y notificaciones
         document.addEventListener("DOMContentLoaded", () => {
@@ -284,6 +268,10 @@ function analisisAprobado($total_parametros, $parametros_fallidos) {
                     title: '¡Éxito!',
                     text: mensaje,
                     confirmButtonText: 'Aceptar'
+                }).then(() => {
+                    // Eliminar parámetros de éxito de la URL
+                    const cleanUrl = window.location.pathname + window.location.search.replace(/[?&]success=1(&|$)/, '');
+                    window.history.replaceState({}, document.title, cleanUrl);
                 });
             }
 
@@ -293,11 +281,15 @@ function analisisAprobado($total_parametros, $parametros_fallidos) {
                     title: 'Error',
                     text: message ? decodeURIComponent(message) : 'Ha ocurrido un error al procesar la solicitud.',
                     confirmButtonText: 'Aceptar'
+                }).then(() => {
+                    // Eliminar parámetros de error de la URL
+                    const cleanUrl = window.location.pathname + window.location.search.replace(/[?&]error=1(&|$)/, '');
+                    window.history.replaceState({}, document.title, cleanUrl);
                 });
             }
         });
 
-        // Función para confirmar eliminación usando SweetAlert
+        // Función para confirmar eliminación
         function deleteAnalisis(id, lote) {
             Swal.fire({
                 title: '¿Estás seguro?',
