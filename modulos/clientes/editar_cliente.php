@@ -28,7 +28,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     direccion_fiscal = '$direccion_fiscal', parametros = '$parametros', estado = '$estado' WHERE id_cliente = $id";
 
     $stmt = $pdo->prepare($sql);
-    $stmt->execute();
+    // $stmt->execute();
+    if ($stmt->execute()) {
+        $_SESSION['mensaje'] = 'exito';
+        $_SESSION['texto'] = 'Cliente actualizado correctamente.';
+    } else {
+        $_SESSION['mensaje'] = 'error';
+        $_SESSION['texto'] = 'No se pudo actualizar al cliente.';
+    }
 
     // Actualizar los datos de los parametros
     if ($parametros == 'Personalizados') {
@@ -42,19 +49,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             foreach ($_POST['alveografo'] as $parametro_id => $valores) {
                 $min = test_data($valores['min']);
                 $max = test_data($valores['max']);
-                
+
                 $sql_parametros = "INSERT INTO Parametros (id_cliente, nombre_parametro, tipo, lim_Inferior, lim_Superior) 
                                  VALUES ($id, :parametro, 'Personalizado', :min, :max)";
-                
+
                 $stmt_parametros = $pdo->prepare($sql_parametros);
                 $stmt_parametros->bindParam(':parametro', $parametro_id);
                 $stmt_parametros->bindParam(':min', $min);
                 $stmt_parametros->bindParam(':max', $max);
-                
+
                 if ($stmt_parametros->execute()) {
                     $_SESSION['mensaje'] = 'exito';
+                    $_SESSION['texto'] = 'Parámetros actualizados correctamente.';
+
                 } else {
                     $_SESSION['mensaje'] = 'error';
+                    $_SESSION['texto'] = 'No se pudo actualizar los parámetros.';
+
                 }
             }
         } else if ($tipo == 'Farinógrafo') {
@@ -62,15 +73,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             foreach ($_POST['farinografo'] as $parametro_id => $valores) {
                 $min = test_data($valores['min']);
                 $max = test_data($valores['max']);
-                
+
                 $sql_parametros = "INSERT INTO Parametros (id_cliente, nombre_parametro, tipo, lim_Inferior, lim_Superior) 
                                  VALUES ($id, :parametro, 'Personalizado', :min, :max)";
-                
+
                 $stmt_parametros = $pdo->prepare($sql_parametros);
                 $stmt_parametros->bindParam(':parametro', $parametro_id);
                 $stmt_parametros->bindParam(':min', $min);
                 $stmt_parametros->bindParam(':max', $max);
-                
+
                 if ($stmt_parametros->execute()) {
                     $_SESSION['mensaje'] = 'exito';
                     $_SESSION['texto'] = 'Parámetros actualizados correctamente.';
@@ -81,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
     }
+
 
     header("Location: /fabrica-harinas/modulos/clientes.php");
     exit;

@@ -36,6 +36,7 @@ $editando = '';
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #f9f9f9;
+            grid-column: 1 / 3;
         }
         
         .parametros-title {
@@ -48,18 +49,19 @@ $editando = '';
         
         .parametro-row {
             display: flex;
-            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
             margin-bottom: 10px;
             align-items: center;
         }
         
         .parametro-nombre {
-            flex: 0 0 30%;
+            flex: 1;
             font-weight: bold;
         }
         
         .parametro-inputs {
-            flex: 0 0 70%;
+            flex: 1;
             display: flex;
             gap: 10px;
         }
@@ -69,6 +71,11 @@ $editando = '';
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            font-family: inherit;
         }
         
         .parametro-label {
@@ -80,11 +87,10 @@ $editando = '';
         h1 {
             color: var(--colorSecundario);
             font-family: var(--fuenteHeading);
-            font-size: 2rem;
+            font-size: 24px;
             margin: 2rem 0 1.5rem;
-            padding-bottom: 0.5rem;
             border-bottom: 3px solid var(--colorPrimario);
-            text-align: center;
+            text-align: left;
         }
 
         .parametro-group {
