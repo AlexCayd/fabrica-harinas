@@ -25,23 +25,34 @@ $sql_analisis = "SELECT
                 LEFT JOIN Clientes c ON i.id_cliente = c.id_cliente
                 LEFT JOIN Resultado_Inspeccion ri ON i.id_inspeccion = ri.id_inspeccion";
 
+$where_added = false;
+$params = [];
 
 
 // Añadir filtro por tipo de equipo si está seleccionado
 if (!empty($filtro)) {
-    if (!empty($busqueda)) {
+    if ($where_added) {
         $sql_analisis .= " AND e.tipo_equipo = :filtro";
     } else {
         $sql_analisis .= " WHERE e.tipo_equipo = :filtro";
+        $where_added = true;
     }
+    $params[':filtro'] = $filtro;
 }
 
 $sql_analisis .= " GROUP BY i.id_inspeccion, ei.id_equipo";
 $sql_analisis .= " ORDER BY i.fecha_inspeccion DESC";
 
 $stmt_analisis = $pdo->prepare($sql_analisis);
+
+// Vincular parámetros si existen
+foreach ($params as $key => $value) {
+    $stmt_analisis->bindValue($key, $value);
+}
+
 $stmt_analisis->execute();
 $analisis = $stmt_analisis->fetchAll(PDO::FETCH_ASSOC);
+
 
 // Obtener los resultados de parámetros de un análisis específico
 function obtenerParametros($pdo, $id_inspeccion) {
@@ -303,6 +314,18 @@ function analisisAprobado($total_parametros, $parametros_fallidos) {
                 }
             });
         }
+    document.getElementById('searchBar').addEventListener('input', function() {
+    const filtro = this.value.toLowerCase();
+    const filas = document.querySelectorAll('.tabla tbody tr');
+
+    filas.forEach(fila => {
+        const celdaLote = fila.querySelector('td:nth-child(1)');
+        if (celdaLote) {
+            const textoLote = celdaLote.textContent.toLowerCase();
+            fila.style.display = textoLote.includes(filtro) ? '' : 'none';
+        }
+    });
+});
     </script>
 </body>
 </html>
