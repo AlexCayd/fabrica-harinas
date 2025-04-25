@@ -55,7 +55,6 @@ foreach ($parametros as $param) {
     <title>FHE | Editar Cliente</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -105,6 +104,25 @@ foreach ($parametros as $param) {
             font-size: 12px;
             color: #666;
         }
+
+         /* Estilos para el título de datos de contacto */
+         h1 {
+            color: var(--colorSecundario);
+            font-family: var(--fuenteHeading);
+            font-size: 2rem;
+            margin: 2rem 0 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--colorPrimario);
+            text-align: center;
+        }
+
+        .parametro-group {
+            background-color: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
     </style>
     <main class="contenedor hoja">
         <?php include '../includes/header.php' ?>
@@ -117,47 +135,23 @@ foreach ($parametros as $param) {
                 <input type="hidden" name="id" value="<?php echo htmlspecialchars($id_cliente); ?>" required>
 
                 <div class="formulario__campo">
-                    <label for="nombre" class="formulario__label">Nombre</label>
+                    <label for="nombre" class="formulario__label">Nombre de la empresa </label>
                     <input type="text" name="nombre" class="formulario__input"
                         value="<?php echo htmlspecialchars($cliente['nombre']); ?>" required>
                 </div>
 
                 <div class="formulario__campo">
                     <label for="certificado" class="formulario__label">Requiere certificado</label>
-                    <select name="certificado" class="formulario__select" required>
+                    <select name="certificado" class="formulario__select">
                         <option value="1" <?php echo $cliente['req_certificado'] == 1 ? 'selected' : ''; ?>>Sí</option>
                         <option value="0" <?php echo $cliente['req_certificado'] == 0 ? 'selected' : ''; ?>>No</option>
                     </select>
                 </div>
 
                 <div class="formulario__campo">
-                    <label for="email" class="formulario__label">Correo electrónico</label>
-                    <input type="email" name="email" class="formulario__input"
-                        value="<?php echo htmlspecialchars($cliente['correo_contacto']); ?>" required>
-                </div>
-
-                <div class="formulario__campo">
                     <label for="rfc" class="formulario__label">RFC</label>
                     <input type="text" name="rfc" class="formulario__input"
                         value="<?php echo htmlspecialchars($cliente['rfc']); ?>" required>
-                </div>
-
-                <div class="formulario__campo">
-                    <label for="puesto" class="formulario__label">Puesto</label>
-                    <input type="text" name="puesto" class="formulario__input"
-                        value="<?php echo htmlspecialchars($cliente['puesto_contacto']); ?>" required>
-                </div>
-
-                <div class="formulario__campo">
-                    <label for="numero-telefonico" class="formulario__label">Número telefónico</label>
-                    <input type="text" name="numero-telefonico" class="formulario__input"
-                        value="<?php echo htmlspecialchars($cliente['telefono_contacto']); ?>" required>
-                </div>
-
-                <div class="formulario__campo">
-                    <label for="direccion-fiscal" class="formulario__label">Dirección fiscal</label>
-                    <input type="text" name="direccion-fiscal" class="formulario__input"
-                        value="<?php echo htmlspecialchars($cliente['direccion_fiscal']); ?>" required>
                 </div>
 
                 <div class="formulario__campo">
@@ -238,6 +232,40 @@ foreach ($parametros as $param) {
                     <?php endforeach; ?>
                 </div>
 
+                <div class="formulario__campo">
+                    <h1>Datos de contacto</h1> 
+                </div> <br>
+
+                <div class="formulario__campo">
+                    <label for="puesto_nombre" class="formulario__label"> Nombre </label>
+                    <input type="text" name="puesto_nombre" class="formulario__input" placeholder="Nombre" 
+                    value="<?php echo htmlspecialchars($cliente['nombre_contacto']); ?>" required>
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="puesto" class="formulario__label"> Puesto </label>
+                    <input type="text" name="puesto" class="formulario__input" placeholder="Puesto" 
+                    value="<?php echo htmlspecialchars($cliente['puesto_contacto']); ?>" required>
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="email" class="formulario__label">Correo electrónico</label>
+                    <input type="email" name="email" class="formulario__input"
+                        value="<?php echo htmlspecialchars($cliente['correo_contacto']); ?>" required>
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="numero-telefonico" class="formulario__label">Número telefónico</label>
+                    <input type="text" name="numero-telefonico" class="formulario__input"
+                        value="<?php echo htmlspecialchars($cliente['telefono_contacto']); ?>" required>
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="direccion-fiscal" class="formulario__label">Dirección fiscal</label>
+                    <input type="text" name="direccion-fiscal" class="formulario__input"
+                        value="<?php echo htmlspecialchars($cliente['direccion_fiscal']); ?>" required>
+                </div>
+                
                 <input type="submit" class="formulario__submit" value="Actualizar cliente">
             </form>
         </div>

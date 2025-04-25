@@ -75,6 +75,25 @@ $editando = '';
             font-size: 12px;
             color: #666;
         }
+
+        /* Estilos para el título de datos de contacto */
+        h1 {
+            color: var(--colorSecundario);
+            font-family: var(--fuenteHeading);
+            font-size: 2rem;
+            margin: 2rem 0 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--colorPrimario);
+            text-align: center;
+        }
+
+        .parametro-group {
+            background-color: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
     </style>
     <main class="contenedor hoja">
         <?php include '../includes/header.php' ?>
@@ -85,8 +104,8 @@ $editando = '';
             <h2 class="heading">Agregar Cliente</h2>
             <form action="clientes/agregar_cliente.php" class="formulario" method="post">
                 <div class="formulario__campo">
-                    <label for="nombre" class="formulario__label">Nombre</label>
-                    <input type="text" name="nombre" class="formulario__input" placeholder="Nombre">
+                    <label for="nombre" class="formulario__label">Nombre de la empresa</label>
+                    <input type="text" name="nombre" class="formulario__input" placeholder="Nombre de la empresa">
                 </div>
 
                 <div class="formulario__campo">
@@ -96,32 +115,12 @@ $editando = '';
                         <option value="0"> No </option>
                     </select>
                 </div>
-
-                <div class="formulario__campo">
-                    <label for="email" class="formulario__label">Correo electrónico</label>
-                    <input type="email" name="email" class="formulario__input" placeholder="Correo electrónico" required>
-                </div>
-
+                
                 <div class="formulario__campo">
                     <label for="rfc" class="formulario__label"> RFC </label>
                     <input type="text" name="rfc" class="formulario__input" placeholder="RFC" required>
-                </div>
-
-                <div class="formulario__campo">
-                    <label for="puesto" class="formulario__label"> Puesto </label>
-                    <input type="text" name="puesto" class="formulario__input" placeholder="Puesto" required>
-                </div>
-
-                <div class="formulario__campo">
-                    <label for="numero-telefonico" class="formulario__label"> Numero telefónico </label>
-                    <input type="text" name="numero-telefonico" class="formulario__input" placeholder="Numero telefonico" required>
-                </div>
-
-                <div class="formulario__campo">
-                    <label for="direccion-fiscal" class="formulario__label"> Direccion fiscal </label>
-                    <input type="text" name="direccion-fiscal" class="formulario__input" placeholder="Direccion fiscal" required>
-                </div>
-
+                </div> 
+                
                 <div class="formulario__campo">
                     <label for="rol" class="formulario__label">Estado</label>
                     <select name="categoria" id="categoria" class="formulario__select" required>
@@ -201,6 +200,35 @@ $editando = '';
                         </div>
                     </div>
                     <?php endforeach; ?>
+                </div>  
+
+                <div class="formulario__campo">
+                    <h1>Datos de contacto</h1> 
+                </div> <br>
+
+                <div class="formulario__campo">
+                    <label for="puesto_nombre" class="formulario__label"> Nombre </label>
+                    <input type="text" name="puesto_nombre" class="formulario__input" placeholder="Nombre" required>
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="puesto" class="formulario__label"> Puesto </label>
+                    <input type="text" name="puesto" class="formulario__input" placeholder="Puesto" required>
+                </div>
+                
+                <div class="formulario__campo">
+                    <label for="email" class="formulario__label">Correo electrónico</label>
+                    <input type="email" name="email" class="formulario__input" placeholder="Correo electrónico" required>
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="numero-telefonico" class="formulario__label"> Numero telefónico </label>
+                    <input type="text" name="numero-telefonico" class="formulario__input" placeholder="Numero telefonico" required>
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="direccion-fiscal" class="formulario__label"> Direccion fiscal </label>
+                    <input type="text" name="direccion-fiscal" class="formulario__input" placeholder="Direccion fiscal" required>
                 </div>
 
                 <input type="submit" class="formulario__submit" value="Agregar cliente">
