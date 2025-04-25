@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    // header("Location: /fabrica-harinas/modulos/clientes.php?success");
+    header("Location: /fabrica-harinas/modulos/clientes.php?success");
     exit;
 } else {
 
