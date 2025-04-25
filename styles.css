@@ -149,7 +149,7 @@ h1, h2, h3, h4 {
 
 .botones__buscar,
 .botones__crear {
-    font-size: 18px;
+    font-size: 14px;
     padding: 15px 50px;
     background-color: var(--colorSecundario);
     color: var(--colorPrimario);
@@ -196,7 +196,6 @@ h1, h2, h3, h4 {
 
 .tabla__boton {
     height: 30px;
-    margin-bottom: 25px;
     cursor: pointer;
 }
 
@@ -268,6 +267,8 @@ h1, h2, h3, h4 {
     font-size: 20px;
 }
 
+
+
 .resultados__numero {
     display: inline-block;
     margin-top: 15px;
@@ -277,4 +278,15 @@ h1, h2, h3, h4 {
     color: var(--colorPrimario);
     padding: 10px;
     border-radius: 50%;
+}
+
+/* GRAFICA */
+.grafica {
+    max-width: 600px;
+    height: 400px;
+    margin: 40px auto;
+    font-family: inherit;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

@@ -16,6 +16,11 @@
             <a href="estadisticos.php" class="atras">Ir atrás</a>
             <h2 class="heading">Resultados de estadísticos</h2>
 
+            <div class="grafica" style="">
+                <canvas id="graficaParametros"></canvas>
+            </div>
+
+            
             <div class="resultados">
                 <div class="resultados__contenedor">
                     <h2 class="resultados__texto">Total de parámetros analizados</h2>
@@ -40,5 +45,38 @@
         </div>
         <?php include '../includes/footer.php' ?>
     </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('graficaParametros').getContext('2d');
+        const grafica = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Aprobados', 'No aprobados'],
+                datasets: [{
+                    label: 'Parámetros',
+                    data: [10, 5], // valores de ejemplo
+                    backgroundColor: [
+                        '#4c3325',  
+                        '#EBDED0' 
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribución de Parámetros Analizados'
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
