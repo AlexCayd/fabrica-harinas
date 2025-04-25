@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $correo = test_data($_POST['email']);
     $rfc = test_data($_POST['rfc']);
     $puesto = test_data($_POST['puesto']);
+    $nombre_contacto = test_data($_POST['puesto_nombre']);
     $telefono = test_data($_POST['numero-telefonico']);
     $direccion_fiscal = test_data($_POST['direccion-fiscal']);
     $parametros = test_data($_POST['parametros']);
@@ -22,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $tipo = test_data($_POST['tipo_equipo']);
 
     // Actualizar los datos del cliente
-    $sql = "UPDATE Clientes SET req_certificado = $certificado, nombre = '$nombre', rfc = '$rfc', nombre_contacto = '$nombre', 
+    $sql = "UPDATE Clientes SET req_certificado = $certificado, nombre = '$nombre', rfc = '$rfc', nombre_contacto = '$nombre_contacto', 
     puesto_contacto = '$puesto', correo_contacto = '$correo', telefono_contacto = '$telefono', 
     direccion_fiscal = '$direccion_fiscal', parametros = '$parametros', estado = '$estado' WHERE id_cliente = $id";
 

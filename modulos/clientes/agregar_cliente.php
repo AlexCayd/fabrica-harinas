@@ -14,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $correo = test_data($_POST['email']);
     $rfc = test_data($_POST['rfc']);
     $puesto = test_data($_POST['puesto']);
+    $nombre_contacto = test_data($_POST['puesto_nombre']);
     $telefono = test_data($_POST['numero-telefonico']);
     $direccion_fiscal = test_data($_POST['direccion-fiscal']);
     $parametros = test_data($_POST['parametros']);
@@ -21,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $tipo = test_data($_POST['tipo_equipo']);
 
     $sql = "INSERT INTO Clientes (req_certificado, nombre, rfc, nombre_contacto, puesto_contacto, correo_contacto, telefono_contacto,
-    direccion_fiscal, estado, parametros) VALUES ($certificado, '$nombre', '$rfc', '$nombre', '$puesto', 
+    direccion_fiscal, estado, parametros) VALUES ($certificado, '$nombre', '$rfc', '$nombre_contacto', '$puesto', 
     '$correo', '$telefono', '$direccion_fiscal', '$estado', '$parametros')";
 
     $stmt = $pdo->prepare($sql);
