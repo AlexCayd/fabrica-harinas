@@ -2,7 +2,7 @@
 
 include '../../config/conn.php';
 include '../../config/functions.php';
-
+session_start();
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -26,7 +26,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     '$correo', '$telefono', '$direccion_fiscal', '$estado', '$parametros')";
 
     $stmt = $pdo->prepare($sql);
-    $stmt->execute();
+
+    if ($stmt->execute()) {
+        $_SESSION['mensaje'] = 'exito';
+        $_SESSION['texto'] = 'Cliente agregado correctamente.';
+    } else {
+        $_SESSION['mensaje'] = 'error';
+        $_SESSION['texto'] = 'No se pudo agregar al cliente.';
+    }
+    // $stmt->execute();
+
 
     // Obtener el ID del último registro insertado
     $ultimo_id = $pdo->lastInsertId();

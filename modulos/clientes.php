@@ -151,7 +151,7 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php if ($_SESSION['mensaje'] == 'exito'): ?>
                 Swal.fire({
                     icon: 'success',
-                    title: 'Cliente editado correctamente',
+                    title: '<?php echo $_SESSION['texto']; ?>',
                     showConfirmButton: false,
                     timer: 1500
                 });
@@ -159,7 +159,7 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error al editar el cliente',
-                    text: 'Ocurrió un problema en el servidor',
+                    text: '<?php echo $_SESSION['texto']; ?>',
                     showConfirmButton: true
                 });
             <?php endif; ?>
