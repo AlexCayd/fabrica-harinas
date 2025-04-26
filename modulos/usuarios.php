@@ -79,40 +79,36 @@ $orden = $_GET['orden'] ?? ''; // por defecto vacío
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="tabla__fila">
-
                         <?php
                         require '../config/conn.php';
 
-                        $params = [];
+                        $rol = [];
                         $sql = "SELECT * FROM usuarios";
 
                         // Aplica filtro si hay valor de ordenamiento
                         if (!empty($orden)) {
 
                             $sql .= " WHERE rol = ?";
-                            $params[] = $orden;
+                            $rol[] = $orden;
                         }
 
                         $stmt = $pdo->prepare($sql);
-                        $stmt->execute($params);
+                        $stmt->execute($rol);
 
                         while ($res = $stmt->fetch()) {
                             echo '<tr class="tabla__fila">';
-                            echo '<td>' . $res['id_usuario'] . '</td>';
-                            echo '<td>' . $res['nombre'] . '</td>';
-                            echo '<td>' . $res['correo'] . '</td>';
-                            echo '<td>' . $res['rol'] . '</td>';
+                            echo '<td>' . htmlspecialchars( $res['id_usuario'] ). '</td>';
+                            echo '<td>' . htmlspecialchars( $res['nombre'] ). '</td>';
+                            echo '<td>' . htmlspecialchars( $res['correo'] ) . '</td>';
+                            echo '<td>' . htmlspecialchars( $res['rol'] ) . '</td>';
                             echo '<td class="tabla__botones">';
                             echo '<a href="usuariosform.php?id=' . $res['id_usuario'] . '"><img src="../img/edit.svg" alt="Editar" class="tabla__boton"></a>';
-                            echo '<a href="#" onclick="deleteUser(' . $res['id_usuario'] . ', \'' . $res['nombre'] . '\'); return false;"><img src="../img/delete.svg" alt="Eliminar" class="tabla__boton"></a>';
+                            echo '<a href="#" onclick="deleteUser(' . $res['id_usuario'] . ', ' . json_encode($res['nombre']) . '); return false;"><img src="../img/delete.svg" alt="Eliminar" class="tabla__boton"></a>';
                             echo '</td>';
                             echo '</tr>';
                         }
 
                         ?>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>

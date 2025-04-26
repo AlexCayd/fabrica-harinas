@@ -86,12 +86,16 @@ CREATE TABLE Parametros (
         'Farinograma_Estabilidad',
         'Farinograma_Grado_Decaimiento'
     ) NOT NULL,
-    tipo ENUM('Personalizado', 'Internacional') NOT NULL,
     lim_Superior DECIMAL(10, 2) NOT NULL,
     lim_Inferior DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (id_equipo) REFERENCES Equipos_Laboratorio(id_equipo),
-    FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente)
+    FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente),
+    CHECK (
+        (id_cliente IS NOT NULL AND id_equipo IS NULL) OR
+        (id_cliente IS NULL AND id_equipo IS NOT NULL)
+    )
 );
+
 -- Tabla Inspeccion
 CREATE TABLE Inspeccion (
     id_inspeccion INT PRIMARY KEY AUTO_INCREMENT,
@@ -157,469 +161,84 @@ CREATE TABLE Hist_Certificados (
 );
 INSERT INTO Usuarios (nombre, correo, contrasena, rol)
 VALUES ('admin', 'admin@correo.com', '1', 'TI');
--- 1. Insertar usuarios para tener responsables de los equipos
-INSERT INTO Usuarios (nombre, correo, contrasena, rol)
-VALUES (
-        'Juan Pérez',
-        'jperez@fhelizondo.com',
-        '$2y$10$xKO7tB5hl6aXo6ZyAOl56.Tpl1dHas6u5mBkUvu5XyHvSksG3/7AS',
-        'Laboratorio'
-    ),
-    (
-        'Ana García',
-        'agarcia@fhelizondo.com',
-        '$2y$10$9oF1QB1hFuGN7TJ/UEHaQuWW9xA4.fS4gsZZP.mXAeA9Jqkxqx7v2',
-        'Gerencia de Control de Calidad'
-    );
--- 2. Insertar clientes
-INSERT INTO Clientes (
-        nombre,
-        rfc,
-        nombre_contacto,
-        puesto_contacto,
-        correo_contacto,
-        telefono_contacto,
-        parametros,
-        estado
-    )
-VALUES (
-        'Panadería La Espiga',
-        'ESP220504KL2',
-        'Roberto Sánchez',
-        'Gerente de Compras',
-        'rsanchez@laespiga.com',
-        '5523456789',
-        'Internacionales',
-        'Activo'
-    ),
-    (
-        'Industrias Bimbo',
-        'BIM020315RT7',
-        'Laura Martínez',
-        'Director de Calidad',
-        'lmartinez@bimbo.com',
-        '5587654321',
-        'Personalizados',
-        'Activo'
-    ),
-    (
-        'Pastelerías Finas',
-        'PFI191208PL5',
-        'Carlos Rodríguez',
-        'Jefe de Producción',
-        'crodriguez@pastfinas.com',
-        '5545678901',
-        'Internacionales',
-        'Activo'
-    );
--- 3. Insertar equipos de laboratorio
-INSERT INTO Equipos_Laboratorio (
-        id_responsable,
-        clave,
-        tipo_equipo,
-        marca,
-        modelo,
-        serie,
-        desc_larga,
-        desc_corta,
-        proveedor,
-        fecha_adquisicion,
-        garantia,
-        vencimiento_garantia,
-        ubicacion,
-        estado
-    )
-VALUES (
-        1,
-        'ALV001',
-        'Alveógrafo',
-        'Chopin',
-        'NG',
-        'CH2023001',
-        'Alveógrafo de Chopin modelo NG para análisis de calidad de gluten',
-        'Alveógrafo Chopin NG',
-        'Chopin Instruments',
-        '2023-01-15',
-        'G-ALV001-2023',
-        '2026-01-15',
-        'Laboratorio Central',
-        'Activo'
-    ),
-    (
-        2,
-        'ALV002',
-        'Alveógrafo',
-        'Brabender',
-        'AB200',
-        'BR2022045',
-        'Alveógrafo Brabender modelo AB200 para análisis de harinas',
-        'Alveógrafo Brabender',
-        'Brabender GmbH',
-        '2022-08-10',
-        'G-ALV002-2022',
-        '2025-08-10',
-        'Laboratorio de Control de Calidad',
-        'Activo'
-    ),
-    (
-        1,
-        'FAR001',
-        'Farinógrafo',
-        'Brabender',
-        'F-300',
-        'BR2023102',
-        'Farinógrafo Brabender modelo F-300 para evaluación de absorción de agua',
-        'Farinógrafo Brabender F-300',
-        'Brabender GmbH',
-        '2023-03-20',
-        'G-FAR001-2023',
-        '2026-03-20',
-        'Laboratorio Central',
-        'Activo'
-    );
--- 4. Insertar parámetros para los equipos (internacionales)
--- Parámetros para Alveógrafo 1
-INSERT INTO Parametros (
-        id_equipo,
-        nombre_parametro,
-        tipo,
-        lim_Superior,
-        lim_Inferior
-    )
-VALUES (1, 'Alveograma_P', 'Internacional', 90.00, 60.00),
-    (
-        1,
-        'Alveograma_L',
-        'Internacional',
-        110.00,
-        70.00
-    ),
-    (
-        1,
-        'Alveograma_W',
-        'Internacional',
-        300.00,
-        230.00
-    ),
-    (1, 'Alveograma_PL', 'Internacional', 1.20, 0.60),
-    (
-        1,
-        'Alveograma_IE',
-        'Internacional',
-        65.00,
-        45.00
-    );
--- Parámetros para Alveógrafo 2
-INSERT INTO Parametros (
-        id_equipo,
-        nombre_parametro,
-        tipo,
-        lim_Superior,
-        lim_Inferior
-    )
-VALUES (2, 'Alveograma_P', 'Internacional', 95.00, 65.00),
-    (
-        2,
-        'Alveograma_L',
-        'Internacional',
-        115.00,
-        75.00
-    ),
-    (
-        2,
-        'Alveograma_W',
-        'Internacional',
-        320.00,
-        240.00
-    ),
-    (2, 'Alveograma_PL', 'Internacional', 1.30, 0.65),
-    (
-        2,
-        'Alveograma_IE',
-        'Internacional',
-        70.00,
-        50.00
-    );
--- Parámetros para Farinógrafo
-INSERT INTO Parametros (
-        id_equipo,
-        nombre_parametro,
-        tipo,
-        lim_Superior,
-        lim_Inferior
-    )
-VALUES (
-        3,
-        'Farinograma_Absorcion_Agua',
-        'Internacional',
-        65.00,
-        55.00
-    ),
-    (
-        3,
-        'Farinograma_Tiempo_Desarrollo',
-        'Internacional',
-        8.00,
-        4.00
-    ),
-    (
-        3,
-        'Farinograma_Estabilidad',
-        'Internacional',
-        15.00,
-        7.00
-    ),
-    (
-        3,
-        'Farinograma_Grado_Decaimiento',
-        'Internacional',
-        70.00,
-        40.00
-    );
--- Parámetros personalizados para cliente Bimbo (más estrictos)
-INSERT INTO Parametros (
-        id_equipo,
-        id_cliente,
-        nombre_parametro,
-        tipo,
-        lim_Superior,
-        lim_Inferior
-    )
-VALUES (
-        1,
-        2,
-        'Alveograma_P',
-        'Personalizado',
-        85.00,
-        65.00
-    ),
-    (
-        1,
-        2,
-        'Alveograma_L',
-        'Personalizado',
-        105.00,
-        80.00
-    ),
-    (
-        1,
-        2,
-        'Alveograma_W',
-        'Personalizado',
-        290.00,
-        250.00
-    ),
-    (
-        1,
-        2,
-        'Alveograma_PL',
-        'Personalizado',
-        1.10,
-        0.70
-    ),
-    (
-        1,
-        2,
-        'Alveograma_IE',
-        'Personalizado',
-        60.00,
-        50.00
-    ),
-    (
-        3,
-        2,
-        'Farinograma_Absorcion_Agua',
-        'Personalizado',
-        62.00,
-        58.00
-    ),
-    (
-        3,
-        2,
-        'Farinograma_Tiempo_Desarrollo',
-        'Personalizado',
-        7.50,
-        5.00
-    ),
-    (
-        3,
-        2,
-        'Farinograma_Estabilidad',
-        'Personalizado',
-        14.00,
-        9.00
-    ),
-    (
-        3,
-        2,
-        'Farinograma_Grado_Decaimiento',
-        'Personalizado',
-        65.00,
-        45.00
-    );
--- 5. Insertar inspecciones
--- Inspección 1: Lote BAT001A para cliente La Espiga (todos los parámetros dentro de rango)
-INSERT INTO Inspeccion (
-        id_cliente,
-        lote,
-        secuencia,
-        clave,
-        fecha_inspeccion
-    )
-VALUES (
-        1,
-        'BAT001',
-        'A',
-        'BAT001A',
-        '2023-11-20 09:30:00'
-    );
--- Inspección 2: Lote BAT002A para cliente Bimbo (algunos parámetros fuera de rango)
-INSERT INTO Inspeccion (
-        id_cliente,
-        lote,
-        secuencia,
-        clave,
-        fecha_inspeccion
-    )
-VALUES (
-        2,
-        'BAT002',
-        'A',
-        'BAT002A',
-        '2023-11-21 10:15:00'
-    );
--- Inspección 3: Lote BAT002B para cliente Bimbo (nuevo análisis del mismo lote)
-INSERT INTO Inspeccion (
-        id_cliente,
-        lote,
-        secuencia,
-        clave,
-        fecha_inspeccion
-    )
-VALUES (
-        2,
-        'BAT002',
-        'B',
-        'BAT002B',
-        '2023-11-21 14:30:00'
-    );
--- Inspección 4: Lote BAT003A para cliente Pastelerías Finas
-INSERT INTO Inspeccion (
-        id_cliente,
-        lote,
-        secuencia,
-        clave,
-        fecha_inspeccion
-    )
-VALUES (
-        3,
-        'BAT003',
-        'A',
-        'BAT003A',
-        '2023-11-22 08:45:00'
-    );
--- Inspección 5: Lote BAT004A sin cliente (inspección interna)
-INSERT INTO Inspeccion (
-        id_cliente,
-        lote,
-        secuencia,
-        clave,
-        fecha_inspeccion
-    )
-VALUES (
-        NULL,
-        'BAT004',
-        'A',
-        'BAT004A',
-        '2023-11-23 11:20:00'
-    );
--- Insertar relaciones Equipo-Inspección
-INSERT INTO Equipo_Inspeccion (id_equipo, id_inspeccion)
-VALUES (1, 1),
-    (1, 2),
-    (3, 2),
-    (2, 3),
-    (1, 4),
-    (3, 4),
-    (3, 5);
--- Resultados para Inspección 1
-INSERT INTO Resultado_Inspeccion (
-        id_inspeccion,
-        nombre_parametro,
-        valor_obtenido,
-        aprobado
-    )
-VALUES (1, 'Alveograma_P', 75.50, TRUE),
-    (1, 'Alveograma_L', 90.20, TRUE),
-    (1, 'Alveograma_W', 265.80, TRUE),
-    (1, 'Alveograma_PL', 0.84, TRUE),
-    (1, 'Alveograma_IE', 55.30, TRUE);
--- Resultados para Inspección 2 - Alveógrafo
-INSERT INTO Resultado_Inspeccion (
-        id_inspeccion,
-        nombre_parametro,
-        valor_obtenido,
-        aprobado
-    )
-VALUES (2, 'Alveograma_P', 62.40, FALSE),
-    (2, 'Alveograma_L', 92.70, TRUE),
-    (2, 'Alveograma_W', 245.30, FALSE),
-    (2, 'Alveograma_PL', 0.67, FALSE),
-    (2, 'Alveograma_IE', 52.80, TRUE);
--- Inspección 2 - Farinógrafo
-INSERT INTO Resultado_Inspeccion (
-        id_inspeccion,
-        nombre_parametro,
-        valor_obtenido,
-        aprobado
-    )
-VALUES (2, 'Farinograma_Absorcion_Agua', 60.20, TRUE),
-    (2, 'Farinograma_Tiempo_Desarrollo', 5.80, TRUE),
-    (2, 'Farinograma_Estabilidad', 10.40, TRUE),
-    (2, 'Farinograma_Grado_Decaimiento', 55.60, TRUE);
--- Inspección 3 - Alveógrafo
-INSERT INTO Resultado_Inspeccion (
-        id_inspeccion,
-        nombre_parametro,
-        valor_obtenido,
-        aprobado
-    )
-VALUES (3, 'Alveograma_P', 75.30, TRUE),
-    (3, 'Alveograma_L', 95.80, TRUE),
-    (3, 'Alveograma_W', 270.40, TRUE),
-    (3, 'Alveograma_PL', 0.79, TRUE),
-    (3, 'Alveograma_IE', 58.20, TRUE);
--- Inspección 4 - Alveógrafo
-INSERT INTO Resultado_Inspeccion (
-        id_inspeccion,
-        nombre_parametro,
-        valor_obtenido,
-        aprobado
-    )
-VALUES (4, 'Alveograma_P', 72.60, TRUE),
-    (4, 'Alveograma_L', 85.30, TRUE),
-    (4, 'Alveograma_W', 252.40, TRUE),
-    (4, 'Alveograma_PL', 0.85, TRUE),
-    (4, 'Alveograma_IE', 50.70, TRUE);
--- Inspección 4 - Farinógrafo
-INSERT INTO Resultado_Inspeccion (
-        id_inspeccion,
-        nombre_parametro,
-        valor_obtenido,
-        aprobado
-    )
-VALUES (4, 'Farinograma_Absorcion_Agua', 58.90, TRUE),
-    (4, 'Farinograma_Tiempo_Desarrollo', 3.70, FALSE),
-    (4, 'Farinograma_Estabilidad', 8.20, TRUE),
-    (4, 'Farinograma_Grado_Decaimiento', 52.30, TRUE);
--- Inspección 5 - Farinógrafo
-INSERT INTO Resultado_Inspeccion (
-        id_inspeccion,
-        nombre_parametro,
-        valor_obtenido,
-        aprobado
-    )
-VALUES (5, 'Farinograma_Absorcion_Agua', 61.40, TRUE),
-    (5, 'Farinograma_Tiempo_Desarrollo', 6.50, TRUE),
-    (5, 'Farinograma_Estabilidad', 11.80, TRUE),
-    (5, 'Farinograma_Grado_Decaimiento', 48.90, TRUE);
+
+
+-- INSERTS --
+-- USUARIOS (Uno por cada rol)
+INSERT INTO Usuarios (nombre, correo, contrasena, rol) VALUES
+('Juan Pérez', 'juan.perez@empresa.com', 'contrasena1', 'TI'),
+('Laura Gómez', 'laura.gomez@empresa.com', 'contrasena2', 'Gerencia de Control de Calidad'),
+('Carlos Méndez', 'carlos.mendez@empresa.com', 'contrasena3', 'Laboratorio'),
+('Ana Ruiz', 'ana.ruiz@empresa.com', 'contrasena4', 'Gerencia de Aseguramiento de Calidad'),
+('Luis Torres', 'luis.torres@empresa.com', 'contrasena5', 'Gerente de Planta'),
+('Mónica Salinas', 'monica.salinas@empresa.com', 'contrasena6', 'Director de Operaciones');
+
+-- EQUIPOS DE LABORATORIO (uno de cada tipo)
+INSERT INTO Equipos_Laboratorio (id_responsable, clave, tipo_equipo, marca, modelo, serie, desc_larga, desc_corta, proveedor, fecha_adquisicion, garantia, vencimiento_garantia, ubicacion, estado) VALUES
+(3, 'ALV-001', 'Alveógrafo', 'Chopin', 'AlveoLab', 'ALV12345', 'Alveógrafo para prueba de fuerza de harina', 'Alveógrafo', 'Proveedor A', '2023-05-15', 'GAR-ALV-001', '2025-05-15', 'Laboratorio Principal', 'Activo'),
+(3, 'FAR-001', 'Farinógrafo', 'Brabender', 'FarinoLab', 'FAR54321', 'Farinógrafo para análisis de absorción de agua', 'Farinógrafo', 'Proveedor B', '2022-10-10', 'GAR-FAR-001', '2024-10-10', 'Laboratorio Secundario', 'Activo');
+
+-- CLIENTES
+INSERT INTO Clientes (req_certificado, nombre, rfc, nombre_contacto, puesto_contacto, correo_contacto, telefono_contacto, direccion_fiscal, estado, parametros) VALUES
+(TRUE, 'Molinos ABC', 'ABC123456XYZ', 'María López', 'Compras', 'maria.lopez@molinosabc.com', '555-123-4567', 'Calle 1, Colonia Centro, CDMX', 'Activo', 'Internacionales'),
+(TRUE, 'Panificadora La Espiga', 'ESP987654ZYX', 'Roberto Díaz', 'Calidad', 'roberto.diaz@espiga.com', '555-987-6543', 'Avenida 2, Colonia Norte, CDMX', 'Activo', 'Personalizados');
+
+-- DIRECCIONES para cada cliente
+INSERT INTO Direcciones (id_cliente, calle, num_Exterior, num_Interior, colonia, delegacion_alcaldia, codigo_postal, estado, notas) VALUES
+(1, 'Calle 1', '101', 'A', 'Centro', 'Cuauhtémoc', '06000', 'Ciudad de México', 'Oficina principal'),
+(2, 'Avenida 2', '202', NULL, 'Norte', 'Gustavo A. Madero', '07000', 'Ciudad de México', 'Sucursal norte');
+
+-- PARÁMETROS para cada cliente
+-- Cliente 1: Molinos ABC
+INSERT INTO Parametros (id_cliente, nombre_parametro, lim_Superior, lim_Inferior) VALUES
+(1, 'Humedad', 14.0, 12.0),
+(1, 'Cenizas', 0.65, 0.55),
+(1, 'Gluten_Humedo', 32.0, 28.0),
+(1, 'Gluten_Seco', 11.0, 9.0),
+(1, 'Indice_Gluten', 95.0, 85.0),
+(1, 'Indice_Caida', 350.0, 300.0),
+(1, 'Alveograma_P', 100.0, 80.0),
+(1, 'Alveograma_L', 120.0, 100.0),
+(1, 'Alveograma_PL', 0.6, 0.4),
+(1, 'Alveograma_W', 300.0, 250.0),
+(1, 'Alveograma_IE', 1.2, 0.8),
+(1, 'Almidon_Danado', 8.0, 5.0),
+(1, 'Farinograma_Absorcion_Agua', 62.0, 58.0),
+(1, 'Farinograma_Tiempo_Desarrollo', 2.5, 1.5),
+(1, 'Farinograma_Estabilidad', 10.0, 8.0),
+(1, 'Farinograma_Grado_Decaimiento', 80.0, 60.0);
+
+-- Cliente 2: Panificadora La Espiga
+INSERT INTO Parametros (id_cliente, nombre_parametro, lim_Superior, lim_Inferior) VALUES
+(2, 'Humedad', 13.5, 11.5),
+(2, 'Cenizas', 0.70, 0.50),
+(2, 'Gluten_Humedo', 30.0, 26.0),
+(2, 'Gluten_Seco', 10.0, 8.0),
+(2, 'Indice_Gluten', 90.0, 80.0),
+(2, 'Indice_Caida', 340.0, 290.0),
+(2, 'Alveograma_P', 95.0, 75.0),
+(2, 'Alveograma_L', 115.0, 90.0),
+(2, 'Alveograma_PL', 0.7, 0.5),
+(2, 'Alveograma_W', 280.0, 230.0),
+(2, 'Alveograma_IE', 1.1, 0.7),
+(2, 'Almidon_Danado', 7.5, 4.5),
+(2, 'Farinograma_Absorcion_Agua', 61.0, 57.0),
+(2, 'Farinograma_Tiempo_Desarrollo', 3.0, 2.0),
+(2, 'Farinograma_Estabilidad', 9.5, 7.5),
+(2, 'Farinograma_Grado_Decaimiento', 75.0, 55.0);
+
+-- PARÁMETROS para cada equipo
+-- Equipo 1: Alveógrafo
+INSERT INTO Parametros (id_equipo, nombre_parametro, lim_Superior, lim_Inferior) VALUES
+(1, 'Alveograma_P', 110.0, 90.0),
+(1, 'Alveograma_L', 130.0, 110.0),
+(1, 'Alveograma_PL', 0.7, 0.5),
+(1, 'Alveograma_W', 320.0, 270.0),
+(1, 'Alveograma_IE', 1.3, 0.9);
+
+-- Equipo 2: Farinógrafo
+INSERT INTO Parametros (id_equipo, nombre_parametro, lim_Superior, lim_Inferior) VALUES
+(2, 'Farinograma_Absorcion_Agua', 63.0, 59.0),
+(2, 'Farinograma_Tiempo_Desarrollo', 2.8, 1.8),
+(2, 'Farinograma_Estabilidad', 10.5, 8.5),
+(2, 'Farinograma_Grado_Decaimiento', 85.0, 65.0);

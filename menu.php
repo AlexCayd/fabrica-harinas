@@ -49,7 +49,7 @@
                         'roles' => ['Laboratorio', 'TI', 'Gerencia de Control de Calidad']
                     ],
                     'parametros' => [
-                        'url' => '/fabrica-harinas/modulos/parametros.php',
+                        'url' => '/fabrica-harinas/modulos/parametros.php?tipo=internacionales',
                         'img' => 'img/parametros.svg',
                         'texto' => 'Parámetros',
                         'roles' => ['Gerencia de Aseguramiento de Calidad', 'TI', 'Gerente de Planta', 'Director de Operaciones']
