@@ -33,7 +33,7 @@ img {
 }
 
 body {
-    /* background-image: url(img/bg-login.webp); */
+    background-image: url(img/bg-login.webp);
     font-family: var(--fuenteBody);
 }
 
