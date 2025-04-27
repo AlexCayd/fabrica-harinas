@@ -26,7 +26,6 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <main class="contenedor hoja">
         <?php include '../includes/header.php' ?>
 
-
         <div class="contenedor__modulo">
             <a href="../menu.php" class="atras">Ir atrás</a>
             <h2 class="heading">Clientes</h2>
@@ -81,7 +80,6 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php include '../includes/footer.php' ?>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // // Script para seleccionar un estado
         document.addEventListener("DOMContentLoaded", function() {
@@ -144,28 +142,6 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             });
         });
     </script>
-
-        <!-- Alerta si es que se actualiza un cliente con éxito -->
-    <?php if (isset($_SESSION['mensaje'])): ?>
-        <script>
-            <?php if ($_SESSION['mensaje'] == 'exito'): ?>
-                Swal.fire({
-                    icon: 'success',
-                    title: '<?php echo $_SESSION['texto']; ?>',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            <?php elseif ($_SESSION['mensaje'] == 'error'): ?>
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error al editar el cliente',
-                    text: '<?php echo $_SESSION['texto']; ?>',
-                    showConfirmButton: true
-                });
-            <?php endif; ?>
-        </script>
-        <?php unset($_SESSION['mensaje']); ?>
-    <?php endif; ?>
 
 </body>
 
