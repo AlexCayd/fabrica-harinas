@@ -1,20 +1,33 @@
 <?php require '../config/validar_permisos.php';
-
+session_start();
 $parametros_alveografo = [
-    ['nombre' => 'Valor P (mm H₂O)', 'id_parametro' => 'alveograma_p', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Valor L (mm)', 'id_parametro' => 'alveograma_l', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Valor W (10⁻⁴ J)', 'id_parametro' => 'alveograma_w', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Relación P/L', 'id_parametro' => 'alveograma_pl', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Índice de elasticidad (Ie)', 'id_parametro' => 'alveograma_ie', 'lim_Inferior' => '', 'lim_Superior' => '']
+    ['nombre' => 'Humedad', 'id_parametro' => 'Humedad', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Cenizas', 'id_parametro' => 'Cenizas', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Gluten Humedo', 'id_parametro' => 'Gluten_Humedo', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Gluten Seco', 'id_parametro' => 'Gluten_Seco', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Indice de gluten', 'id_parametro' => 'Indice_Gluten', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Indice de caída', 'id_parametro' => 'Indice_Caida', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Valor P (mm H₂O)', 'id_parametro' => 'Alveograma_P', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Valor L (mm)', 'id_parametro' => 'Alveograma_L', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Valor W (10⁻⁴ J)', 'id_parametro' => 'Alveograma_W', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Relación P/L', 'id_parametro' => 'Alveograma_PL', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Índice de elasticidad (Ie)', 'id_parametro' => 'Alveograma_IE', 'lim_Inferior' => '', 'lim_Superior' => '']
 ];
 
 $parametros_farinografo = [
-    ['nombre' => 'Absorción de agua (%)', 'id_parametro' => 'absorcion_agua', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Tiempo de desarrollo (min)', 'id_parametro' => 'tiempo_desarrollo', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Estabilidad (min)', 'id_parametro' => 'estabilidad', 'lim_Inferior' => '', 'lim_Superior' => '']
+    ['nombre' => 'Humedad', 'id_parametro' => 'Humedad', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Cenizas', 'id_parametro' => 'Cenizas', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Gluten Humedo', 'id_parametro' => 'Gluten_Humedo', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Gluten Seco', 'id_parametro' => 'Gluten_Seco', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Indice de gluten', 'id_parametro' => 'Indice_Gluten', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Indice de caída', 'id_parametro' => 'Indice_Caida', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Absorción de agua (%)', 'id_parametro' => 'Farinograma_Absorcion_agua', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Tiempo de desarrollo (min)', 'id_parametro' => 'Farinograma_Tiempo_Desarrollo', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Estabilidad (min)', 'id_parametro' => 'Farinograma_Estabilidad', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Grado Decaimiento', 'id_parametro' => 'Farinograma_Grado_Decaimiento', 'lim_Inferior' => '', 'lim_Superior' => '']
+
 ];
 
-$editando = '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -25,6 +38,7 @@ $editando = '';
     <title>FHE | Clientes</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -104,7 +118,6 @@ $editando = '';
     <main class="contenedor hoja">
         <?php include '../includes/header.php' ?>
 
-
         <div class="contenedor__modulo">
             <a href="clientes.php" class="atras">Ir atrás</a>
             <h2 class="heading">Agregar Cliente</h2>
@@ -166,15 +179,19 @@ $editando = '';
                         <div class="parametro-nombre"><?php echo htmlspecialchars($param['nombre']); ?></div>
                         <div class="parametro-inputs">
                             <div>
-                                <input type="number" step="0.01" class="parametro-input" 
-                                       name="alveografo[<?php echo $param['id_parametro']; ?>][min]"  
-                                       placeholder="Mínimo">
+                                <input type="number" step="0.01" class="parametro-input min-input" 
+                                       name="alveografo[<?php echo $param['id_parametro']; ?>][min]" 
+                                       value="<?php echo htmlspecialchars($param['lim_Inferior']); ?>" 
+                                       placeholder="Mínimo"
+                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>">
                                 <div class="parametro-label">Límite inferior</div>
                             </div>
                             <div>
-                                <input type="number" step="0.01" class="parametro-input" 
-                                       name="alveografo[<?php echo $param['id_parametro']; ?>][max]"  
-                                       placeholder="Máximo">
+                                <input type="number" step="0.01" class="parametro-input max-input" 
+                                       name="alveografo[<?php echo $param['id_parametro']; ?>][max]" 
+                                       value="<?php echo htmlspecialchars($param['lim_Superior']); ?>" 
+                                       placeholder="Máximo"
+                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>">
                                 <div class="parametro-label">Límite superior</div>
                             </div>
                         </div>
@@ -182,7 +199,7 @@ $editando = '';
                     <?php endforeach; ?>
                 </div>
 
-                <!-- Sección para parámetros de Farinógrafo -->
+                <!-- Sección para Farinógrafos -->
                 <div id="parametros-farinografo" class="parametros-section" style="display: none;">
                     <div class="parametros-title">Valores de referencia internacionales - Farinógrafo</div>
                     
@@ -191,16 +208,17 @@ $editando = '';
                         <div class="parametro-nombre"><?php echo htmlspecialchars($param['nombre']); ?></div>
                         <div class="parametro-inputs">
                             <div>
-                                <input type="number" step="0.01" class="parametro-input" 
+                                <input type="number" step="0.01" class="parametro-input min-input" 
                                        name="farinografo[<?php echo $param['id_parametro']; ?>][min]"  
-                                       placeholder="Mínimo">
+                                       placeholder="Mínimo"
+                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>">
                                 <div class="parametro-label">Límite inferior</div>
                             </div>
                             <div>
-                                <input type="number" step="0.01" class="parametro-input" 
+                                <input type="number" step="0.01" class="parametro-input max-input" 
                                        name="farinografo[<?php echo $param['id_parametro']; ?>][max]" 
-                                       value="<?php echo htmlspecialchars($param['lim_Superior']); ?>" 
-                                       placeholder="Máximo">
+                                       placeholder="Máximo"
+                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>">
                                 <div class="parametro-label">Límite superior</div>
                             </div>
                         </div>
@@ -244,18 +262,18 @@ $editando = '';
     </main>
 
     <script>
-        // Get DOM elements
+        // Obtener elementos del DOM
         const tipoEquipoSelector = document.getElementById('tipo_equipo');
         const parametrosSelector = document.getElementById('parametros');
         const seccionAlveografo = document.getElementById('parametros-alveografo');
         const seccionFarinografo = document.getElementById('parametros-farinografo');
 
-        // Function to update sections visibility
+        // Función para actualizar la visibilidad de las secciones
         function actualizarSecciones() {
             const tipoSeleccionado = tipoEquipoSelector.value;
             const parametrosSeleccionados = parametrosSelector.value;
             
-            // Hide both sections if "Internacionales" is selected
+            // Ocultar ambas secciones si "Internacionales" está seleccionado
             if (parametrosSeleccionados === 'Internacionales') {
                 seccionAlveografo.style.display = 'none';
                 if (seccionFarinografo) {
@@ -264,7 +282,7 @@ $editando = '';
                 return;
             }
             
-            // Show/hide sections based on equipment type when "Personalizados" is selected
+            // Mostrar/ocultar secciones según el tipo de equipo cuando "Personalizados" está seleccionado
             if (tipoSeleccionado === 'Alveografo') {
                 seccionAlveografo.style.display = 'block';
                 if (seccionFarinografo) {
@@ -283,12 +301,57 @@ $editando = '';
             }
         }
 
-        // Add event listeners for both select changes
+        // Agregar event listeners para ambos cambios de selección
         tipoEquipoSelector.addEventListener('change', actualizarSecciones);
         parametrosSelector.addEventListener('change', actualizarSecciones);
 
-        // Run on page load to set initial state
+        // Ejecutar al cargar la página para establecer el estado inicial
         actualizarSecciones();
+
+        // Función para validar los límites
+        function validarLimites(minInput, maxInput) {
+            const min = parseFloat(minInput.value);
+            const max = parseFloat(maxInput.value);
+            const parametro = minInput.dataset.parametro;
+
+            if (!isNaN(min) && !isNaN(max) && min > max) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de validación',
+                    text: `El límite inferior de "${parametro}" no puede ser mayor al límite superior.`,
+                    confirmButtonColor: '#4c3325'
+                });
+                maxInput.value = '';
+                return false;
+            }
+            return true;
+        }
+
+        // Agregar event listeners a todos los inputs
+        document.querySelectorAll('.parametro-input').forEach(input => {
+            input.addEventListener('input', function() {
+                const row = this.closest('.parametro-row');
+                const minInput = row.querySelector('.min-input');
+                const maxInput = row.querySelector('.max-input');
+                validarLimites(minInput, maxInput);
+            });
+        });
+
+        // Validar antes de enviar el formulario
+        document.querySelector('form').addEventListener('submit', function(e) {
+            let isValid = true;
+            document.querySelectorAll('.parametro-row').forEach(row => {
+                const minInput = row.querySelector('.min-input');
+                const maxInput = row.querySelector('.max-input');
+                if (!validarLimites(minInput, maxInput)) {
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
     </script>
 </body>
 
