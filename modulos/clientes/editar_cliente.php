@@ -18,23 +18,43 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nombre_contacto = test_data($_POST['puesto_nombre']);
     $telefono = test_data($_POST['numero-telefonico']);
     $direccion_fiscal = test_data($_POST['direccion-fiscal']);
-    $parametros = test_data($_POST['parametros']);
     $estado = test_data($_POST['estado']);
-    $tipo = test_data($_POST['tipo_equipo']);
+
+     // Agregamos validaciones a los datos
+
+    // Verificamos si los campos estan llenos
+    if(empty($certificado) || empty($nombre) || empty($rfc) || empty($nombre_contacto) || empty($puesto) || empty($correo) || empty($telefono) || empty($direccion_fiscal) 
+    || empty($estado)) {
+        $_SESSION['error'] = 'Debes de llenar todos los campos.';
+        header("Location: /fabrica-harinas/modulos/clientes_editar.php?id=$id");
+        exit;
+    }
+
+    // Verificamos si el telefono tiene 10 digitos
+    if(strlen($telefono) != 10) {
+        $_SESSION['error'] = 'El telefono debe de tener 10 digitos.';
+        header("Location: /fabrica-harinas/modulos/clientes_editar.php?id=$id");
+        exit;
+    }
+
+    // Verificamos si el RFC tiene 13 digitos
+    if(strlen($rfc) != 13) {
+        $_SESSION['error'] = 'El RFC debe de tener 13 digitos.';
+        header("Location: /fabrica-harinas/modulos/clientes_editar.php?id=$id");
+        exit;
+    }
 
     // Actualizar los datos del cliente
     $sql = "UPDATE Clientes SET req_certificado = $certificado, nombre = '$nombre', rfc = '$rfc', nombre_contacto = '$nombre_contacto', 
     puesto_contacto = '$puesto', correo_contacto = '$correo', telefono_contacto = '$telefono', 
-    direccion_fiscal = '$direccion_fiscal', parametros = '$parametros', estado = '$estado' WHERE id_cliente = $id";
+    direccion_fiscal = '$direccion_fiscal', estado = '$estado' WHERE id_cliente = $id";
 
     $stmt = $pdo->prepare($sql);
-    // $stmt->execute();
+
     if ($stmt->execute()) {
-        $_SESSION['mensaje'] = 'exito';
-        $_SESSION['texto'] = 'Cliente actualizado correctamente.';
+        $_SESSION['exito'] = 'Cliente actualizado correctamente.';
     } else {
-        $_SESSION['mensaje'] = 'error';
-        $_SESSION['texto'] = 'No se pudo actualizar al cliente.';
+        $_SESSION['error'] = 'No se pudo actualizar al cliente.';
     }
 
     // Actualizar los datos de los parametros
