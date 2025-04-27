@@ -1,12 +1,14 @@
 <?php
 require '../config/validar_permisos.php';
-
 include '../config/conn.php';
 include '../config/functions.php';
 session_start();
 
 // Obtener el ID del cliente a editar
 $id_cliente = $_GET['id'];
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 if (!$id_cliente) {
     header("Location: /fabrica-harinas/modulos/clientes.php");
@@ -28,12 +30,17 @@ if (!$cliente) {
 // Obtener parámetros del cliente
 $sql_parametros = "SELECT nombre_parametro, lim_Inferior, lim_Superior 
                   FROM Parametros 
-                  WHERE id_cliente = :id_cliente AND tipo = 'Personalizado'";
+                  WHERE id_cliente = :id_cliente";
 $stmt_parametros = $pdo->prepare($sql_parametros);
 $stmt_parametros->bindParam(':id_cliente', $id_cliente);
 $stmt_parametros->execute();
 $parametros = $stmt_parametros->fetchAll(PDO::FETCH_ASSOC);
 
+if(count($parametros) == 16) {
+   $maquina = 'Alveografo';
+} else {
+   $maquina = 'Farinografo';
+}
 // Separar parámetros por tipo de equipo
 $parametros_alveografo = [];
 $parametros_farinografo = [];
@@ -55,6 +62,8 @@ foreach ($parametros as $param) {
     <title>FHE | Editar Cliente</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 
 <body>
@@ -114,6 +123,7 @@ foreach ($parametros as $param) {
             padding-bottom: 0.5rem;
             border-bottom: 3px solid var(--colorPrimario);
             text-align: center;
+            display: block;
         }
 
         .parametro-group {
@@ -127,12 +137,10 @@ foreach ($parametros as $param) {
     <main class="contenedor hoja">
         <?php include '../includes/header.php' ?>
 
-
         <div class="contenedor__modulo">
             <a href="clientes.php" class="atras">Ir atrás</a>
             <h2 class="heading">Editar Cliente</h2>
             <form action="clientes/editar_cliente.php?id=<?php echo htmlspecialchars($id_cliente); ?>" class="formulario" method="post">
-                <input type="hidden" name="id" value="<?php echo htmlspecialchars($id_cliente); ?>" required>
 
                 <div class="formulario__campo">
                     <label for="nombre" class="formulario__label">Nombre de la empresa </label>
@@ -163,73 +171,19 @@ foreach ($parametros as $param) {
                 </div>
 
                 <div class="formulario__campo">
-                    <label for="parametros" class="formulario__label">Parámetros</label>
-                    <select name="parametros" id="parametros" class="formulario__select">
+                    <label for="parametros" class="formulario__label">Parámetros [lectura]</label>
+                    <select name="parametros" id="parametros" class="formulario__select" disabled>
                         <option value="Internacionales" <?php echo $cliente['parametros'] == 'Internacionales' ? 'selected' : ''; ?>>Internacionales</option>
                         <option value="Personalizados" <?php echo $cliente['parametros'] == 'Personalizados' ? 'selected' : ''; ?>>Personalizados</option>
                     </select>
                 </div>
 
                 <div class="formulario__campo">
-                    <label for="tipo_equipo" class="formulario__label">Tipo de Equipo</label>
-                    <select class="formulario__input" id="tipo_equipo" name="tipo_equipo" required>
-                        <option value="Alveógrafo" <?php echo $cliente['tipo_equipo'] == 'Alveógrafo' ? 'selected' : ''; ?>>Alveógrafo</option>
-                        <option value="Farinógrafo" <?php echo $cliente['tipo_equipo'] == 'Farinógrafo' ? 'selected' : ''; ?>>Farinógrafo</option>
+                    <label for="tipo_equipo" class="formulario__label">Tipo de Equipo [lectura]</label>
+                    <select class="formulario__input" id="tipo_equipo" name="tipo_equipo" required disabled>
+                        <option value="Alveógrafo" <?php echo $maquina == 'Alveografo' ? 'selected' : ''; ?>>Alveógrafo</option>
+                        <option value="Farinógrafo" <?php echo $maquina == 'Farinografo' ? 'selected' : ''; ?>>Farinógrafo</option>
                     </select>
-                </div>
-
-                <!-- Sección para Alveógrafos -->
-                <div id="parametros-alveografo" class="parametros-section" style="display: none;">
-                    <div class="parametros-title">Valores de referencia internacionales - Alveógrafo</div>
-
-                    <?php foreach ($parametros_alveografo as $param): ?>
-                        <div class="parametro-row">
-                            <div class="parametro-nombre"><?php echo htmlspecialchars($param['nombre_parametro']); ?></div>
-                            <div class="parametro-inputs">
-                                <div>
-                                    <input type="number" step="0.01" class="parametro-input"
-                                        name="alveografo[<?php echo $param['nombre_parametro']; ?>][min]"
-                                        value="<?php echo htmlspecialchars($param['lim_Inferior']); ?>"
-                                        placeholder="Mínimo">
-                                    <div class="parametro-label">Límite inferior</div>
-                                </div>
-                                <div>
-                                    <input type="number" step="0.01" class="parametro-input"
-                                        name="alveografo[<?php echo $param['nombre_parametro']; ?>][max]"
-                                        value="<?php echo htmlspecialchars($param['lim_Superior']); ?>"
-                                        placeholder="Máximo">
-                                    <div class="parametro-label">Límite superior</div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-
-                <!-- Sección para Farinógrafos -->
-                <div id="parametros-farinografo" class="parametros-section" style="display: none;">
-                    <div class="parametros-title">Valores de referencia internacionales - Farinógrafo</div>
-
-                    <?php foreach ($parametros_farinografo as $param): ?>
-                        <div class="parametro-row">
-                            <div class="parametro-nombre"><?php echo htmlspecialchars($param['nombre_parametro']); ?></div>
-                            <div class="parametro-inputs">
-                                <div>
-                                    <input type="number" step="0.01" class="parametro-input"
-                                        name="farinografo[<?php echo $param['nombre_parametro']; ?>][min]"
-                                        value="<?php echo htmlspecialchars($param['lim_Inferior']); ?>"
-                                        placeholder="Mínimo">
-                                    <div class="parametro-label">Límite inferior</div>
-                                </div>
-                                <div>
-                                    <input type="number" step="0.01" class="parametro-input"
-                                        name="farinografo[<?php echo $param['nombre_parametro']; ?>][max]"
-                                        value="<?php echo htmlspecialchars($param['lim_Superior']); ?>"
-                                        placeholder="Máximo">
-                                    <div class="parametro-label">Límite superior</div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
                 </div>
 
                 <div class="formulario__campo">
