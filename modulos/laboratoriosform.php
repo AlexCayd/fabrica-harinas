@@ -1,6 +1,5 @@
 <?php
 require '../config/validar_permisos.php';
-// Incluir el archivo de configuración de la base de datos
 require '../config/conn.php';
 
 $editando = false;
@@ -42,6 +41,34 @@ $sql_responsables = "SELECT id_usuario, nombre FROM Usuarios
                     WHERE rol IN ('Gerencia de Control de Calidad', 'Laboratorio')
                     ORDER BY nombre";
 $responsables = $pdo->query($sql_responsables)->fetchAll(PDO::FETCH_ASSOC);
+
+// Parámetros para el alveógrafo y farinógrafo
+$parametros_alveografo = [
+    ['nombre' => 'Humedad', 'id_parametro' => 'Humedad', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Cenizas', 'id_parametro' => 'Cenizas', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Gluten Humedo', 'id_parametro' => 'Gluten_Humedo', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Gluten Seco', 'id_parametro' => 'Gluten_Seco', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Indice de gluten', 'id_parametro' => 'Indice_Gluten', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Indice de caída', 'id_parametro' => 'Indice_Caida', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Valor P (mm H₂O)', 'id_parametro' => 'Alveograma_P', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Valor L (mm)', 'id_parametro' => 'Alveograma_L', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Valor W (10⁻⁴ J)', 'id_parametro' => 'Alveograma_W', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Relación P/L', 'id_parametro' => 'Alveograma_PL', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Índice de elasticidad (Ie)', 'id_parametro' => 'Alveograma_IE', 'lim_Inferior' => '', 'lim_Superior' => '']
+];
+
+$parametros_farinografo = [
+    ['nombre' => 'Humedad', 'id_parametro' => 'Humedad', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Cenizas', 'id_parametro' => 'Cenizas', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Gluten Humedo', 'id_parametro' => 'Gluten_Humedo', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Gluten Seco', 'id_parametro' => 'Gluten_Seco', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Indice de gluten', 'id_parametro' => 'Indice_Gluten', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Indice de caída', 'id_parametro' => 'Indice_Caida', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Absorción de agua (%)', 'id_parametro' => 'Farinograma_Absorcion_agua', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Tiempo de desarrollo (min)', 'id_parametro' => 'Farinograma_Tiempo_Desarrollo', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Estabilidad (min)', 'id_parametro' => 'Farinograma_Estabilidad', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Grado Decaimiento', 'id_parametro' => 'Farinograma_Grado_Decaimiento', 'lim_Inferior' => '', 'lim_Superior' => '']
+];
 
 // Lista de marcas para el select
 $marcas = [
@@ -94,6 +121,36 @@ $proveedor_personalizado = false;
 $ubicacion_personalizada = false;
 
 if ($editando) {
+
+    $sql_parametros = "SELECT nombre_parametro, lim_Inferior, lim_Superior 
+                       FROM Parametros 
+                       WHERE id_equipo = :id_equipo";
+    $stmt_parametros = $pdo->prepare($sql_parametros);
+    $stmt_parametros->bindParam(':id_equipo', $id_equipo);
+    $stmt_parametros->execute();
+    
+    $parametros_equipo = $stmt_parametros->fetchAll(PDO::FETCH_ASSOC);
+
+     // Asignar los valores a los arrays de parámetros correspondientes
+     foreach ($parametros_equipo as $param) {
+        // Para parámetros de Alveógrafo
+        foreach ($parametros_alveografo as $key => $alv_param) {
+            if ($param['nombre_parametro'] == $alv_param['id_parametro']) {
+                $parametros_alveografo[$key]['lim_Inferior'] = $param['lim_Inferior'];
+                $parametros_alveografo[$key]['lim_Superior'] = $param['lim_Superior'];
+            }
+        }
+        
+        // Para parámetros de Farinógrafo
+        foreach ($parametros_farinografo as $key => $far_param) {
+            if ($param['nombre_parametro'] == $far_param['id_parametro']) {
+                $parametros_farinografo[$key]['lim_Inferior'] = $param['lim_Inferior'];
+                $parametros_farinografo[$key]['lim_Superior'] = $param['lim_Superior'];
+            }
+        }
+    }
+
+
     $marca_personalizada = !in_array($equipo['marca'], $marcas);
     $proveedor_personalizado = !in_array($equipo['proveedor'], $proveedores);
     $ubicacion_personalizada = !in_array($equipo['ubicacion'], $ubicaciones);
@@ -121,7 +178,7 @@ if (isset($datos_form)) {
     <title>FHE | <?php echo $editando ? 'Editar' : 'Agregar'; ?> Equipo de Laboratorio</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
-    <!-- SweetAlert2 CSS -->
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
     <style>
         .campo-error {
@@ -141,127 +198,285 @@ if (isset($datos_form)) {
             display: block;
         }
         
+        .parametros-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            grid-column: 1 / 3;
+        }
+        
+        .parametros-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+        }
+        
+        .parametro-row {
+            display: flex;
+            gap: 20px;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .parametro-nombre {
+            flex: 1;
+            font-weight: bold;
+        }
+        
+        .parametro-inputs {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .parametro-input {
+            width: 100px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            font-family: inherit;
+        }
+        
+        .parametro-label {
+            font-size: 12px;
+            color: #666;
+        }
       
+        .parametro-group {
+            background-color: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
     </style>
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Referencias a elementos
-            const tipoEquipoSelect = document.querySelector('select[name="tipo_equipo"]');
-            const formElement = document.querySelector('form.formulario');
-            
-            // Referencias a selects y campos personalizados
-            const marcaSelect = document.getElementById('marca_select');
-            const marcaPersonalizada = document.getElementById('marca_personalizada');
-            const proveedorSelect = document.getElementById('proveedor_select');
-            const proveedorPersonalizado = document.getElementById('proveedor_personalizado');
-            const ubicacionSelect = document.getElementById('ubicacion_select');
-            const ubicacionPersonalizada = document.getElementById('ubicacion_personalizada');
-            
-            // Fechas
-            const fechaAdquisicion = document.getElementById('fecha_adquisicion');
-            const fechaVencimiento = document.getElementById('vencimiento_garantia');
-            
-            // Función para manejar campos personalizados
-            function toggleCampoPersonalizado(select, campoPersonalizado) {
-                if (select && campoPersonalizado) {
-                    if (select.value === 'Otra' || select.value === 'Otro') {
-                        campoPersonalizado.parentElement.classList.add('visible');
-                        campoPersonalizado.required = true;
-                    } else {
-                        campoPersonalizado.parentElement.classList.remove('visible');
-                        campoPersonalizado.required = false;
-                        campoPersonalizado.value = '';
+        document.addEventListener('DOMContentLoaded', function() {            
+            const elements = {
+                tipoEquipo: document.querySelector('select[name="tipo_equipo"]'),
+                form: document.querySelector('form.formulario'),
+                secciones: {
+                    alveografo: document.getElementById('parametros-alveografo'),
+                    farinografo: document.getElementById('parametros-farinografo')
+                },
+                campos: {
+                    marca: {
+                        select: document.getElementById('marca_select'),
+                        personalizado: document.getElementById('marca_personalizada')
+                    },
+                    proveedor: {
+                        select: document.getElementById('proveedor_select'),
+                        personalizado: document.getElementById('proveedor_personalizado')
+                    },
+                    ubicacion: {
+                        select: document.getElementById('ubicacion_select'),
+                        personalizado: document.getElementById('ubicacion_personalizada')
                     }
+                },
+                fechas: {
+                    adquisicion: document.getElementById('fecha_adquisicion'),
+                    vencimiento: document.getElementById('vencimiento_garantia')
                 }
-            }
-            
-            // Función para validar fechas
-            function validarFechas() {
-                if (fechaAdquisicion && fechaVencimiento && 
-                    fechaAdquisicion.value && fechaVencimiento.value) {
+            };
+
+            // Funciones de utilidad para manejar la lógica del formulario
+            const utils = {            
+                actualizarSecciones() {
+                    const tipoSeleccionado = elements.tipoEquipo.value;
                     
-                    const fechaAdq = new Date(fechaAdquisicion.value);
-                    const fechaVenc = new Date(fechaVencimiento.value);
+                    // Ocultar ambas secciones por defecto y quitar required
+                    elements.secciones.alveografo.style.display = 'none';
+                    elements.secciones.farinografo.style.display = 'none';
                     
-                    if (fechaAdq > fechaVenc) {
-                        Swal.fire({
-                            title: 'Error de validación',
-                            text: 'La fecha de adquisición no puede ser posterior a la fecha de vencimiento de la garantía.',
-                            icon: 'error',
-                            confirmButtonText: 'Entendido'
+                    // Quitar el atributo required de todos los inputs de parámetros
+                    document.querySelectorAll('#parametros-alveografo input, #parametros-farinografo input').forEach(input => {
+                        input.required = false;
+                    });
+                    
+                    // Mostrar sección según el tipo seleccionado
+                    if (tipoSeleccionado === 'Alveógrafo') {
+                        elements.secciones.alveografo.style.display = 'block';
+                        // Añadir required solo a los inputs visibles
+                        document.querySelectorAll('#parametros-alveografo input').forEach(input => {
+                            input.required = true;
                         });
+                    } else if (tipoSeleccionado === 'Farinógrafo') {
+                        elements.secciones.farinografo.style.display = 'block';
+                        // Añadir required solo a los inputs visibles
+                        document.querySelectorAll('#parametros-farinografo input').forEach(input => {
+                            input.required = true;
+                        });
+                    }
+                },
+                
+                // Función para validar que los límites inferiores no sean mayores que los superiores
+                validarLimites(minInput, maxInput) {
+                    const min = parseFloat(minInput.value);
+                    const max = parseFloat(maxInput.value);
+                    
+                    if (!isNaN(min) && !isNaN(max) && min > max) {
+                        utils.mostrarError(`El límite inferior de "${minInput.dataset.parametro}" no puede ser mayor al límite superior.`);
+                        maxInput.value = '';
                         return false;
                     }
-                }
-                return true;
-            }
+                    return true;
+                },
+                
+                // Función para manejar campos personalizados (marca, proveedor, ubicación)
+                toggleCampoPersonalizado(select, campoPersonalizado) {
+                    if (!select || !campoPersonalizado) return;
+                    
+                    const esVisible = select.value === 'Otra' || select.value === 'Otro';
+                    campoPersonalizado.parentElement.classList.toggle('visible', esVisible);
+                    campoPersonalizado.required = esVisible;
+                    
+                    if (!esVisible) {
+                        campoPersonalizado.value = '';
+                    }
+                },
+                
+                // Función para validar que la fecha de adquisición no sea posterior a la de vencimiento
+                validarFechas() {
+                    const adquisicion = elements.fechas.adquisicion;
+                    const vencimiento = elements.fechas.vencimiento;
+                    
+                    if (adquisicion.value && vencimiento.value) {
+                        const fechaAdq = new Date(adquisicion.value);
+                        const fechaVenc = new Date(vencimiento.value);
                         
-            if (marcaSelect) {
-                marcaSelect.addEventListener('change', function() {
-                    toggleCampoPersonalizado(marcaSelect, marcaPersonalizada);
-                });
-                toggleCampoPersonalizado(marcaSelect, marcaPersonalizada);
-            }
-            
-            if (proveedorSelect) {
-                proveedorSelect.addEventListener('change', function() {
-                    toggleCampoPersonalizado(proveedorSelect, proveedorPersonalizado);
-                });        
-                toggleCampoPersonalizado(proveedorSelect, proveedorPersonalizado);
-            }
-            
-            if (ubicacionSelect) {
-                ubicacionSelect.addEventListener('change', function() {
-                    toggleCampoPersonalizado(ubicacionSelect, ubicacionPersonalizada);
-                });
-                toggleCampoPersonalizado(ubicacionSelect, ubicacionPersonalizada);
-            }
+                        if (fechaAdq > fechaVenc) {
+                            utils.mostrarError('La fecha de adquisición no puede ser posterior a la fecha de vencimiento de la garantía.');
+                            return false;
+                        }
+                    }
+                    return true;
+                },
                 
-            // También validar el formulario antes de enviar
-            formElement.addEventListener('submit', function(event) {
-                // Validar que se haya seleccionado un tipo de equipo
-                const tipoSeleccionado = tipoEquipoSelect.value;
+                // Función para transferir valores de campos personalizados a campos ocultos
+                transferirValoresCampos() {
+                    const campos = ['marca', 'proveedor', 'ubicacion'];
+                    
+                    campos.forEach(campo => {
+                        const select = elements.campos[campo].select;
+                        const personalizado = elements.campos[campo].personalizado;
+                        const hidden = document.getElementById(campo);
+                        
+                        if (select && hidden) {
+                            const esPersonalizado = select.value === 'Otra' || select.value === 'Otro';
+                            hidden.value = esPersonalizado ? personalizado.value : select.value;
+                        }
+                    });
+                },
                 
-                if (!tipoSeleccionado) {
-                    event.preventDefault();
+                // Función para validar que los campos de parámetros tienen valores
+                validarParametros() {
+                    const tipoSeleccionado = elements.tipoEquipo.value;
+                    let camposIncompletos = false;
+                    
+                    if (tipoSeleccionado === 'Alveógrafo') {
+                        document.querySelectorAll('#parametros-alveografo input').forEach(input => {
+                            if (!input.value) {
+                                camposIncompletos = true;
+                                input.classList.add('input-error');
+                            } else {
+                                input.classList.remove('input-error');
+                            }
+                        });
+                    } else if (tipoSeleccionado === 'Farinógrafo') {
+                        document.querySelectorAll('#parametros-farinografo input').forEach(input => {
+                            if (!input.value) {
+                                camposIncompletos = true;
+                                input.classList.add('input-error');
+                            } else {
+                                input.classList.remove('input-error');
+                            }
+                        });
+                    }
+                    
+                    if (camposIncompletos) {
+                        utils.mostrarError('Por favor, complete todos los campos de parámetros.');
+                        return false;
+                    }
+                    
+                    return true;
+                },
+                
+                // Función para mostrar mensajes de error con SweetAlert
+                mostrarError(mensaje) {
                     Swal.fire({
-                        title: 'Error de validación',
-                        text: 'Por favor, seleccione un tipo de equipo.',
                         icon: 'error',
+                        title: 'Error de validación',
+                        text: mensaje,
+                        confirmButtonColor: '#4c3325',
                         confirmButtonText: 'Entendido'
                     });
-                    return false;
                 }
+            };
+
+            // Inicializar event listeners
+            function inicializarEventListeners() {
+                // Cambio de tipo de equipo
+                elements.tipoEquipo.addEventListener('change', utils.actualizarSecciones);
                 
-                // Validar las fechas
-                if (!validarFechas()) {
-                    event.preventDefault();
-                    return false;
-                }
+                // Campos personalizados (marca, proveedor, ubicación)
+                Object.entries(elements.campos).forEach(([key, campo]) => {
+                    if (campo.select) {
+                        campo.select.addEventListener('change', () => 
+                            utils.toggleCampoPersonalizado(campo.select, campo.personalizado)
+                        );
+                        utils.toggleCampoPersonalizado(campo.select, campo.personalizado);
+                    }
+                });
                 
-                // Transferir valores personalizados a los campos ocultos antes de enviar
-                if (marcaSelect && marcaSelect.value === 'Otra' && marcaPersonalizada) {
-                    document.getElementById('marca').value = marcaPersonalizada.value;
-                } else if (marcaSelect) {
-                    document.getElementById('marca').value = marcaSelect.value;
-                }
+                // Validación del formulario antes de enviar
+                elements.form.addEventListener('submit', function(event) {
+                    // Validar tipo de equipo
+                    if (!elements.tipoEquipo.value) {
+                        event.preventDefault();
+                        utils.mostrarError('Por favor, seleccione un tipo de equipo.');
+                        return false;
+                    }
+                    
+                    // Validar que los parámetros estén completos
+                    if (!utils.validarParametros()) {
+                        event.preventDefault();
+                        return false;
+                    }
+                    
+                    // Validar fechas
+                    if (!utils.validarFechas()) {
+                        event.preventDefault();
+                        return false;
+                    }
+                    
+                    // Transferir valores de campos personalizados
+                    utils.transferirValoresCampos();
+                });
                 
-                if (proveedorSelect && proveedorSelect.value === 'Otro' && proveedorPersonalizado) {
-                    document.getElementById('proveedor').value = proveedorPersonalizado.value;
-                } else if (proveedorSelect) {
-                    document.getElementById('proveedor').value = proveedorSelect.value;
-                }
-                
-                if (ubicacionSelect && ubicacionSelect.value === 'Otra' && ubicacionPersonalizada) {
-                    document.getElementById('ubicacion').value = ubicacionPersonalizada.value;
-                } else if (ubicacionSelect) {
-                    document.getElementById('ubicacion').value = ubicacionSelect.value;
-                }
-            });
+                // Validación de límites en los campos de parámetros
+                document.querySelectorAll('.min-input').forEach(minInput => {
+                    const maxInput = minInput.closest('.parametro-inputs').querySelector('.max-input');
+                    minInput.addEventListener('change', () => utils.validarLimites(minInput, maxInput));
+                    maxInput.addEventListener('change', () => utils.validarLimites(minInput, maxInput));
+                });
+            }
             
-            // Mostrar errores con SweetAlert si existen
+            // Inicializar
+            inicializarEventListeners();
+            utils.actualizarSecciones();
+            
+            // Mostrar errores iniciales si existen
             <?php if (!empty($errores)): ?>
             Swal.fire({
                 title: 'Error al procesar el formulario',
@@ -316,7 +531,69 @@ if (isset($datos_form)) {
                         <option value="Alveógrafo" <?php echo (isset($datos_form['tipo_equipo']) && $datos_form['tipo_equipo'] == 'Alveógrafo') || ($editando && $equipo['tipo_equipo'] == 'Alveógrafo') ? 'selected' : ''; ?>>Alveógrafo</option>
                         <option value="Farinógrafo" <?php echo (isset($datos_form['tipo_equipo']) && $datos_form['tipo_equipo'] == 'Farinógrafo') || ($editando && $equipo['tipo_equipo'] == 'Farinógrafo') ? 'selected' : ''; ?>>Farinógrafo</option>
                     </select>
-                </div>                
+                </div>
+
+                <!-- Sección para seleccionar parámetros -->
+                <div id="parametros-alveografo" class="parametros-section" style="display: none;">
+                    <div class="parametros-title">Valores de referencia internacionales - Alveógrafo</div>
+                    
+                    <?php foreach ($parametros_alveografo as $param): ?>
+                    <div class="parametro-row">
+                        <div class="parametro-nombre"><?php echo htmlspecialchars($param['nombre']); ?></div>
+                        <div class="parametro-inputs">
+                            <div>
+                                <input type="number" step="0.01" class="parametro-input min-input" 
+                                       name="alveografo[<?php echo $param['id_parametro']; ?>][min]" 
+                                       value="<?php echo htmlspecialchars($param['lim_Inferior']); ?>" 
+                                       placeholder="Mínimo"
+                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>"
+                                       >
+                                <div class="parametro-label">Límite inferior</div>
+                            </div>
+                            <div>
+                                <input type="number" step="0.01" class="parametro-input max-input" 
+                                       name="alveografo[<?php echo $param['id_parametro']; ?>][max]" 
+                                       value="<?php echo htmlspecialchars($param['lim_Superior']); ?>" 
+                                       placeholder="Máximo"
+                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>"
+                                       >
+                                <div class="parametro-label">Límite superior</div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+
+                
+                <div id="parametros-farinografo" class="parametros-section" style="display: none;">
+                    <div class="parametros-title">Valores de referencia internacionales - Farinógrafo</div>
+                    
+                    <?php foreach ($parametros_farinografo as $param): ?>
+                    <div class="parametro-row">
+                        <div class="parametro-nombre"><?php echo htmlspecialchars($param['nombre']); ?></div>
+                        <div class="parametro-inputs">
+                            <div>
+                                <input type="number" step="0.01" class="parametro-input min-input" 
+                                       name="farinografo[<?php echo $param['id_parametro']; ?>][min]"  
+                                       placeholder="Mínimo"
+                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>"
+                                       >
+                                <div class="parametro-label">Límite inferior</div>
+                            </div>
+                            <div>
+                                <input type="number" step="0.01" class="parametro-input max-input" 
+                                       name="farinografo[<?php echo $param['id_parametro']; ?>][max]" 
+                                       placeholder="Máximo"
+                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>"
+                                       >
+                                <div class="parametro-label">Límite superior</div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>  
+                
+                
                 <!-- Campo oculto para marca (valor final) -->
                 <input type="hidden" id="marca" name="marca" value="<?php 
                     echo isset($datos_form['marca']) ? htmlspecialchars($datos_form['marca']) : 

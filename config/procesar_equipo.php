@@ -28,6 +28,7 @@ if (isset($_GET['id']) && isset($_GET['accion']) && $_GET['accion'] == 'eliminar
             $stmt_delete_params->execute();
         }
         
+        // Corregi
         // Verificar si hay registros en Equipo_Inspeccion
         $sql_check_insp = "SELECT COUNT(*) FROM Equipo_Inspeccion WHERE id_equipo = :id_equipo";
         $stmt_check_insp = $pdo->prepare($sql_check_insp);
@@ -91,6 +92,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $estado = $_POST['estado'] ?? 'Activo';
     $id_responsable = $_POST['id_responsable'];
     
+    $parametros_personalizados = [];
+    if ($tipo_equipo == 'Alveógrafo' && isset($_POST['alveografo'])) {
+        $parametros_personalizados = $_POST['alveografo'];
+    } else if ($tipo_equipo == 'Farinógrafo' && isset($_POST['farinografo'])) {
+        $parametros_personalizados = $_POST['farinografo'];
+    }
+
+
     try {
         // Iniciar transacción
         $pdo->beginTransaction();
@@ -238,57 +247,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Eliminar los parámetros existentes para este equipo (si estamos editando)
         if ($editando) {
-            $sql_delete = "DELETE FROM Parametros WHERE id_equipo = :id_equipo AND tipo = 'Internacional'";
+            $sql_delete = "DELETE FROM Parametros WHERE id_equipo = :id_equipo";
             $stmt_delete = $pdo->prepare($sql_delete);
             $stmt_delete->bindParam(':id_equipo', $id_equipo);
             $stmt_delete->execute();
         }
         
-        // Definir los parámetros predeterminados según el tipo de equipo
-        $parametros = [];
         
-        // Parámetros generales (solo para referencia, no se insertan directamente)
-        $parametros_generales = [
-            'Humedad' => ['min' => 12.00, 'max' => 15.00],
-            'Cenizas' => ['min' => 0.50, 'max' => 0.65],
-            'Gluten_Humedo' => ['min' => 25.00, 'max' => 35.00],
-            'Gluten_Seco' => ['min' => 8.00, 'max' => 12.00],
-            'Indice_Gluten' => ['min' => 75.00, 'max' => 95.00],
-            'Indice_Caida' => ['min' => 250.00, 'max' => 350.00],
-            'Almidon_Danado' => ['min' => 16.00, 'max' => 23.00]
-        ];
-        
-        if ($tipo_equipo == 'Alveógrafo') {
-            $parametros = [
-                'alveograma_p' => ['min' => 60.00, 'max' => 120.00],
-                'alveograma_l' => ['min' => 80.00, 'max' => 120.00],
-                'alveograma_w' => ['min' => 180.00, 'max' => 300.00],
-                'alveograma_pl' => ['min' => 0.40, 'max' => 0.80],
-                'alveograma_ie' => ['min' => 45.00, 'max' => 60.00]
-            ];
-        } else if ($tipo_equipo == 'Farinógrafo') {
-            $parametros = [
-                'farinograma_absorcion_agua' => ['min' => 55.00, 'max' => 65.00],
-                'farinograma_tiempo_desarrollo' => ['min' => 3.00, 'max' => 8.00],
-                'farinograma_estabilidad' => ['min' => 8.00, 'max' => 15.00],
-                'farinograma_grado_decaimiento' => ['min' => 30.00, 'max' => 70.00]
-            ];
-        }
-        
-        // Insertar los parámetros específicos del equipo
-        if (!empty($parametros)) {
-            $sql_insert_param = "INSERT INTO Parametros (id_equipo, nombre_parametro, tipo, lim_Inferior, lim_Superior) 
-                                VALUES (:id_equipo, :nombre_parametro, 'Internacional', :lim_inferior, :lim_superior)";
+        if (!empty($parametros_personalizados)) {
+            $sql_insert_param = "INSERT INTO Parametros (id_equipo, nombre_parametro, lim_Inferior, lim_Superior) 
+                                VALUES (:id_equipo, :nombre_parametro, :lim_inferior, :lim_superior)";
             $stmt_param = $pdo->prepare($sql_insert_param);
             
-            foreach ($parametros as $nombre_parametro => $valores) {
-                $stmt_param->bindParam(':id_equipo', $id_equipo);
-                $stmt_param->bindParam(':nombre_parametro', $nombre_parametro);
-                $stmt_param->bindParam(':lim_inferior', $valores['min']);
-                $stmt_param->bindParam(':lim_superior', $valores['max']);
-                $stmt_param->execute();
+            foreach ($parametros_personalizados as $nombre_parametro => $valores) {
+                // Validar que existen los valores mínimo y máximo
+                if (isset($valores['min']) && isset($valores['max'])) {
+                    $lim_inferior = floatval($valores['min']);
+                    $lim_superior = floatval($valores['max']);
+                    
+                    // Solo insertar si ambos límites tienen valores
+                    if ($lim_inferior !== '' && $lim_superior !== '') {
+                        $stmt_param->bindParam(':id_equipo', $id_equipo);
+                        $stmt_param->bindParam(':nombre_parametro', $nombre_parametro);
+                        $stmt_param->bindParam(':lim_inferior', $lim_inferior);
+                        $stmt_param->bindParam(':lim_superior', $lim_superior);
+                        $stmt_param->execute();
+                    }
+                }
             }
-        }
+        } 
+
+
         
         // Confirmar la transacción
         $pdo->commit();
