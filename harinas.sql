@@ -80,7 +80,6 @@ CREATE TABLE Parametros (
         'Alveograma_PL',
         'Alveograma_W',
         'Alveograma_IE',
-        'Almidon_Danado',
         'Farinograma_Absorcion_Agua',
         'Farinograma_Tiempo_Desarrollo',
         'Farinograma_Estabilidad',
@@ -91,11 +90,16 @@ CREATE TABLE Parametros (
     FOREIGN KEY (id_equipo) REFERENCES Equipos_Laboratorio(id_equipo),
     FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente),
     CHECK (
-        (id_cliente IS NOT NULL AND id_equipo IS NULL) OR
-        (id_cliente IS NULL AND id_equipo IS NOT NULL)
+        (
+            id_cliente IS NOT NULL
+            AND id_equipo IS NULL
+        )
+        OR (
+            id_cliente IS NULL
+            AND id_equipo IS NOT NULL
+        )
     )
 );
-
 -- Tabla Inspeccion
 CREATE TABLE Inspeccion (
     id_inspeccion INT PRIMARY KEY AUTO_INCREMENT,
@@ -122,7 +126,6 @@ CREATE TABLE Resultado_Inspeccion (
         'Alveograma_PL',
         'Alveograma_W',
         'Alveograma_IE',
-        'Almidon_Danado',
         'Farinograma_Absorcion_Agua',
         'Farinograma_Tiempo_Desarrollo',
         'Farinograma_Estabilidad',
@@ -161,84 +164,237 @@ CREATE TABLE Hist_Certificados (
 );
 INSERT INTO Usuarios (nombre, correo, contrasena, rol)
 VALUES ('admin', 'admin@correo.com', '1', 'TI');
-
-
 -- INSERTS --
 -- USUARIOS (Uno por cada rol)
-INSERT INTO Usuarios (nombre, correo, contrasena, rol) VALUES
-('Juan Pérez', 'juan.perez@empresa.com', 'contrasena1', 'TI'),
-('Laura Gómez', 'laura.gomez@empresa.com', 'contrasena2', 'Gerencia de Control de Calidad'),
-('Carlos Méndez', 'carlos.mendez@empresa.com', 'contrasena3', 'Laboratorio'),
-('Ana Ruiz', 'ana.ruiz@empresa.com', 'contrasena4', 'Gerencia de Aseguramiento de Calidad'),
-('Luis Torres', 'luis.torres@empresa.com', 'contrasena5', 'Gerente de Planta'),
-('Mónica Salinas', 'monica.salinas@empresa.com', 'contrasena6', 'Director de Operaciones');
-
+INSERT INTO Usuarios (nombre, correo, contrasena, rol)
+VALUES (
+        'Juan Pérez',
+        'juan.perez@empresa.com',
+        'contrasena1',
+        'TI'
+    ),
+    (
+        'Laura Gómez',
+        'laura.gomez@empresa.com',
+        'contrasena2',
+        'Gerencia de Control de Calidad'
+    ),
+    (
+        'Carlos Méndez',
+        'carlos.mendez@empresa.com',
+        'contrasena3',
+        'Laboratorio'
+    ),
+    (
+        'Ana Ruiz',
+        'ana.ruiz@empresa.com',
+        'contrasena4',
+        'Gerencia de Aseguramiento de Calidad'
+    ),
+    (
+        'Luis Torres',
+        'luis.torres@empresa.com',
+        'contrasena5',
+        'Gerente de Planta'
+    ),
+    (
+        'Mónica Salinas',
+        'monica.salinas@empresa.com',
+        'contrasena6',
+        'Director de Operaciones'
+    );
 -- EQUIPOS DE LABORATORIO (uno de cada tipo)
-INSERT INTO Equipos_Laboratorio (id_responsable, clave, tipo_equipo, marca, modelo, serie, desc_larga, desc_corta, proveedor, fecha_adquisicion, garantia, vencimiento_garantia, ubicacion, estado) VALUES
-(3, 'ALV-001', 'Alveógrafo', 'Chopin', 'AlveoLab', 'ALV12345', 'Alveógrafo para prueba de fuerza de harina', 'Alveógrafo', 'Proveedor A', '2023-05-15', 'GAR-ALV-001', '2025-05-15', 'Laboratorio Principal', 'Activo'),
-(3, 'FAR-001', 'Farinógrafo', 'Brabender', 'FarinoLab', 'FAR54321', 'Farinógrafo para análisis de absorción de agua', 'Farinógrafo', 'Proveedor B', '2022-10-10', 'GAR-FAR-001', '2024-10-10', 'Laboratorio Secundario', 'Activo');
-
+INSERT INTO Equipos_Laboratorio (
+        id_responsable,
+        clave,
+        tipo_equipo,
+        marca,
+        modelo,
+        serie,
+        desc_larga,
+        desc_corta,
+        proveedor,
+        fecha_adquisicion,
+        garantia,
+        vencimiento_garantia,
+        ubicacion,
+        estado
+    )
+VALUES (
+        3,
+        'ALV-001',
+        'Alveógrafo',
+        'Chopin',
+        'AlveoLab',
+        'ALV12345',
+        'Alveógrafo para prueba de fuerza de harina',
+        'Alveógrafo',
+        'Proveedor A',
+        '2023-05-15',
+        'GAR-ALV-001',
+        '2025-05-15',
+        'Laboratorio Principal',
+        'Activo'
+    ),
+    (
+        3,
+        'FAR-001',
+        'Farinógrafo',
+        'Brabender',
+        'FarinoLab',
+        'FAR54321',
+        'Farinógrafo para análisis de absorción de agua',
+        'Farinógrafo',
+        'Proveedor B',
+        '2022-10-10',
+        'GAR-FAR-001',
+        '2024-10-10',
+        'Laboratorio Secundario',
+        'Activo'
+    );
 -- CLIENTES
-INSERT INTO Clientes (req_certificado, nombre, rfc, nombre_contacto, puesto_contacto, correo_contacto, telefono_contacto, direccion_fiscal, estado, parametros) VALUES
-(TRUE, 'Molinos ABC', 'ABC123456XYZ', 'María López', 'Compras', 'maria.lopez@molinosabc.com', '555-123-4567', 'Calle 1, Colonia Centro, CDMX', 'Activo', 'Internacionales'),
-(TRUE, 'Panificadora La Espiga', 'ESP987654ZYX', 'Roberto Díaz', 'Calidad', 'roberto.diaz@espiga.com', '555-987-6543', 'Avenida 2, Colonia Norte, CDMX', 'Activo', 'Personalizados');
-
+INSERT INTO Clientes (
+        req_certificado,
+        nombre,
+        rfc,
+        nombre_contacto,
+        puesto_contacto,
+        correo_contacto,
+        telefono_contacto,
+        direccion_fiscal,
+        estado,
+        parametros
+    )
+VALUES (
+        TRUE,
+        'Molinos ABC',
+        'ABC123456XYZ',
+        'María López',
+        'Compras',
+        'maria.lopez@molinosabc.com',
+        '555-123-4567',
+        'Calle 1, Colonia Centro, CDMX',
+        'Activo',
+        'Internacionales'
+    ),
+    (
+        TRUE,
+        'Panificadora La Espiga',
+        'ESP987654ZYX',
+        'Roberto Díaz',
+        'Calidad',
+        'roberto.diaz@espiga.com',
+        '555-987-6543',
+        'Avenida 2, Colonia Norte, CDMX',
+        'Activo',
+        'Personalizados'
+    );
 -- DIRECCIONES para cada cliente
-INSERT INTO Direcciones (id_cliente, calle, num_Exterior, num_Interior, colonia, delegacion_alcaldia, codigo_postal, estado, notas) VALUES
-(1, 'Calle 1', '101', 'A', 'Centro', 'Cuauhtémoc', '06000', 'Ciudad de México', 'Oficina principal'),
-(2, 'Avenida 2', '202', NULL, 'Norte', 'Gustavo A. Madero', '07000', 'Ciudad de México', 'Sucursal norte');
-
+INSERT INTO Direcciones (
+        id_cliente,
+        calle,
+        num_Exterior,
+        num_Interior,
+        colonia,
+        delegacion_alcaldia,
+        codigo_postal,
+        estado,
+        notas
+    )
+VALUES (
+        1,
+        'Calle 1',
+        '101',
+        'A',
+        'Centro',
+        'Cuauhtémoc',
+        '06000',
+        'Ciudad de México',
+        'Oficina principal'
+    ),
+    (
+        2,
+        'Avenida 2',
+        '202',
+        NULL,
+        'Norte',
+        'Gustavo A. Madero',
+        '07000',
+        'Ciudad de México',
+        'Sucursal norte'
+    );
 -- PARÁMETROS para cada cliente
 -- Cliente 1: Molinos ABC
-INSERT INTO Parametros (id_cliente, nombre_parametro, lim_Superior, lim_Inferior) VALUES
-(1, 'Humedad', 14.0, 12.0),
-(1, 'Cenizas', 0.65, 0.55),
-(1, 'Gluten_Humedo', 32.0, 28.0),
-(1, 'Gluten_Seco', 11.0, 9.0),
-(1, 'Indice_Gluten', 95.0, 85.0),
-(1, 'Indice_Caida', 350.0, 300.0),
-(1, 'Alveograma_P', 100.0, 80.0),
-(1, 'Alveograma_L', 120.0, 100.0),
-(1, 'Alveograma_PL', 0.6, 0.4),
-(1, 'Alveograma_W', 300.0, 250.0),
-(1, 'Alveograma_IE', 1.2, 0.8),
-(1, 'Almidon_Danado', 8.0, 5.0),
-(1, 'Farinograma_Absorcion_Agua', 62.0, 58.0),
-(1, 'Farinograma_Tiempo_Desarrollo', 2.5, 1.5),
-(1, 'Farinograma_Estabilidad', 10.0, 8.0),
-(1, 'Farinograma_Grado_Decaimiento', 80.0, 60.0);
-
+INSERT INTO Parametros (
+        id_cliente,
+        nombre_parametro,
+        lim_Superior,
+        lim_Inferior
+    )
+VALUES (1, 'Humedad', 14.0, 12.0),
+    (1, 'Cenizas', 0.65, 0.55),
+    (1, 'Gluten_Humedo', 32.0, 28.0),
+    (1, 'Gluten_Seco', 11.0, 9.0),
+    (1, 'Indice_Gluten', 95.0, 85.0),
+    (1, 'Indice_Caida', 350.0, 300.0),
+    (1, 'Alveograma_P', 100.0, 80.0),
+    (1, 'Alveograma_L', 120.0, 100.0),
+    (1, 'Alveograma_PL', 0.6, 0.4),
+    (1, 'Alveograma_W', 300.0, 250.0),
+    (1, 'Alveograma_IE', 1.2, 0.8),
+    (1, 'Farinograma_Absorcion_Agua', 62.0, 58.0),
+    (1, 'Farinograma_Tiempo_Desarrollo', 2.5, 1.5),
+    (1, 'Farinograma_Estabilidad', 10.0, 8.0),
+    (1, 'Farinograma_Grado_Decaimiento', 80.0, 60.0);
 -- Cliente 2: Panificadora La Espiga
-INSERT INTO Parametros (id_cliente, nombre_parametro, lim_Superior, lim_Inferior) VALUES
-(2, 'Humedad', 13.5, 11.5),
-(2, 'Cenizas', 0.70, 0.50),
-(2, 'Gluten_Humedo', 30.0, 26.0),
-(2, 'Gluten_Seco', 10.0, 8.0),
-(2, 'Indice_Gluten', 90.0, 80.0),
-(2, 'Indice_Caida', 340.0, 290.0),
-(2, 'Alveograma_P', 95.0, 75.0),
-(2, 'Alveograma_L', 115.0, 90.0),
-(2, 'Alveograma_PL', 0.7, 0.5),
-(2, 'Alveograma_W', 280.0, 230.0),
-(2, 'Alveograma_IE', 1.1, 0.7),
-(2, 'Almidon_Danado', 7.5, 4.5),
-(2, 'Farinograma_Absorcion_Agua', 61.0, 57.0),
-(2, 'Farinograma_Tiempo_Desarrollo', 3.0, 2.0),
-(2, 'Farinograma_Estabilidad', 9.5, 7.5),
-(2, 'Farinograma_Grado_Decaimiento', 75.0, 55.0);
-
+INSERT INTO Parametros (
+        id_cliente,
+        nombre_parametro,
+        lim_Superior,
+        lim_Inferior
+    )
+VALUES (2, 'Humedad', 13.5, 11.5),
+    (2, 'Cenizas', 0.70, 0.50),
+    (2, 'Gluten_Humedo', 30.0, 26.0),
+    (2, 'Gluten_Seco', 10.0, 8.0),
+    (2, 'Indice_Gluten', 90.0, 80.0),
+    (2, 'Indice_Caida', 340.0, 290.0),
+    (2, 'Alveograma_P', 95.0, 75.0),
+    (2, 'Alveograma_L', 115.0, 90.0),
+    (2, 'Alveograma_PL', 0.7, 0.5),
+    (2, 'Alveograma_W', 280.0, 230.0),
+    (2, 'Alveograma_IE', 1.1, 0.7),
+    (2, 'Farinograma_Absorcion_Agua', 61.0, 57.0),
+    (2, 'Farinograma_Tiempo_Desarrollo', 3.0, 2.0),
+    (2, 'Farinograma_Estabilidad', 9.5, 7.5),
+    (2, 'Farinograma_Grado_Decaimiento', 75.0, 55.0);
 -- PARÁMETROS para cada equipo
 -- Equipo 1: Alveógrafo
-INSERT INTO Parametros (id_equipo, nombre_parametro, lim_Superior, lim_Inferior) VALUES
-(1, 'Alveograma_P', 110.0, 90.0),
-(1, 'Alveograma_L', 130.0, 110.0),
-(1, 'Alveograma_PL', 0.7, 0.5),
-(1, 'Alveograma_W', 320.0, 270.0),
-(1, 'Alveograma_IE', 1.3, 0.9);
-
+INSERT INTO Parametros (
+        id_equipo,
+        nombre_parametro,
+        lim_Superior,
+        lim_Inferior
+    )
+VALUES (1, 'Humedad', 14.0, 12.0),
+    (1, 'Cenizas', 0.65, 0.55),
+    (1, 'Gluten_Humedo', 32.0, 28.0),
+    (1, 'Gluten_Seco', 11.0, 9.0),
+    (1, 'Indice_Gluten', 95.0, 85.0),
+    (1, 'Indice_Caida', 350.0, 300.0),
+    (1, 'Alveograma_P', 110.0, 90.0),
+    (1, 'Alveograma_L', 130.0, 110.0),
+    (1, 'Alveograma_PL', 0.7, 0.5),
+    (1, 'Alveograma_W', 320.0, 270.0),
+    (1, 'Alveograma_IE', 1.3, 0.9);
 -- Equipo 2: Farinógrafo
-INSERT INTO Parametros (id_equipo, nombre_parametro, lim_Superior, lim_Inferior) VALUES
-(2, 'Farinograma_Absorcion_Agua', 63.0, 59.0),
-(2, 'Farinograma_Tiempo_Desarrollo', 2.8, 1.8),
-(2, 'Farinograma_Estabilidad', 10.5, 8.5),
-(2, 'Farinograma_Grado_Decaimiento', 85.0, 65.0);
+INSERT INTO Parametros (
+        id_equipo,
+        nombre_parametro,
+        lim_Superior,
+        lim_Inferior
+    )
+VALUES (1, 'Farinograma_Absorcion_Agua', 63.0, 59.0),
+    (1, 'Farinograma_Tiempo_Desarrollo', 2.8, 1.8),
+    (1, 'Farinograma_Estabilidad', 10.5, 8.5),
+    (1, 'Farinograma_Grado_Decaimiento', 85.0, 65.0);

@@ -79,13 +79,20 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // Obtener datos del formulario
 $editando = isset($_POST['editando']) && $_POST['editando'] == '1';
 $id_inspeccion = $editando ? $_POST['id_inspeccion'] : null;
-$id_cliente = $_POST['id_cliente'] ?? null;
-$id_equipo = $_POST['id_equipo'] ?? null;
+$id_cliente = isset($_POST['id_cliente']) && !empty($_POST['id_cliente']) ? $_POST['id_cliente'] : null;
+$id_equipo = isset($_POST['id_equipo']) && !empty($_POST['id_equipo']) ? $_POST['id_equipo'] : null;
 $tipo_equipo = $_POST['tipo_equipo'] ?? null;
 
-// Determinar el lote a usar
-$usando_lote_nuevo = isset($_POST['lote_nuevo']) && !empty($_POST['lote_nuevo']);
-$lote = $usando_lote_nuevo ? $_POST['lote_nuevo'] : ($_POST['lote_existente'] ?? null);
+// Determinar el lote a usar - priorizar el valor de lote_final si está presente
+if (isset($_POST['lote']) && !empty($_POST['lote'])) {
+    $lote = $_POST['lote'];
+} else if (isset($_POST['lote_nuevo']) && !empty($_POST['lote_nuevo'])) {
+    $lote = $_POST['lote_nuevo'];
+} else if (isset($_POST['lote_existente']) && !empty($_POST['lote_existente'])) {
+    $lote = $_POST['lote_existente'];
+} else {
+    $lote = null;
+}
 
 // Validaciones básicas
 if (empty($lote)) {
@@ -182,7 +189,8 @@ try {
 
     // 3. Insertar resultados con validación de parámetros
     // Obtener límites de referencia para los parámetros
-    $limites_parametros = obtenerLimitesParametros($pdo, $id_cliente, $id_equipo, $tipo_equipo);
+    $origen_parametros = isset($_POST['origen_parametros']) ? $_POST['origen_parametros'] : null;
+    $limites_parametros = obtenerLimitesParametros($pdo, $id_cliente, $id_equipo, $tipo_equipo, $origen_parametros);
 
     foreach ($parametros_form as $nombre_parametro => $datos) {
         $valor_obtenido = $datos['valor'] ?? null;
@@ -191,14 +199,33 @@ try {
             continue; // Saltar parámetros sin valor
         }
         
+        // Convertir a número para comparación consistente
+        $valor_obtenido = floatval($valor_obtenido);
+        
         // Determinar si el valor está dentro de los límites
         $aprobado = true;
         if (isset($limites_parametros[$nombre_parametro])) {
-            $lim_inf = $limites_parametros[$nombre_parametro]['lim_Inferior'];
-            $lim_sup = $limites_parametros[$nombre_parametro]['lim_Superior'];
+            $lim_inf = floatval($limites_parametros[$nombre_parametro]['lim_Inferior']);
+            $lim_sup = floatval($limites_parametros[$nombre_parametro]['lim_Superior']);
             
-            $aprobado = ($valor_obtenido >= $lim_inf && $valor_obtenido <= $lim_sup);
+            // Solo validar si ambos límites existen y son numéricos
+            if (!is_nan($lim_inf) && !is_nan($lim_sup)) {
+                $aprobado = ($valor_obtenido >= $lim_inf && $valor_obtenido <= $lim_sup);
+            }
         }
+        
+        // Debug: Mostrar información de validación
+        /*
+        error_log("Validando parámetro: $nombre_parametro");
+        error_log("Valor obtenido: $valor_obtenido");
+        if (isset($limites_parametros[$nombre_parametro])) {
+            error_log("Límite inferior: " . $limites_parametros[$nombre_parametro]['lim_Inferior']);
+            error_log("Límite superior: " . $limites_parametros[$nombre_parametro]['lim_Superior']);
+        } else {
+            error_log("Sin límites definidos para este parámetro");
+        }
+        error_log("Aprobado: " . ($aprobado ? 'Sí' : 'No'));
+        */
         
         // Insertar resultado
         $sql_resultado = "INSERT INTO Resultado_Inspeccion 
@@ -270,10 +297,31 @@ function generarSiguienteSecuencia($secuencia_actual) {
 }
 
 // Función para obtener los límites de los parámetros
-function obtenerLimitesParametros($pdo, $id_cliente, $id_equipo, $tipo_equipo) {
+function obtenerLimitesParametros($pdo, $id_cliente, $id_equipo, $tipo_equipo, $origen_parametros = null) {
     $limites = [];
     
-    // Si hay cliente, primero verificar si usa parámetros internacionales
+    // Si hay un origen de parámetros especificado, usarlo para decidir la fuente
+    if ($origen_parametros === 'equipo' && $id_equipo) {
+        // Usar parámetros del equipo
+        $sql = "SELECT nombre_parametro, lim_Inferior, lim_Superior 
+               FROM Parametros 
+               WHERE id_equipo = :id_equipo";
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':id_equipo', $id_equipo, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $limites[$row['nombre_parametro']] = [
+                'lim_Inferior' => $row['lim_Inferior'],
+                'lim_Superior' => $row['lim_Superior']
+            ];
+        }
+        
+        return $limites; // Retornar directamente los parámetros del equipo
+    }
+    
+    // Si hay cliente y no estamos usando explícitamente parámetros de equipo
     if ($id_cliente) {
         $sql_tipo_parametros = "SELECT parametros FROM Clientes WHERE id_cliente = :id_cliente";
         $stmt_tipo = $pdo->prepare($sql_tipo_parametros);

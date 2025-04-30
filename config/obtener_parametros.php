@@ -61,13 +61,12 @@ try {
                 throw new Exception("Para parámetros internacionales, debe seleccionar un tipo de equipo.");
             }
 
-            // Usar cliente ID 1 como fuente de parámetros internacionales, filtrando por tipo de equipo
-            $prefijo_parametro = ($tipo_equipo === 'Alveógrafo') ? 'Alveograma_' : 'Farinograma_'; // Si no es Alveógrafo, asumimos que es Farinógrafo osea Farinograma_
+            // Usar prefijo de parámetro según el tipo de equipo
+            $prefijo_parametro = ($tipo_equipo === 'Alveógrafo') ? 'Alveograma_' : 'Farinograma_';
             
             $sql_parametros = "SELECT nombre_parametro, lim_Inferior, lim_Superior 
                               FROM Parametros 
-                              WHERE id_cliente = 1 
-                              AND (nombre_parametro LIKE :prefijo OR 
+                              WHERE (nombre_parametro LIKE :prefijo OR 
                                    nombre_parametro IN ('Humedad', 'Cenizas', 'Gluten_Humedo', 'Gluten_Seco', 'Indice_Gluten', 'Indice_Caida'))";
             
             $stmt_parametros = $pdo->prepare($sql_parametros);
@@ -95,8 +94,8 @@ try {
                 $tipo_equipo = 'Farinógrafo';
             } else {
                 // Si no podemos determinar el tipo, usamos el tipo seleccionado por el usuario
-                if (isset($_POST['tipo_equipo']) && !empty($_POST['tipo_equipo'])) {
-                    $tipo_equipo = $_POST['tipo_equipo'];
+                if (isset($_GET['tipo_equipo']) && !empty($_GET['tipo_equipo'])) {
+                    $tipo_equipo = $_GET['tipo_equipo'];
                 } else {
                     throw new Exception("No se pudo determinar el tipo de equipo para este cliente.");
                 }
