@@ -76,7 +76,6 @@ foreach ($equipos as $equipo) {
     }
 }
 
-
 // Consulta para obtener todos los clientes
 $sql_clientes = "SELECT id_cliente, nombre, rfc, parametros FROM Clientes WHERE estado = 'Activo' ORDER BY nombre";
 $stmt_clientes = $pdo->query($sql_clientes);
@@ -96,7 +95,7 @@ if (!empty($lotes_existentes)) {
     // Extraer parte numérica y generar el siguiente
     if (preg_match('/LOTE(\d+)/', $ultimo_lote, $matches)) {
         $num = intval($matches[1]) + 1;
-        $siguiente_lote = 'LOTE' . str_pad($num, strlen($matches[1]), '0', STR_PAD_LEFT); // Junta todo el string y le agrega ceros a la izquierda si es que ya llego al limite.
+        $siguiente_lote = 'LOTE' . str_pad($num, strlen($matches[1]), '0', STR_PAD_LEFT);
     } else { 
         $siguiente_lote = 'LOTE001';
     }
@@ -113,34 +112,24 @@ function obtenerParametrosCliente($pdo, $id_cliente) {
     $stmt_cliente->execute();
     $tipo_parametros = $stmt_cliente->fetchColumn();
     
-    if ($tipo_parametros == 'Personalizados') {
-        // Usar parámetros personalizados del cliente
-        $sql = "SELECT nombre_parametro, lim_Inferior, lim_Superior 
-                FROM Parametros 
-                WHERE id_cliente = :id_cliente";
-                
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':id_cliente', $id_cliente, PDO::PARAM_INT);
-        $stmt->execute();
-        
-        $parametros = [];
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $parametros[$row['nombre_parametro']] = [
-                'min' => $row['lim_Inferior'],
-                'max' => $row['lim_Superior']
-            ];
-        }
-        
-        // Si no hay parámetros personalizados, usar los internacionales
-        if (empty($parametros)) {
-            return obtenerParametrosInternacionales($pdo);
-        }
-        
-        return $parametros;
-    } else {
-        // Usar parámetros internacionales
-        return obtenerParametrosInternacionales($pdo);
+    // Consulta base
+    $sql = "SELECT nombre_parametro, lim_Inferior, lim_Superior 
+            FROM Parametros 
+            WHERE id_cliente = :id_cliente";
+            
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':id_cliente', $id_cliente, PDO::PARAM_INT);
+    $stmt->execute();
+    
+    $parametros = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $parametros[$row['nombre_parametro']] = [
+            'min' => $row['lim_Inferior'],
+            'max' => $row['lim_Superior']
+        ];
     }
+    
+    return $parametros;
 }
 
 // Función para obtener los parámetros de un equipo específico
@@ -164,91 +153,49 @@ function obtenerParametrosEquipo($pdo, $id_equipo) {
     return $resultado;
 }
 
-// Función para obtener información de un lote existente
-function obtenerInfoLote($pdo, $lote) {
-    $sql = "SELECT i.id_cliente, ei.id_equipo, e.tipo_equipo 
-            FROM Inspeccion i
-            JOIN Equipo_Inspeccion ei ON i.id_inspeccion = ei.id_inspeccion
-            JOIN Equipos_Laboratorio e ON ei.id_equipo = e.id_equipo
-            WHERE i.lote = :lote 
-            LIMIT 1";
-            
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(':lote', $lote);
-    $stmt->execute();
-    
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-}
-
-// Función para obtener la última secuencia de un lote
-function obtenerUltimaSecuencia($pdo, $lote) {
-    $sql = "SELECT secuencia FROM Inspeccion WHERE lote = :lote ORDER BY secuencia DESC LIMIT 1";
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(':lote', $lote);
-    $stmt->execute();
-    
-    $ultima = $stmt->fetchColumn();
-    
-    if (!$ultima) {
-        return 'A';
-    }
-    
-    // Incrementar la secuencia (A -> B, Z -> AA, etc.)
-    return ++$ultima;
-}
-
-// Función para obtener los resultados de inspección de un lote y equipo específicos
-function obtenerResultadosLote($pdo, $lote, $id_equipo) {
-    $sql = "SELECT ri.nombre_parametro, ri.valor_obtenido, ri.aprobado 
-            FROM Resultado_Inspeccion ri
-            JOIN Inspeccion i ON ri.id_inspeccion = i.id_inspeccion
-            JOIN Equipo_Inspeccion ei ON i.id_inspeccion = ei.id_inspeccion
-            WHERE i.lote = :lote AND ei.id_equipo = :id_equipo
-            ORDER BY ri.nombre_parametro";
-            
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(':lote', $lote);
-    $stmt->bindParam(':id_equipo', $id_equipo);
-    $stmt->execute();
-    
-    $resultados = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $resultados[$row['nombre_parametro']] = [
-            'valor_obtenido' => $row['valor_obtenido'],
-            'aprobado' => $row['aprobado']
-        ];
-    }
-    
-    return $resultados;
-}
-
-// Parámetros para el alveógrafo y farinógrafo
+// INSPECCIONES para el alveógrafo y farinógrafo
 $parametros_alveografo = [
-    ['nombre' => 'Humedad', 'id_parametro' => 'Humedad', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Cenizas', 'id_parametro' => 'Cenizas', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Gluten Humedo', 'id_parametro' => 'Gluten_Humedo', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Gluten Seco', 'id_parametro' => 'Gluten_Seco', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Indice de gluten', 'id_parametro' => 'Indice_Gluten', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Indice de caída', 'id_parametro' => 'Indice_Caida', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Valor P (mm H₂O)', 'id_parametro' => 'Alveograma_P', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Valor L (mm)', 'id_parametro' => 'Alveograma_L', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Valor W (10⁻⁴ J)', 'id_parametro' => 'Alveograma_W', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Relación P/L', 'id_parametro' => 'Alveograma_PL', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Índice de elasticidad (Ie)', 'id_parametro' => 'Alveograma_IE', 'lim_Inferior' => '', 'lim_Superior' => '']
+    ['nombre' => 'Humedad', 'id_parametro' => 'Humedad', 'valor_obtenido' => ''],
+    ['nombre' => 'Cenizas', 'id_parametro' => 'Cenizas', 'valor_obtenido' => ''],
+    ['nombre' => 'Gluten Humedo', 'id_parametro' => 'Gluten_Humedo', 'valor_obtenido' => ''],
+    ['nombre' => 'Gluten Seco', 'id_parametro' => 'Gluten_Seco', 'valor_obtenido' => ''],
+    ['nombre' => 'Indice de gluten', 'id_parametro' => 'Indice_Gluten', 'valor_obtenido' => ''],
+    ['nombre' => 'Indice de caída', 'id_parametro' => 'Indice_Caida', 'valor_obtenido' => ''],
+    ['nombre' => 'Valor P (mm H₂O)', 'id_parametro' => 'Alveograma_P', 'valor_obtenido' => ''],
+    ['nombre' => 'Valor L (mm)', 'id_parametro' => 'Alveograma_L', 'valor_obtenido' => ''],
+    ['nombre' => 'Valor W (10⁻⁴ J)', 'id_parametro' => 'Alveograma_W', 'valor_obtenido' => ''],
+    ['nombre' => 'Relación P/L', 'id_parametro' => 'Alveograma_PL', 'valor_obtenido' => ''],
+    ['nombre' => 'Índice de elasticidad (Ie)', 'id_parametro' => 'Alveograma_IE', 'valor_obtenido' => '']
+    
 ];
 
 $parametros_farinografo = [
-    ['nombre' => 'Humedad', 'id_parametro' => 'Humedad', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Cenizas', 'id_parametro' => 'Cenizas', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Gluten Humedo', 'id_parametro' => 'Gluten_Humedo', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Gluten Seco', 'id_parametro' => 'Gluten_Seco', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Indice de gluten', 'id_parametro' => 'Indice_Gluten', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Indice de caída', 'id_parametro' => 'Indice_Caida', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Absorción de agua (%)', 'id_parametro' => 'Farinograma_Absorcion_agua', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Tiempo de desarrollo (min)', 'id_parametro' => 'Farinograma_Tiempo_Desarrollo', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Estabilidad (min)', 'id_parametro' => 'Farinograma_Estabilidad', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Grado Decaimiento', 'id_parametro' => 'Farinograma_Grado_Decaimiento', 'lim_Inferior' => '', 'lim_Superior' => '']
+    ['nombre' => 'Humedad', 'id_parametro' => 'Humedad', 'valor_obtenido' => ''],
+    ['nombre' => 'Cenizas', 'id_parametro' => 'Cenizas', 'valor_obtenido' => ''],
+    ['nombre' => 'Gluten Humedo', 'id_parametro' => 'Gluten_Humedo', 'valor_obtenido' => ''],
+    ['nombre' => 'Gluten Seco', 'id_parametro' => 'Gluten_Seco', 'valor_obtenido' => ''],
+    ['nombre' => 'Indice de gluten', 'id_parametro' => 'Indice_Gluten', 'valor_obtenido' => ''],
+    ['nombre' => 'Indice de caída', 'id_parametro' => 'Indice_Caida', 'valor_obtenido' => ''],
+    ['nombre' => 'Absorción de agua (%)', 'id_parametro' => 'Farinograma_Absorcion_Agua', 'valor_obtenido' => ''],
+    ['nombre' => 'Tiempo de desarrollo (min)', 'id_parametro' => 'Farinograma_Tiempo_Desarrollo', 'valor_obtenido' => ''],
+    ['nombre' => 'Estabilidad (min)', 'id_parametro' => 'Farinograma_Estabilidad', 'valor_obtenido' => ''],
+    ['nombre' => 'Grado Decaimiento', 'id_parametro' => 'Farinograma_Grado_Decaimiento', 'valor_obtenido' => '']
 ];
+
+// Cargar valores existentes si estamos editando
+if ($editando && $parametros_cargados) {
+    foreach ($parametros_alveografo as &$param) {
+        if (isset($valores_parametros[$param['id_parametro']])) {
+            $param['valor_obtenido'] = $valores_parametros[$param['id_parametro']]['valor_obtenido'];
+        }
+    }
+    
+    foreach ($parametros_farinografo as &$param) {
+        if (isset($valores_parametros[$param['id_parametro']])) {
+            $param['valor_obtenido'] = $valores_parametros[$param['id_parametro']]['valor_obtenido'];
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -261,18 +208,31 @@ $parametros_farinografo = [
     <link rel="stylesheet" href="../css/menu.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-       .parametro-group {
+        .formulario {
+            max-width: 60%;
+            margin: 0 auto;
+            display: block; /* Cambiamos de grid a block para flujo vertical */
+        }
+        
+        .formulario__campo {
+            margin-bottom: 20px;
+            width: 100%; /* Ocupa todo el ancho disponible */
+        }
+        
+        .parametro-group {
             margin-bottom: 15px;
             padding: 10px;
             border: 1px solid #eee;
             border-radius: 5px;
             background-color: #f9f9f9;
+            width: 100%; /* Ocupa todo el ancho */
         }
         
         .parametro-row {
             display: flex;
             align-items: center;
             margin-bottom: 8px;
+            width: 100%; /* Ocupa todo el ancho */
         }
         
         .parametro-label {
@@ -313,19 +273,14 @@ $parametros_farinografo = [
             text-align: center;
             font-style: italic;
             color: #666;
-        }
-
-        .parametros-title {
-            margin-top: 15px;
-            margin-bottom: 10px;
-            font-weight: bold;
-            color: #333;
+            width: 100%; /* Ocupa todo el ancho */
         }
         
         .switch-group {
             display: flex;
             gap: 20px;
             margin-bottom: 15px;
+            width: 100%; /* Ocupa todo el ancho */
         }
         
         .switch-option {
@@ -347,6 +302,7 @@ $parametros_farinografo = [
         .option-group {
             margin-bottom: 20px;
             display: none;
+            width: 100%; /* Ocupa todo el ancho */
         }
         
         .option-group.active {
@@ -363,6 +319,65 @@ $parametros_farinografo = [
             margin-top: 20px;
             margin-bottom: 15px;
             color: #4c3325;
+            width: 100%; /* Ocupa todo el ancho */
+        }
+        
+        /* Asegurarnos que los elementos de formulario ocupen todo el ancho */
+        .formulario__input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        /* Estilo para el botón de submit */
+        .formulario__submit {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+        }
+        
+        .parametros-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .parametros-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+        }
+        
+        .parametro-row {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .parametro-nombre {
+            flex: 1;
+            font-weight: bold;
+        }
+        
+        .parametro-inputs {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .parametro-input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        
+        .parametro-label {
+            font-size: 12px;
+            color: #666;
         }
     </style>
 </head>
@@ -374,21 +389,22 @@ $parametros_farinografo = [
             <a href="analisiscalidad.php" class="atras">Ir atrás</a>
             <h2 class="heading"><?php echo $editando ? 'Editar' : 'Agregar'; ?> Análisis de Calidad</h2>
             
-            <form action="../config/procesar_analisis.php" class="formulario" method="POST">
+            <form action="../config/procesar_analisis.php" class="formulario" method="POST" id="analisisForm" novalidate>
                 <!-- Campo oculto para identificar si estamos editando -->
                 <?php if ($editando): ?>
                 <input type="hidden" name="editando" value="1">
-                <input type="hidden" name="id_inspeccion" value="<?php echo htmlspecialchars($inspeccion['id_inspeccion']); ?>">
+                <input type="hidden" name="id_inspeccion" value="<?php echo htmlspecialchars($analisis['id_inspeccion']); ?>">
                 <?php endif; ?>
 
+                <!-- Sección Lote -->
                 <h3 class="section-title">Información del Lote</h3>
-
+                
                 <div class="switch-group">
-                    <div class="switch-option active" data-target="lote-nuevo">Crear Nuevo Lote</div>
-                    <div class="switch-option" data-target="lote-existente">Usar Lote Existente</div>
+                    <div class="switch-option <?php echo !$editando ? 'active' : ''; ?>" data-target="lote-nuevo">Crear Nuevo Lote</div>
+                    <div class="switch-option <?php echo $editando ? 'active' : ''; ?>" data-target="lote-existente">Usar Lote Existente</div>
                 </div>
-
-                <div class="option-group active" id="lote-nuevo">
+                
+                <div class="option-group <?php echo !$editando ? 'active' : ''; ?>" id="lote-nuevo">
                     <div class="formulario__campo">
                         <label for="lote_nuevo" class="formulario__label">Nuevo Lote de Producción</label>
                         <input type="text" class="formulario__input" id="lote_nuevo" name="lote_nuevo" 
@@ -398,28 +414,38 @@ $parametros_farinografo = [
                         </p>
                     </div>
                 </div>
-
-                <div class="option-group" id="lote-existente">
+                
+                <div class="option-group <?php echo $editando ? 'active' : ''; ?>" id="lote-existente">
                     <div class="formulario__campo">
                         <label for="lote_existente" class="formulario__label">Seleccionar Lote Existente</label>
                         <select class="formulario__input" id="lote_existente" name="lote_existente">
-                            <option value="" disabled selected>-- Seleccione un lote --</option>
+                            <option value="" disabled <?php echo !$editando ? 'selected' : ''; ?>>-- Seleccione un lote --</option>
                             <?php foreach ($lotes_existentes as $lote): ?>
-                            <option value="<?php echo htmlspecialchars($lote); ?>">
+                            <option value="<?php echo htmlspecialchars($lote); ?>" 
+                                    <?php echo ($editando && $analisis['lote'] == $lote) ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($lote); ?>
                             </option>
                             <?php endforeach; ?>
-                        </select>
-                        <p style="font-size: 0.8rem; color: #666; margin-top: 5px;">
-                            Al seleccionar un lote existente, se cargará automáticamente información del cliente y equipo asociados
-                        </p>
+                        </select>                        
                     </div>
                 </div>
 
+                <!-- Sección Equipo de Laboratorio -->
+                <h3 class="section-title">Equipo de Laboratorio</h3>
+                
+                <div class="formulario__campo">
+                    <label for="tipo_equipo" class="formulario__label">Tipo de Equipo</label>
+                    <select class="formulario__input" id="tipo_equipo" name="tipo_equipo">
+                        <option value="" disabled selected>-- Seleccione tipo de equipo --</option>
+                        <option value="Alveógrafo" <?php echo ($editando && isset($equipos_seleccionados[0]) && $equipos_seleccionados[0]['tipo_equipo'] == 'Alveógrafo') ? 'selected' : ''; ?>>Alveógrafo</option>
+                        <option value="Farinógrafo" <?php echo ($editando && isset($equipos_seleccionados[0]) && $equipos_seleccionados[0]['tipo_equipo'] == 'Farinógrafo') ? 'selected' : ''; ?>>Farinógrafo</option>
+                    </select>
+                </div>
+                
                 <!-- Campo oculto para almacenar el lote final -->
                 <input type="hidden" name="lote" id="lote_final" value="<?php echo $editando ? htmlspecialchars($analisis['lote']) : $siguiente_lote; ?>">
-
-                <!-- Sección de Origen de Parámetros -->
+                
+                <!-- Sección Origen de Parámetros -->
                 <h3 class="section-title">Origen de Parámetros</h3>
                 
                 <div class="switch-group">
@@ -432,7 +458,6 @@ $parametros_farinografo = [
                         <label for="id_cliente" class="formulario__label">Cliente</label>
                         <select class="formulario__input" id="id_cliente" name="id_cliente">
                             <option value="" disabled selected>-- Seleccione un cliente --</option>
-
                             <?php foreach ($clientes as $cliente): ?>
                             <option value="<?php echo $cliente['id_cliente']; ?>" 
                                     data-parametros="<?php echo htmlspecialchars($cliente['parametros']); ?>"
@@ -440,433 +465,396 @@ $parametros_farinografo = [
                                 <?php echo htmlspecialchars($cliente['nombre']); ?> (<?php echo htmlspecialchars($cliente['rfc']); ?>)
                             </option>
                             <?php endforeach; ?>
-
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="option-group" id="equipo-group">                              
+                    <div class="formulario__campo">
+                        <label for="id_equipo" class="formulario__label">Equipo de Laboratorio</label>
+                        <select class="formulario__input" id="id_equipo" name="id_equipo">
+                            <option value="" disabled selected>-- Seleccione un equipo --</option>
+                            <?php foreach ($equipos as $equipo): ?>
+                            <option class="equipo-option" 
+                                    data-tipo="<?php echo htmlspecialchars($equipo['tipo_equipo']); ?>" 
+                                    value="<?php echo $equipo['id_equipo']; ?>" 
+                                    style="display: none;"
+                                    <?php echo ($editando && isset($equipos_seleccionados[0]) && $equipos_seleccionados[0]['id_equipo'] == $equipo['id_equipo']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($equipo['clave']); ?> - <?php echo htmlspecialchars($equipo['marca']); ?> <?php echo htmlspecialchars($equipo['modelo']); ?>
+                            </option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                 </div>
 
-                <div class="option-group" id="equipo-group">
-                    <p>Los parámetros se tomarán directamente del equipo seleccionado.</p>
-                </div>
+                <!-- Sección Parámetros de Medición -->
+                <h3 class="section-title">Parámetros de Medición</h3>
                 
-                <!-- Sección Equipo de Laboratorio -->
-                <h3 class="section-title">Equipo de Laboratorio</h3>
-                
-                <div class="formulario__campo">
-                    <label for="tipo_equipo" class="formulario__label">Tipo de Equipo</label>
-                    <select class="formulario__input" id="tipo_equipo" name="tipo_equipo" required>
-                        <option value="" disabled selected>-- Seleccione tipo de equipo --</option>
-                        <option value="Alveógrafo">Alveógrafo</option>
-                        <option value="Farinógrafo">Farinógrafo</option>
-                    </select>
-                </div>
-
-                <div class="formulario__campo">
-                    <label for="id_equipo" class="formulario__label">Equipo de Laboratorio</label>
-                    <select class="formulario__input" id="id_equipo" name="id_equipo" required>
-                        <option value="" disabled selected>-- Seleccione un equipo --</option>
-                        <?php foreach ($equipos as $equipo): ?>
-                        <option class="equipo-option" 
-                                data-tipo="<?php echo htmlspecialchars($equipo['tipo_equipo']); ?>" 
-                                value="<?php echo $equipo['id_equipo']; ?>" 
-                                style="display: none;">
-                            <?php echo htmlspecialchars($equipo['clave']); ?> - <?php echo htmlspecialchars($equipo['marca']); ?> <?php echo htmlspecialchars($equipo['modelo']); ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <!-- Mensaje de carga para los parámetros -->
-                <div id="loading-message" class="loading-message" style="display: none;">
-                    Cargando valores de referencia y parámetros...
-                </div>
-
-                <div class="formulario__campo">
-                    <label for="tipo_equipo" class="formulario__label">Tipo de equipo</label>
-                    <select class="formulario__input" name="tipo_equipo" required>
-                        <option value="" disabled>-- Seleccione un tipo --</option>
-                        <option value="Alveógrafo">Alveógrafo</option>
-                        <option value="Farinógrafo">Farinógrafo</option>
-                    </select>
-                </div>
-
-                <!-- Sección para seleccionar parámetros -->
-                <div id="parametros-alveografo" class="parametros-section" style="display: none;">
-                    <div class="parametros-title">Valores de referencia internacionales - Alveógrafo</div>
-                    
+                <div id="seccion-alveografo" class="parametros-section" style="display: none;">
+                    <h3 class="parametros-title">Inspección para Alveógrafo</h3>
                     <?php foreach ($parametros_alveografo as $param): ?>
                     <div class="parametro-row">
                         <div class="parametro-nombre"><?php echo htmlspecialchars($param['nombre']); ?></div>
                         <div class="parametro-inputs">
                             <div>
-                                <input type="number" step="0.01" class="parametro-input min-input" 
-                                       name="alveografo[<?php echo $param['id_parametro']; ?>][min]" 
-                                       value="<?php echo htmlspecialchars($param['lim_Inferior']); ?>" 
-                                       placeholder="Mínimo"
-                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>"
-                                       >
-                                <div class="parametro-label">Límite inferior</div>
-                            </div>
-                            <div>
-                                <input type="number" step="0.01" class="parametro-input max-input" 
-                                       name="alveografo[<?php echo $param['id_parametro']; ?>][max]" 
-                                       value="<?php echo htmlspecialchars($param['lim_Superior']); ?>" 
-                                       placeholder="Máximo"
-                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>"
-                                       >
-                                <div class="parametro-label">Límite superior</div>
+                                <input type="number" step="0.01" class="parametro-input" 
+                                       name="alveografo[<?php echo $param['id_parametro']; ?>][valor]" 
+                                       value="<?php echo htmlspecialchars($param['valor_obtenido']); ?>" 
+                                       placeholder="Valor"
+                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>">
+                                
                             </div>
                         </div>
                     </div>
                     <?php endforeach; ?>
                 </div>
 
-                
-                <div id="parametros-farinografo" class="parametros-section" style="display: none;">
-                    <div class="parametros-title">Valores de referencia internacionales - Farinógrafo</div>
-                    
+                <!-- Sección para Farinografo -->
+                <div id="seccion-farinografo" class="parametros-section" style="display: none;">
+                    <div class="parametros-title">Inspección para Farinógrafo</div>
                     <?php foreach ($parametros_farinografo as $param): ?>
                     <div class="parametro-row">
                         <div class="parametro-nombre"><?php echo htmlspecialchars($param['nombre']); ?></div>
                         <div class="parametro-inputs">
                             <div>
-                                <input type="number" step="0.01" class="parametro-input min-input" 
-                                       name="farinografo[<?php echo $param['id_parametro']; ?>][min]"  
-                                       placeholder="Mínimo"
-                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>"
-                                       >
-                                <div class="parametro-label">Límite inferior</div>
-                            </div>
-                            <div>
-                                <input type="number" step="0.01" class="parametro-input max-input" 
-                                       name="farinografo[<?php echo $param['id_parametro']; ?>][max]" 
-                                       placeholder="Máximo"
-                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>"
-                                       >
-                                <div class="parametro-label">Límite superior</div>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>  
-
-                <div class="formulario__campo">
-                    <label for="cliente" class="formulario__label">Cliente</label>
-                    <select class="formulario__input" id="id_cliente" name="id_cliente" required>
-                        <option value="" disabled <?php echo !$editando ? 'selected' : ''; ?>>-- Seleccione un cliente --</option>
-                        <?php foreach ($clientes as $cliente): ?>
-                        <option value="<?php echo $cliente['id_cliente']; ?>" 
-                                data-parametros="<?php echo htmlspecialchars($cliente['parametros']); ?>"
-                                <?php echo ($editando && $inspeccion['id_cliente'] == $cliente['id_cliente']) ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($cliente['nombre']); ?> (<?php echo htmlspecialchars($cliente['rfc']); ?>)
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <div class="formulario__campo">
-                    <label for="lote" class="formulario__label">Lote de producción</label>
-                    <input type="text" class="formulario__input" placeholder="Ej. BARBS12024" name="lote" value="<?php echo $editando ? htmlspecialchars($inspeccion['lote']) : ''; ?>" required>
-                </div>
-
-                <div class="formulario__campo">
-                    <label for="secuencia" class="formulario__label">Secuencia de inspección</label>
-                    <input type="text" class="formulario__input" placeholder="Ej. A, B, C..." name="secuencia" maxlength="3" value="<?php echo $editando ? htmlspecialchars($inspeccion['secuencia']) : ''; ?>" required>
-                </div>
-
-                <div class="formulario__campo">
-                    <label for="tipo_equipo" class="formulario__label">Tipo de Equipo</label>
-                    <select class="formulario__input" id="tipo_equipo" name="tipo_equipo" required>
-                        <option value="" disabled <?php echo !$editando ? 'selected' : ''; ?>>-- Seleccione tipo de equipo --</option>
-                        <option value="Alveógrafo" <?php echo ($editando && count($equipos_seleccionados) > 0 && in_array($equipos_seleccionados[0], array_column($equipos_alveografo, 'id_equipo'))) ? 'selected' : ''; ?>>Alveógrafo</option>
-                        <option value="Farinógrafo" <?php echo ($editando && count($equipos_seleccionados) > 0 && in_array($equipos_seleccionados[0], array_column($equipos_farinografo, 'id_equipo'))) ? 'selected' : ''; ?>>Farinógrafo</option>
-                    </select>
-                </div>
-
-                <div class="formulario__campo">
-                    <label for="id_equipo" class="formulario__label">Equipo de Laboratorio</label>
-                    <select class="formulario__input" id="id_equipo" name="id_equipo" required>
-                        <option value="" disabled <?php echo !$editando ? 'selected' : ''; ?>>-- Seleccione un equipo --</option>
-                        <?php foreach ($equipos as $equipo): ?>
-                        <option class="equipo-option" 
-                                data-tipo="<?php echo htmlspecialchars($equipo['tipo_equipo']); ?>" 
-                                value="<?php echo $equipo['id_equipo']; ?>" 
-                                <?php echo ($editando && in_array($equipo['id_equipo'], $equipos_seleccionados)) ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($equipo['clave']); ?> - <?php echo htmlspecialchars($equipo['marca']); ?> <?php echo htmlspecialchars($equipo['modelo']); ?> (<?php echo htmlspecialchars($equipo['tipo_equipo']); ?>)
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <!-- Mensaje de carga para los parámetros -->
-                <div id="loading-message" class="loading-message" style="display: none;">
-                    Cargando valores de referencia...
-                </div>
-                
-                <!-- Sección para hacer la inspección de los parámetros -->
-                <div id="parametros-alveografo" class="parametros-section" style="display: none;">
-                    <div class="parametros-title">Inspección de referencia</div>
-                    
-                    <?php foreach ($parametros_alveografo as $param): ?>
-                    <div class="parametro-row">
-                        <div class="parametro-nombre"><?php echo htmlspecialchars($param['nombre']); ?></div>
-                        <div class="parametro-inputs">
-                            <div>
-                                <input type="number" step="0.01" class="parametro-input min-input" 
-                                       name="alveografo[<?php echo $param['id_parametro']; ?>][min]" 
-                                       value="<?php echo htmlspecialchars($param['lim_Inferior']); ?>" 
-                                       placeholder="Mínimo"
-                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>"
-                                       >
-                                <div class="parametro-label">Límite inferior</div>
-                            </div>
-                            <div>
-                                <input type="number" step="0.01" class="parametro-input max-input" 
-                                       name="alveografo[<?php echo $param['id_parametro']; ?>][max]" 
-                                       value="<?php echo htmlspecialchars($param['lim_Superior']); ?>" 
-                                       placeholder="Máximo"
-                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>"
-                                       >
-                                <div class="parametro-label">Límite superior</div>
+                                <input type="number" step="0.01" class="parametro-input" 
+                                       name="farinografo[<?php echo $param['id_parametro']; ?>][valor]"  
+                                       placeholder="Valor"
+                                       value="<?php echo htmlspecialchars($param['valor_obtenido']); ?>"
+                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>">
+                                
                             </div>
                         </div>
                     </div>
                     <?php endforeach; ?>
                 </div>
-
-                
-                <div id="parametros-farinografo" class="parametros-section" style="display: none;">
-                    <div class="parametros-title">Inspección de referencia</div>
-                    
-                    <?php foreach ($parametros_farinografo as $param): ?>
-                    <div class="parametro-row">
-                        <div class="parametro-nombre"><?php echo htmlspecialchars($param['nombre']); ?></div>
-                        <div class="parametro-inputs">
-                            <div>
-                                <input type="number" step="0.01" class="parametro-input min-input" 
-                                       name="farinografo[<?php echo $param['id_parametro']; ?>][min]"  
-                                       placeholder="Mínimo"
-                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>"
-                                       >
-                                <div class="parametro-label">Límite inferior</div>
-                            </div>
-                            <div>
-                                <input type="number" step="0.01" class="parametro-input max-input" 
-                                       name="farinografo[<?php echo $param['id_parametro']; ?>][max]" 
-                                       placeholder="Máximo"
-                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>"
-                                       >
-                                <div class="parametro-label">Límite superior</div>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>  
 
                 <input type="submit" class="formulario__submit" value="<?php echo $editando ? 'Guardar cambios' : 'Registrar análisis'; ?>">
             </form>
         </div>
         <?php include '../includes/footer.php'; ?>
     </main>
-</body>
-<script>
+    
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Referencias a elementos del DOM
-            const tipoEquipoSelector = document.getElementById('tipo_equipo');
-            const equipoSelector = document.getElementById('id_equipo');
-            const clienteSelector = document.getElementById('id_cliente');
-            const seccionAlveografo = document.getElementById('seccion-alveografo');
-            const seccionFarinografo = document.getElementById('seccion-farinografo');
-            const loadingMessage = document.getElementById('loading-message');
-
             const form = document.getElementById('analisisForm');
             const tipoEquipoSelector = document.getElementById('tipo_equipo');
             const equipoSelector = document.getElementById('id_equipo');
             const clienteSelector = document.getElementById('id_cliente');
             const seccionAlveografo = document.getElementById('seccion-alveografo');
             const seccionFarinografo = document.getElementById('seccion-farinografo');
-            const loadingMessage = document.getElementById('loading-message');
             const switchOptions = document.querySelectorAll('.switch-option');
             const loteFinal = document.getElementById('lote_final');
             const loteNuevo = document.getElementById('lote_nuevo');
             const loteExistente = document.getElementById('lote_existente');
             
-
+            // Variable para rastrear el origen actual de parámetros (cliente o equipo)
+            let parametrosPorCliente = true;
+            
+            // Inicializar selectores de opciones para cambio entre tabs
+            switchOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Quitar clase activa de todos los del mismo grupo
+                    const parent = this.parentElement;
+                    parent.querySelectorAll('.switch-option').forEach(opt => opt.classList.remove('active'));
+                    
+                    // Agregar clase activa al seleccionado
+                    this.classList.add('active');
+                    
+                    // Activar/desactivar bloques correspondientes
+                    const targetId = this.dataset.target;
+                    
+                    if (parent.querySelector('[data-target="lote-nuevo"]') && parent.querySelector('[data-target="lote-existente"]')) {
+                        // Toggle entre lotes nuevo y existente
+                        document.getElementById('lote-nuevo').classList.toggle('active', targetId === 'lote-nuevo');
+                        document.getElementById('lote-existente').classList.toggle('active', targetId === 'lote-existente');
+                        
+                        // Actualizar valor del lote final
+                        if (targetId === 'lote-nuevo') {
+                            loteFinal.value = loteNuevo.value;
+                        } else if (targetId === 'lote-existente' && loteExistente.value) {
+                            loteFinal.value = loteExistente.value;
+                        }
+                    } else {
+                        // Toggle entre origen de parámetros (cliente o equipo)
+                        document.getElementById('cliente-group').classList.toggle('active', targetId === 'cliente-group');
+                        document.getElementById('equipo-group').classList.toggle('active', targetId === 'equipo-group');
+                        
+                        // Actualizar variable de seguimiento
+                        parametrosPorCliente = targetId === 'cliente-group';
+                    }
+                });
+            });
             
             // Función para mostrar/ocultar secciones según tipo de equipo
             function actualizarSecciones() {
                 const tipoSeleccionado = tipoEquipoSelector.value;
                 
-                if (tipoSeleccionado === 'Alveógrafo') {
-                    seccionAlveografo.style.display = 'block';
-                    seccionFarinografo.style.display = 'none';
-                } else if (tipoSeleccionado === 'Farinógrafo') {
-                    seccionAlveografo.style.display = 'none';
-                    seccionFarinografo.style.display = 'block';
-                } else {
-                    seccionAlveografo.style.display = 'none';
-                    seccionFarinografo.style.display = 'none';
-                }
-                
-                // Actualizar la lista de equipos según el tipo seleccionado
-                const equipos = document.querySelectorAll('.equipo-option');
-                
-                equipos.forEach(function(equipo) {
-                    if (tipoSeleccionado === '' || equipo.dataset.tipo === tipoSeleccionado) {
-                        equipo.style.display = '';
+                // Filtrar opciones de equipos según el tipo seleccionado
+                const opciones = document.querySelectorAll('.equipo-option');
+                opciones.forEach(opcion => {
+                    if (tipoSeleccionado === opcion.dataset.tipo) {
+                        opcion.style.display = '';
                     } else {
-                        equipo.style.display = 'none';
+                        opcion.style.display = 'none';
                     }
                 });
+                
+                // Resetear selección de equipo si cambiamos el tipo y no coincide
+                if (equipoSelector.selectedIndex > 0) {
+                    const equipoOption = equipoSelector.options[equipoSelector.selectedIndex];
+                    if (equipoOption.dataset.tipo !== tipoSeleccionado) {
+                        equipoSelector.selectedIndex = 0;
+                    }
+                }
+                
+                // Mostrar sección de parámetros correspondiente
+                seccionAlveografo.style.display = tipoSeleccionado === 'Alveógrafo' ? 'block' : 'none';
+                seccionFarinografo.style.display = tipoSeleccionado === 'Farinógrafo' ? 'block' : 'none';
             }
             
-            // Función para cargar parámetros de referencia vía AJAX
-            function cargarParametrosReferencia() {
+            // Función para obtener y mostrar parámetros
+            function cargarParametros() {
+                // Obtener valores seleccionados
                 const idEquipo = equipoSelector.value;
-                const idCliente = clienteSelector.value;
+                if (!idEquipo) return;
                 
-                if (!idEquipo || !idCliente) return;
+                const origenCliente = document.querySelector('.switch-option.active[data-target="cliente-group"]') !== null;
+                const idCliente = origenCliente ? clienteSelector.value : null;
                 
-                // Mostrar mensaje de carga
-                loadingMessage.style.display = 'block';
+                if (origenCliente && !idCliente) return;
                 
-                // Crear objeto FormData para enviar los datos
-                const formData = new FormData();
-                formData.append('id_equipo', idEquipo);
-                formData.append('id_cliente', idCliente);
+                // Consulta directa PHP (no AJAX)
+                // Aquí solo actualizamos la UI con datos simulados para pruebas
+                const tipoEquipo = tipoEquipoSelector.value;
                 
-                // Realizar petición AJAX
-                fetch('../config/obtener_parametros.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Ocultar mensaje de carga
-                    loadingMessage.style.display = 'none';
+                if (tipoEquipo === 'Alveógrafo') {
+                    // Valores de ejemplo para Alveógrafo
+                    actualizarReferencia('alveograma_p', {min: 80, max: 100});
+                    actualizarReferencia('alveograma_l', {min: 100, max: 120});
+                    actualizarReferencia('alveograma_w', {min: 250, max: 300});
+                    actualizarReferencia('alveograma_pl', {min: 0.4, max: 0.6});
+                    actualizarReferencia('alveograma_ie', {min: 0.8, max: 1.2});
+                } else if (tipoEquipo === 'Farinógrafo') {
+                    // Valores de ejemplo para Farinógrafo
+                    actualizarReferencia('farinograma_absorcion_agua', {min: 58, max: 62});
+                    actualizarReferencia('farinograma_tiempo_desarrollo', {min: 1.5, max: 2.5});
+                    actualizarReferencia('farinograma_estabilidad', {min: 8, max: 10});
+                    actualizarReferencia('farinograma_grado_decaimiento', {min: 60, max: 80});
+                }
+                
+                // Nota: En una implementación real, aquí harías una consulta a la base de datos
+                // para obtener los valores reales de los parámetros según el cliente/equipo
+            }
+            
+            // Función para actualizar una referencia específica
+            function actualizarReferencia(id, parametro) {
+                if (!parametro) return;
+                
+                const input = document.getElementById(id);
+                const refSpan = document.getElementById(`ref-${id}`);
+                
+                if (input && refSpan) {
+                    refSpan.textContent = `Ref: ${parametro.min} - ${parametro.max}`;
                     
-                    // Actualizar los valores de referencia en la interfaz
-                    if (data.tipo_equipo === 'Alveógrafo') {
-                        actualizarReferenciasAlveografo(data.parametros);
-                    } else if (data.tipo_equipo === 'Farinógrafo') {
-                        actualizarReferenciasFarinografo(data.parametros);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    loadingMessage.style.display = 'none';
-                });
-            }
-            
-            // Función para actualizar referencias de Alveógrafo en la UI
-            function actualizarReferenciasAlveografo(parametros) {
-                const campos = ['alveograma_p', 'alveograma_l', 'alveograma_w', 'alveograma_pl', 'alveograma_ie'];
-                
-                campos.forEach(campo => {
-                    const spanRef = document.getElementById(`ref-${campo}`);
-                    if (spanRef && parametros[campo]) {
-                        spanRef.textContent = `Ref: ${parametros[campo].min} - ${parametros[campo].max}`;
+                    // Verificar si el valor actual está dentro del rango
+                    if (input.value) {
+                        const valor = parseFloat(input.value);
+                        const min = parseFloat(parametro.min);
+                        const max = parseFloat(parametro.max);
                         
-                        // Verificar si el valor actual está dentro del rango
-                        const input = document.getElementsByName(campo)[0];
-                        if (input && input.value) {
-                            const valor = parseFloat(input.value);
-                            const min = parseFloat(parametros[campo].min);
-                            const max = parseFloat(parametros[campo].max);
-                            
-                            if (valor >= min && valor <= max) {
-                                spanRef.classList.add('valor-dentro');
-                                spanRef.classList.remove('valor-fuera');
-                            } else {
-                                spanRef.classList.add('valor-fuera');
-                                spanRef.classList.remove('valor-dentro');
-                            }
+                        if (valor >= min && valor <= max) {
+                            refSpan.classList.add('valor-dentro');
+                            refSpan.classList.remove('valor-fuera');
+                        } else {
+                            refSpan.classList.add('valor-fuera');
+                            refSpan.classList.remove('valor-dentro');
                         }
                     }
-                });
-            }
-            
-            // Función para actualizar referencias de Farinógrafo en la UI
-            function actualizarReferenciasFarinografo(parametros) {
-                const campos = ['absorcion_agua', 'tiempo_desarrollo', 'estabilidad'];
-                
-                campos.forEach(campo => {
-                    const spanRef = document.getElementById(`ref-${campo}`);
-                    if (spanRef && parametros[campo]) {
-                        spanRef.textContent = `Ref: ${parametros[campo].min} - ${parametros[campo].max}`;
-                        
-                        // Verificar si el valor actual está dentro del rango
-                        const input = document.getElementsByName(campo)[0];
-                        if (input && input.value) {
-                            const valor = parseFloat(input.value);
-                            const min = parseFloat(parametros[campo].min);
-                            const max = parseFloat(parametros[campo].max);
+                    
+                    // Agregar evento para verificación en tiempo real
+                    input.addEventListener('input', function() {
+                        const valor = parseFloat(this.value);
+                        if (!isNaN(valor)) {
+                            const min = parseFloat(parametro.min);
+                            const max = parseFloat(parametro.max);
                             
                             if (valor >= min && valor <= max) {
-                                spanRef.classList.add('valor-dentro');
-                                spanRef.classList.remove('valor-fuera');
+                                refSpan.classList.add('valor-dentro');
+                                refSpan.classList.remove('valor-fuera');
                             } else {
-                                spanRef.classList.add('valor-fuera');
-                                spanRef.classList.remove('valor-dentro');
+                                refSpan.classList.add('valor-fuera');
+                                refSpan.classList.remove('valor-dentro');
                             }
                         }
-                    }
-                });
-            }
-            
-            // Función para verificar valores mientras se ingresan
-            function verificarValor(input, min, max) {
-                const valor = parseFloat(input.value);
-                const referencia = input.nextElementSibling;
-                
-                if (!isNaN(valor) && min && max) {
-                    if (valor >= min && valor <= max) {
-                        referencia.classList.add('valor-dentro');
-                        referencia.classList.remove('valor-fuera');
-                    } else {
-                        referencia.classList.add('valor-fuera');
-                        referencia.classList.remove('valor-dentro');
-                    }
+                    });
                 }
             }
             
-            // Asignar eventos a los selectores
-            tipoEquipoSelector.addEventListener('change', actualizarSecciones);
-            equipoSelector.addEventListener('change', cargarParametrosReferencia);
-            clienteSelector.addEventListener('change', cargarParametrosReferencia);
+            // Función para cargar información de un lote existente
+            function cargarInfoLote() {
+                const lote = loteExistente.value;
+                if (!lote) return;
+                
+                // Aquí simularemos la carga de datos del lote
+                // En una implementación real, harías una consulta a la base de datos
+                
+                // Simular que encontramos un lote con un cliente y un equipo específico
+                // Nota: Esto es solo para demostración
+                Swal.fire({
+                    title: 'Lote seleccionado',
+                    text: `Has seleccionado el lote ${lote}. En una implementación real, se cargarían los datos desde la base de datos.`,
+                    icon: 'info'
+                });
+                
+                // Actualizar valor final del lote
+                loteFinal.value = lote;
+            }
             
-            // Asignar eventos a los inputs de valores para verificar en tiempo real
-            document.querySelectorAll('.parametro-input').forEach(input => {
-                input.addEventListener('input', function() {
-                    const refSpan = this.nextElementSibling;
-                    const refText = refSpan.textContent;
-                    const refMatch = refText.match(/Ref: (\d+\.?\d*) - (\d+\.?\d*)/);
-                    
-                    if (refMatch) {
-                        const min = parseFloat(refMatch[1]);
-                        const max = parseFloat(refMatch[2]);
-                        verificarValor(this, min, max);
+            // Validación del formulario antes de enviar
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Validación personalizada
+                let isValid = true;
+                let errorMessage = '';
+
+                // 1. Verificar selección de lote
+                const usandoLoteNuevo = document.querySelector('.switch-option.active[data-target="lote-nuevo"]') !== null;
+                const usandoLoteExistente = document.querySelector('.switch-option.active[data-target="lote-existente"]') !== null;
+                
+                if (usandoLoteExistente && !loteExistente.value) {
+                    isValid = false;
+                    errorMessage = 'Por favor seleccione un lote existente.';
+                    loteExistente.classList.add('input-error');
+                } else {
+                    loteExistente.classList.remove('input-error');
+                }
+
+                // 2. Verificar que hay un tipo de equipo seleccionado
+                if (!tipoEquipoSelector.value) {
+                    isValid = false;
+                    errorMessage = errorMessage || 'Por favor seleccione un tipo de equipo.';
+                    tipoEquipoSelector.classList.add('input-error');
+                } else {
+                    tipoEquipoSelector.classList.remove('input-error');
+                }
+
+                // 3. Verificar origen de parámetros
+                parametrosPorCliente = document.querySelector('.switch-option.active[data-target="cliente-group"]') !== null;
+                
+                if (parametrosPorCliente) {
+                    // 3.1 Si usamos parámetros por cliente, validar que hay un cliente seleccionado
+                    if (!clienteSelector.value) {
+                        isValid = false;
+                        errorMessage = errorMessage || 'Por favor seleccione un cliente.';
+                        clienteSelector.classList.add('input-error');
+                    } else {
+                        clienteSelector.classList.remove('input-error');
+                    }
+                } else {
+                    // 3.2 Si usamos parámetros por equipo, validar que hay un equipo seleccionado
+                    if (!equipoSelector.value) {
+                        isValid = false;
+                        errorMessage = errorMessage || 'Por favor seleccione un equipo de laboratorio.';
+                        equipoSelector.classList.add('input-error');
+                    } else {
+                        equipoSelector.classList.remove('input-error');
+                    }
+                }
+
+                // 4. Verificar que hay parámetros visibles y que tienen valores
+                let seccionesParametrosVisibles = false;
+                let parametrosIncompletos = false;
+                
+                if (seccionAlveografo.style.display !== 'none') {
+                    seccionesParametrosVisibles = true;
+                    const inputs = seccionAlveografo.querySelectorAll('input[type="number"]');
+                    inputs.forEach(input => {
+                        if (!input.value) {
+                            parametrosIncompletos = true;
+                            input.classList.add('input-error');
+                        } else {
+                            input.classList.remove('input-error');
+                        }
+                    });
+                }
+                
+                if (seccionFarinografo.style.display !== 'none') {
+                    seccionesParametrosVisibles = true;
+                    const inputs = seccionFarinografo.querySelectorAll('input[type="number"]');
+                    inputs.forEach(input => {
+                        if (!input.value) {
+                            parametrosIncompletos = true;
+                            input.classList.add('input-error');
+                        } else {
+                            input.classList.remove('input-error');
+                        }
+                    });
+                }
+                
+                if (!seccionesParametrosVisibles) {
+                    isValid = false;
+                    errorMessage = errorMessage || 'No hay sección de parámetros visible. Por favor, seleccione un tipo de equipo válido.';
+                } else if (parametrosIncompletos) {
+                    isValid = false;
+                    errorMessage = errorMessage || 'Por favor, complete todos los valores de parámetros.';
+                }
+
+                // 5. Mostrar errores o continuar con el envío
+                if (!isValid) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de validación',
+                        text: errorMessage
+                    });
+                    return;
+                }
+
+                // 6. Confirmación antes de enviar
+                Swal.fire({
+                    title: '¿Confirmar registro?',
+                    text: 'Se procederá a registrar el análisis con los parámetros ingresados.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#4c3325',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Confirmar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
                     }
                 });
+            });
+            
+            // Configurar eventos
+            tipoEquipoSelector.addEventListener('change', function() {
+                actualizarSecciones();
+                cargarParametros();
+            });
+            equipoSelector.addEventListener('change', cargarParametros);
+            clienteSelector.addEventListener('change', cargarParametros);
+            loteExistente.addEventListener('change', function() {
+                cargarInfoLote();
+                // Actualizar lote final cuando cambia la selección
+                loteFinal.value = this.value;
             });
             
             // Inicializar la vista
             actualizarSecciones();
             
-            // Si estamos editando, verificar valores iniciales
-            if (document.querySelector('input[name="editando"]')) {
-                document.querySelectorAll('.parametro-input').forEach(input => {
-                    const refSpan = input.nextElementSibling;
-                    const refText = refSpan.textContent;
-                    const refMatch = refText.match(/Ref: (\d+\.?\d*) - (\d+\.?\d*)/);
-                    
-                    if (refMatch && input.value) {
-                        const min = parseFloat(refMatch[1]);
-                        const max = parseFloat(refMatch[2]);
-                        verificarValor(input, min, max);
-                    }
-                });
+            // Si estamos editando y ya hay tipo de equipo, actualizar secciones al cargar
+            if (tipoEquipoSelector.value) {
+                actualizarSecciones();
+                
+                // Si hay equipo seleccionado, mostrar parámetros correspondientes
+                if (equipoSelector.value || clienteSelector.value) {
+                    cargarParametros();
+                }
             }
         });
     </script>
+</body>
 </html>
