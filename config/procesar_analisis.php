@@ -2,47 +2,79 @@
 require './conn.php';
 require './validar_permisos.php'; // Esta línea ya incluye toda la validación necesaria
 
-// Verificar que es una petición POST
+// Verificar si es una solicitud de eliminación
+if (isset($_GET['id']) && isset($_GET['accion']) && $_GET['accion'] == 'eliminar') {
+    $id_inspeccion = $_GET['id'];
+    
+    try {
+        // Iniciar transacción
+        $pdo->beginTransaction();
+        
+        // 1. Eliminar resultados de la inspección
+        $sql_delete_resultados = "DELETE FROM Resultado_Inspeccion WHERE id_inspeccion = :id_inspeccion";
+        $stmt_delete_resultados = $pdo->prepare($sql_delete_resultados);
+        $stmt_delete_resultados->bindParam(':id_inspeccion', $id_inspeccion, PDO::PARAM_INT);
+        $stmt_delete_resultados->execute();
+        
+        // 2. Eliminar relaciones con equipos
+        $sql_delete_equipos = "DELETE FROM Equipo_Inspeccion WHERE id_inspeccion = :id_inspeccion";
+        $stmt_delete_equipos = $pdo->prepare($sql_delete_equipos);
+        $stmt_delete_equipos->bindParam(':id_inspeccion', $id_inspeccion, PDO::PARAM_INT);
+        $stmt_delete_equipos->execute();
+        
+        // 3. Verificar si hay certificados asociados
+        $sql_check_certificados = "SELECT COUNT(*) FROM Certificados WHERE id_inspeccion = :id_inspeccion";
+        $stmt_check = $pdo->prepare($sql_check_certificados);
+        $stmt_check->bindParam(':id_inspeccion', $id_inspeccion, PDO::PARAM_INT);
+        $stmt_check->execute();
+        $has_certificados = $stmt_check->fetchColumn() > 0;
+        
+        if ($has_certificados) {
+            // Si hay certificados, primero eliminar registros del historial
+            $sql_delete_hist = "DELETE FROM Hist_Certificados WHERE id_certificado IN 
+                                (SELECT id_certificado FROM Certificados WHERE id_inspeccion = :id_inspeccion)";
+            $stmt_delete_hist = $pdo->prepare($sql_delete_hist);
+            $stmt_delete_hist->bindParam(':id_inspeccion', $id_inspeccion, PDO::PARAM_INT);
+            $stmt_delete_hist->execute();
+            
+            // Luego eliminar los certificados
+            $sql_delete_cert = "DELETE FROM Certificados WHERE id_inspeccion = :id_inspeccion";
+            $stmt_delete_cert = $pdo->prepare($sql_delete_cert);
+            $stmt_delete_cert->bindParam(':id_inspeccion', $id_inspeccion, PDO::PARAM_INT);
+            $stmt_delete_cert->execute();
+        }
+        
+        // 4. Finalmente eliminar la inspección
+        $sql_delete_inspeccion = "DELETE FROM Inspeccion WHERE id_inspeccion = :id_inspeccion";
+        $stmt_delete_inspeccion = $pdo->prepare($sql_delete_inspeccion);
+        $stmt_delete_inspeccion->bindParam(':id_inspeccion', $id_inspeccion, PDO::PARAM_INT);
+        $stmt_delete_inspeccion->execute();
+        
+        // Confirmar la transacción
+        $pdo->commit();
+        
+        // Redirigir a la lista de análisis con mensaje de éxito
+        $_SESSION['exito'] = "Análisis eliminado correctamente";
+        header("Location: ../modulos/analisiscalidad.php");
+        exit;
+        
+    } catch (PDOException $e) {
+        // Revertir la transacción en caso de error
+        $pdo->rollBack();
+        
+        // Redirigir con mensaje de error
+        $_SESSION['error'] = "Error al eliminar el análisis: " . $e->getMessage();
+        header("Location: ../modulos/analisiscalidad.php");
+        exit;
+    }
+}
+
+// Verificar que es una petición POST para las operaciones de crear/actualizar
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     $_SESSION['error'] = "Método no permitido";
     header('Location: ../modulos/analisiscalidadform.php');
     exit;
 }
-
-
-// Reemplazar la verificación de permisos que quitaste con esta versión compatible:
-    if (isset($_SESSION['rol'])) {
-        $location = '/fabrica-harinas/modulos/procesar_analisis.php'; // Ruta actual
-        $rol = $_SESSION['rol'];
-        $path = '/fabrica-harinas/modulos/';
-        
-        $permisos_laboratorio = [ 
-            $path.'analisiscalidad.php', $path.'analisiscalidadform.php', $path.'certificadosform.php',
-            $path.'clientes_editar.php', $path.'clientes.php', $path.'clientesform.php', $path.'estadisticos.php',
-            $path.'historico.php', $path.'laboratorios.php', $path.'laboratoriosform.php', $path.'parametros.php', 
-            $path.'parametrosform.php'
-        ];
-        
-        // Solo los roles con permisos para procesar análisis
-        $roles_permitidos = ['TI', 'Laboratorio', 'Gerencia de Control de Calidad', 'Gerencia de Aseguramiento de Calidad'];
-        
-        if (!in_array($_SESSION['rol'], $roles_permitidos)) {
-            $_SESSION['error'] = "No tienes permisos para realizar esta acción";
-            header('Location: ../modulos/analisiscalidad.php');
-            exit;
-        }
-        
-        // Verificación adicional para asegurar que el rol tenga acceso a esta acción
-        if ($_SESSION['rol'] === 'Laboratorio' && !in_array($location, $permisos_laboratorio)) {
-            $_SESSION['error'] = "No tienes permisos para realizar esta acción";
-            header('Location: ../modulos/analisiscalidad.php');
-            exit;
-        }
-    } else {
-        $_SESSION['error'] = "No has iniciado sesión";
-        header('Location: /fabrica-harinas/index.php');
-        exit;
-    }
 
 // Obtener datos del formulario
 $editando = isset($_POST['editando']) && $_POST['editando'] == '1';
@@ -251,16 +283,16 @@ function obtenerLimitesParametros($pdo, $id_cliente, $id_equipo, $tipo_equipo) {
         $tipo_parametros = $stmt_tipo->fetchColumn();
         
         if ($tipo_parametros === 'Internacionales') {
-            // Caso especial: cliente con parámetros internacionales
-            // Usamos los parámetros del cliente ID 1 (internacionales) filtrados por tipo de equipo
-            
+            // Caso de parámetros internacionales
+            // Definir prefijo según tipo de equipo
             $prefijo_parametro = ($tipo_equipo === 'Alveógrafo') ? 'Alveograma_' : 'Farinograma_';
             
+            // Consultar todos los parámetros relevantes para el tipo de equipo
+            // Incluye parámetros comunes (Humedad, Cenizas, etc.) y específicos del equipo
             $sql = "SELECT nombre_parametro, lim_Inferior, lim_Superior 
                    FROM Parametros 
-                   WHERE id_cliente = 1 
-                   AND (nombre_parametro LIKE :prefijo OR 
-                        nombre_parametro IN ('Humedad', 'Cenizas', 'Gluten_Humedo', 'Gluten_Seco', 'Indice_Gluten', 'Indice_Caida'))";
+                   WHERE (nombre_parametro LIKE :prefijo OR 
+                          nombre_parametro IN ('Humedad', 'Cenizas', 'Gluten_Humedo', 'Gluten_Seco', 'Indice_Gluten', 'Indice_Caida'))";
             
             $stmt = $pdo->prepare($sql);
             $stmt->bindValue(':prefijo', $prefijo_parametro . '%', PDO::PARAM_STR);
@@ -272,8 +304,6 @@ function obtenerLimitesParametros($pdo, $id_cliente, $id_equipo, $tipo_equipo) {
                     'lim_Superior' => $row['lim_Superior']
                 ];
             }
-            
-            return $limites; // Retornamos directamente sin consultar equipos
         } else {
             // Cliente con parámetros personalizados - obtener todos sus parámetros
             $sql = "SELECT nombre_parametro, lim_Inferior, lim_Superior 

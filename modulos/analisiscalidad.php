@@ -12,19 +12,18 @@ if (isset($_GET['filtro']) && !empty($_GET['filtro'])) {
     $filtro = $_GET['filtro'];
 }
 
-
+// Construir la consulta SQL con filtros
 $sql_analisis = "SELECT 
-    i.id_inspeccion, i.lote, i.secuencia, i.fecha_inspeccion, i.clave,
-    e.id_equipo, e.clave as equipo_clave, e.tipo_equipo, e.marca, e.modelo,
-    c.nombre as cliente_nombre,
-    COUNT(DISTINCT ri.id_resultado) as total_parametros,
-    SUM(CASE WHEN ri.aprobado IS NULL OR ri.aprobado = 0 THEN 1 ELSE 0 END) as parametros_fallidos
-    FROM Inspeccion i
-    INNER JOIN Equipo_Inspeccion ei ON i.id_inspeccion = ei.id_inspeccion
-    INNER JOIN Equipos_Laboratorio e ON ei.id_equipo = e.id_equipo
-    LEFT JOIN Clientes c ON i.id_cliente = c.id_cliente
-    LEFT JOIN Resultado_Inspeccion ri ON i.id_inspeccion = ri.id_inspeccion
-    GROUP BY i.id_inspeccion, ei.id_equipo";
+                i.id_inspeccion, i.lote, i.secuencia, i.fecha_inspeccion, i.clave,
+                e.id_equipo, e.clave as equipo_clave, e.tipo_equipo, e.marca, e.modelo,
+                c.nombre as cliente_nombre,
+                COUNT(DISTINCT ri.id_resultado) as total_parametros,
+                SUM(CASE WHEN ri.aprobado IS NULL OR ri.aprobado = 0 THEN 1 ELSE 0 END) as parametros_fallidos
+                FROM Inspeccion i
+                INNER JOIN Equipo_Inspeccion ei ON i.id_inspeccion = ei.id_inspeccion
+                INNER JOIN Equipos_Laboratorio e ON ei.id_equipo = e.id_equipo
+                LEFT JOIN Clientes c ON i.id_cliente = c.id_cliente
+                LEFT JOIN Resultado_Inspeccion ri ON i.id_inspeccion = ri.id_inspeccion";
 
 $where_added = false;
 $params = [];
@@ -35,7 +34,6 @@ if (!empty($busqueda)) {
     $where_added = true;
     $params[':busqueda'] = "%$busqueda%";
 }
-// 
 
 // Añadir filtro por tipo de equipo si está seleccionado
 if (!empty($filtro)) {
@@ -48,6 +46,8 @@ if (!empty($filtro)) {
     $params[':filtro'] = $filtro;
 }
 
+$sql_analisis .= " GROUP BY i.id_inspeccion, ei.id_equipo";
+$sql_analisis .= " ORDER BY i.fecha_inspeccion DESC";
 
 $stmt_analisis = $pdo->prepare($sql_analisis);
 
@@ -58,7 +58,6 @@ foreach ($params as $key => $value) {
 
 $stmt_analisis->execute();
 $analisis = $stmt_analisis->fetchAll(PDO::FETCH_ASSOC);
-
 
 // Función para obtener parámetros de un análisis
 function obtenerParametros($pdo, $id_inspeccion) {
@@ -142,6 +141,7 @@ function analisisAprobado($total_parametros, $parametros_fallidos) {
             <h2 class="heading">Análisis de Calidad</h2>
 
             <form action="" method="GET" class="controles">
+            <div class="controles">
                 <div class="buscador">
                     <h4 class="buscador__label">Buscar</h4>
                     <input id="searchBar" type="text" name="busqueda" value="<?= htmlspecialchars($busqueda) ?>" class="buscador__input" placeholder="Lote de producción">
@@ -149,15 +149,15 @@ function analisisAprobado($total_parametros, $parametros_fallidos) {
 
                 <div class="ordenar">
                     <h4 class="ordenar__label">Filtrar</h4>
-                    <select id="filtroEquipo" name="filtro" class="ordenar__select">
+                    <select id="filtroEquipo" name="filtro" class="ordenar__select" onchange="this.form.submit()">
                         <option value="" <?= empty($filtro) ? 'selected' : '' ?>>Todos los equipos</option>
                         <option value="Alveógrafo" <?= $filtro == 'Alveógrafo' ? 'selected' : '' ?>>Alveógrafos</option>
                         <option value="Farinógrafo" <?= $filtro == 'Farinógrafo' ? 'selected' : '' ?>>Farinógrafos</option>
                     </select>
                 </div>
 
-                <button type="submit" class="botones__buscar">Buscar</button>
                 <a href="analisiscalidadform.php" class="botones__crear">Agregar análisis</a>
+            </div>
             </form>
 
             <div class="tabla-container">
@@ -216,106 +216,102 @@ function analisisAprobado($total_parametros, $parametros_fallidos) {
         </div>
         <?php include '../includes/footer.php'; ?>
     </main>
-
     <script>
-        // Filtro por tipo de equipo
-        document.getElementById('filtroEquipo').addEventListener('change', function() {
-            this.form.submit();
-        });
-
+    document.addEventListener('DOMContentLoaded', function() {
         // Buscador en tiempo real
-        document.getElementById('searchBar').addEventListener('input', function() {
-            const filtro = this.value.toLowerCase();
-            const filas = document.querySelectorAll('.tabla tbody tr');
-
+        const searchBar = document.getElementById('searchBar');
+        const filas = document.querySelectorAll('.tabla tbody tr');
+        
+        function filtrarFilas() {
+            const termino = searchBar.value.toLowerCase().trim();
+            
             filas.forEach(fila => {
                 const celdaLote = fila.querySelector('td:nth-child(1)');
                 if (celdaLote) {
                     const textoLote = celdaLote.textContent.toLowerCase();
-                    fila.style.display = textoLote.includes(filtro) ? '' : 'none';
-                }
-            });
-        });
-
-        // Manejar alertas y notificaciones
-        document.addEventListener("DOMContentLoaded", () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const success = urlParams.get('success');
-            const error = urlParams.get('error');
-            const action = urlParams.get('action');
-            const message = urlParams.get('message');
-
-            if (success === '1') {
-                let mensaje = '';
-                switch(action) {
-                    case 'insert':
-                        mensaje = 'El análisis ha sido registrado correctamente.';
-                        break;
-                    case 'update':
-                        mensaje = 'El análisis ha sido actualizado correctamente.';
-                        break;
-                    case 'delete':
-                        mensaje = 'El análisis ha sido eliminado correctamente.';
-                        break;
-                    default:
-                        mensaje = 'Acción completada con éxito.';
-                }
-
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Éxito!',
-                    text: mensaje,
-                    confirmButtonText: 'Aceptar'
-                }).then(() => {
-                    // Eliminar parámetros de éxito de la URL
-                    const cleanUrl = window.location.pathname + window.location.search.replace(/[?&]success=1(&|$)/, '');
-                    window.history.replaceState({}, document.title, cleanUrl);
-                });
-            }
-
-            if (error === '1') {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: message ? decodeURIComponent(message) : 'Ha ocurrido un error al procesar la solicitud.',
-                    confirmButtonText: 'Aceptar'
-                }).then(() => {
-                    // Eliminar parámetros de error de la URL
-                    const cleanUrl = window.location.pathname + window.location.search.replace(/[?&]error=1(&|$)/, '');
-                    window.history.replaceState({}, document.title, cleanUrl);
-                });
-            }
-        });
-
-        // Función para confirmar eliminación
-        function deleteAnalisis(id, lote) {
-            Swal.fire({
-                title: '¿Estás seguro?',
-                html: `Estás a punto de eliminar el análisis del lote <b>${lote}</b>. Esta acción no se puede deshacer.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = `../config/procesar_analisis.php?id=${id}&accion=eliminar`;
+                    fila.style.display = textoLote.includes(termino) ? '' : 'none';
                 }
             });
         }
-    document.getElementById('searchBar').addEventListener('input', function() {
-    const filtro = this.value.toLowerCase();
-    const filas = document.querySelectorAll('.tabla tbody tr');
+        
+        // Aplicar filtro al escribir (con pequeño retardo para mejor rendimiento)
+        let timeout = null;
+        searchBar.addEventListener('input', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(filtrarFilas, 300);
+        });
+        
+        // Aplicar filtro inicial si hay un valor
+        if (searchBar.value) {
+            filtrarFilas();
+        }
+        
+        // Manejar alertas y notificaciones
+        const urlParams = new URLSearchParams(window.location.search);
+        const success = urlParams.get('success');
+        const error = urlParams.get('error');
+        const action = urlParams.get('action');
+        const message = urlParams.get('message');
 
-    filas.forEach(fila => {
-        const celdaLote = fila.querySelector('td:nth-child(1)');
-        if (celdaLote) {
-            const textoLote = celdaLote.textContent.toLowerCase();
-            fila.style.display = textoLote.includes(filtro) ? '' : 'none';
+        if (success === '1') {
+            let mensaje = '';
+            switch(action) {
+                case 'insert':
+                    mensaje = 'El análisis ha sido registrado correctamente.';
+                    break;
+                case 'update':
+                    mensaje = 'El análisis ha sido actualizado correctamente.';
+                    break;
+                case 'delete':
+                    mensaje = 'El análisis ha sido eliminado correctamente.';
+                    break;
+                default:
+                    mensaje = 'Acción completada con éxito.';
+            }
+
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: mensaje,
+                confirmButtonText: 'Aceptar'
+            }).then(() => {
+                // Eliminar parámetros de éxito de la URL
+                const cleanUrl = window.location.pathname + window.location.search.replace(/[?&]success=1(&|$)/, '');
+                window.history.replaceState({}, document.title, cleanUrl);
+            });
+        }
+
+        if (error === '1') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: message ? decodeURIComponent(message) : 'Ha ocurrido un error al procesar la solicitud.',
+                confirmButtonText: 'Aceptar'
+            }).then(() => {
+                // Eliminar parámetros de error de la URL
+                const cleanUrl = window.location.pathname + window.location.search.replace(/[?&]error=1(&|$)/, '');
+                window.history.replaceState({}, document.title, cleanUrl);
+            });
         }
     });
-});
-    </script>
+
+    // Función para confirmar eliminación
+    function deleteAnalisis(id, lote) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            html: `Estás a punto de eliminar el análisis del lote <b>${lote}</b>. Esta acción no se puede deshacer.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = `../config/procesar_analisis.php?id=${id}&accion=eliminar`;
+            }
+        });
+    }
+</script>
 </body>
 </html>

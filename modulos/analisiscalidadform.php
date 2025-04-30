@@ -407,6 +407,7 @@ if ($parametros_sesion !== null) {
                 <p><strong>Nombre:</strong> <?php echo htmlspecialchars($parametros_sesion['nombre_objetivo']); ?></p>
                 <p><strong>Tipo de Equipo:</strong> <?php echo htmlspecialchars($parametros_sesion['tipo_equipo']); ?></p>
                 <p><small>Parámetros cargados: <?php echo count($parametros_sesion['parametros']); ?></small></p>
+                <p><small>Parámetros cargados: <?php echo count($parametros_sesion['parametros']); ?></small></p>
             </div>
             <?php endif; ?>
             
