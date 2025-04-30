@@ -72,6 +72,56 @@ $responsables = $pdo->query($sql_responsables)->fetchAll(PDO::FETCH_ASSOC);
             color: red;
             font-weight: bold;
         }
+
+        .tabla__fila {
+            transition: background-color 0.3s ease;
+        }
+
+        .tabla__fila:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Clase para el ícono de ojo (opcional) */
+        .ver-detalles {
+            cursor: pointer;
+            color: black;
+            margin-right: 10px;
+        }
+
+        /* Animaciones para SweetAlert */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translate3d(0, -100%, 0);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        @keyframes fadeOutUp {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                transform: translate3d(0, -100%, 0);
+            }
+        }
+
+        .animate__animated {
+            animation-duration: 0.5s;
+            animation-fill-mode: both;
+        }
+
+        .animate__fadeInDown {
+            animation-name: fadeInDown;
+        }
+
+        .animate__fadeOutUp {
+            animation-name: fadeOutUp;
+        }
     </style>
 </head>
 <body>
@@ -124,7 +174,25 @@ $responsables = $pdo->query($sql_responsables)->fetchAll(PDO::FETCH_ASSOC);
                     <tbody>
                         <?php if(count($equipos) > 0): ?>
                             <?php foreach ($equipos as $equipo): ?>
-                            <tr class="tabla__fila">
+                                <tr class="tabla__fila"
+                                data-id="<?php echo $equipo['id_equipo']; ?>"
+                                data-clave="<?php echo htmlspecialchars($equipo['clave']); ?>"
+                                data-marca="<?php echo htmlspecialchars($equipo['marca']); ?>"
+                                data-modelo="<?php echo htmlspecialchars($equipo['modelo']); ?>"
+                                data-serie="<?php echo htmlspecialchars($equipo['serie']); ?>"
+                                data-tipo_equipo="<?php echo htmlspecialchars($equipo['tipo_equipo']); ?>"
+                                data-desc_larga="<?php echo htmlspecialchars($equipo['desc_larga']); ?>"  
+                                data-desc_corta="<?php echo htmlspecialchars($equipo['desc_corta']); ?>"
+                                data-proveedor="<?php echo htmlspecialchars($equipo['proveedor']); ?>"
+                                data-encargado="<?php echo htmlspecialchars($equipo['nombre_responsable']); ?>"
+                                data-fecha_adquisicion="<?php echo !empty($equipo['fecha_adquisicion']) ? date('d/m/Y', strtotime($equipo['fecha_adquisicion'])) : ''; ?>"
+                                data-fecha_vencimiento="<?php echo !empty($equipo['vencimiento_garantia']) ? date('d/m/Y', strtotime($equipo['vencimiento_garantia'])) : ''; ?>"
+                                data-garantia="<?php echo htmlspecialchars($equipo['garantia']); ?>"
+                                data-ubicacion="<?php echo htmlspecialchars($equipo['ubicacion']); ?>"
+                                data-estado="<?php echo htmlspecialchars($equipo['estado']); ?>"                                                           
+                                style="cursor: pointer;"
+                            >
+
                                 <td><?php echo htmlspecialchars($equipo['clave']); ?></td>
                                 <td><?php echo htmlspecialchars($equipo['marca']); ?></td>
                                 <td><?php echo htmlspecialchars($equipo['modelo']); ?></td>
@@ -252,6 +320,70 @@ $responsables = $pdo->query($sql_responsables)->fetchAll(PDO::FETCH_ASSOC);
         });
     }
 
+    // Añadir funcionalidad para ver detalles al hacer clic en la fila
+    document.addEventListener('DOMContentLoaded', function() {
+        const filas = document.querySelectorAll('.tabla__fila');
+        
+        filas.forEach(fila => {
+            // Añadir listener a toda la fila excepto a los botones
+            fila.addEventListener('click', function(e) {
+                // Verificar que no se hizo clic en un botón o en una imagen
+                if (!e.target.closest('.tabla__botones') && !e.target.closest('.tabla__boton')) {
+                    const clave = this.dataset.clave;
+                    const marca = this.dataset.marca;
+                    const modelo = this.dataset.modelo;
+                    const serie = this.dataset.serie;
+                    const tipoEquipo = this.dataset.tipo_equipo;
+                    const descCorta = this.dataset.desc_corta;
+                    const descLarga = this.dataset.desc_larga;
+                    const proveedor = this.dataset.proveedor;
+                    const encargado = this.dataset.encargado;
+                    const fechaAdquisicion = this.dataset.fecha_adquisicion;
+                    const fechaVencimiento = this.dataset.fecha_vencimiento;
+                    const garantia = this.dataset.garantia;
+                    const ubicacion = this.dataset.ubicacion;
+                    const estado = this.dataset.estado;                    
+                    
+                    // Crear contenido HTML para el SweetAlert
+                    const detallesHTML = `
+                        <div class="detalles-equipo">
+                            <h3 style="text-align: center; margin-bottom: 20px; color: #4c3325;">Detalles del Equipo: ${clave}</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left;">
+                                <div style="font-weight: bold;">Clave:</div><div>${clave}</div>
+                                <div style="font-weight: bold;">Tipo de Equipo:</div><div>${tipoEquipo}</div>
+                                <div style="font-weight: bold;">Marca:</div><div>${marca}</div>
+                                <div style="font-weight: bold;">Modelo:</div><div>${modelo}</div>
+                                <div style="font-weight: bold;">Número de Serie:</div><div>${serie}</div>
+                                <div style="font-weight: bold;">Descripción Larga:</div><div>${descLarga}</div>
+                                <div style="font-weight: bold;">Descripción Corta:</div><div>${descCorta}</div>
+                                <div style="font-weight: bold;">Proveedor:</div><div>${proveedor}</div>
+                                <div style="font-weight: bold;">Encargado:</div><div>${encargado}</div>
+                                <div style="font-weight: bold;">Fecha de Adquisición:</div><div>${fechaAdquisicion}</div>
+                                <div style="font-weight: bold;">Fecha de Vencimiento:</div><div>${fechaVencimiento}</div>
+                                <div style="font-weight: bold;">Garantía:</div><div>${garantia}</div>
+                                <div style="font-weight: bold;">Ubicación:</div><div>${ubicacion}</div>
+                                <div style="font-weight: bold;">Estado:</div><div>${estado}</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Mostrar SweetAlert con los detalles
+                    Swal.fire({
+                        html: detallesHTML,
+                        width: '600px',
+                        confirmButtonText: 'Cerrar',
+                        confirmButtonColor: '#4c3325',
+                        showClass: {
+                            popup: 'animate__animated animate__fadeInDown'
+                        },
+                        hideClass: {
+                            popup: 'animate__animated animate__fadeOutUp'
+                        }
+                    });
+                }
+            });
+        });
+    });
     </script>
 </body>
 </html>

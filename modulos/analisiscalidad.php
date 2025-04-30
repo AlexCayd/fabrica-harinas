@@ -12,18 +12,19 @@ if (isset($_GET['filtro']) && !empty($_GET['filtro'])) {
     $filtro = $_GET['filtro'];
 }
 
-// Construir la consulta SQL con filtros
+
 $sql_analisis = "SELECT 
-                i.id_inspeccion, i.lote, i.secuencia, i.fecha_inspeccion, i.clave,
-                e.id_equipo, e.clave as equipo_clave, e.tipo_equipo, e.marca, e.modelo,
-                c.nombre as cliente_nombre,
-                COUNT(DISTINCT ri.id_resultado) as total_parametros,
-                SUM(CASE WHEN ri.aprobado IS NULL OR ri.aprobado = 0 THEN 1 ELSE 0 END) as parametros_fallidos
-                FROM Inspeccion i
-                INNER JOIN Equipo_Inspeccion ei ON i.id_inspeccion = ei.id_inspeccion
-                INNER JOIN Equipos_Laboratorio e ON ei.id_equipo = e.id_equipo
-                LEFT JOIN Clientes c ON i.id_cliente = c.id_cliente
-                LEFT JOIN Resultado_Inspeccion ri ON i.id_inspeccion = ri.id_inspeccion";
+    i.id_inspeccion, i.lote, i.secuencia, i.fecha_inspeccion, i.clave,
+    e.id_equipo, e.clave as equipo_clave, e.tipo_equipo, e.marca, e.modelo,
+    c.nombre as cliente_nombre,
+    COUNT(DISTINCT ri.id_resultado) as total_parametros,
+    SUM(CASE WHEN ri.aprobado IS NULL OR ri.aprobado = 0 THEN 1 ELSE 0 END) as parametros_fallidos
+    FROM Inspeccion i
+    INNER JOIN Equipo_Inspeccion ei ON i.id_inspeccion = ei.id_inspeccion
+    INNER JOIN Equipos_Laboratorio e ON ei.id_equipo = e.id_equipo
+    LEFT JOIN Clientes c ON i.id_cliente = c.id_cliente
+    LEFT JOIN Resultado_Inspeccion ri ON i.id_inspeccion = ri.id_inspeccion
+    GROUP BY i.id_inspeccion, ei.id_equipo";
 
 $where_added = false;
 $params = [];
@@ -33,9 +34,8 @@ if (!empty($busqueda)) {
     $sql_analisis .= " WHERE i.lote LIKE :busqueda";
     $where_added = true;
     $params[':busqueda'] = "%$busqueda%";
-}$where_added = false;
-$params = [];
-
+}
+// 
 
 // Añadir filtro por tipo de equipo si está seleccionado
 if (!empty($filtro)) {
@@ -48,8 +48,6 @@ if (!empty($filtro)) {
     $params[':filtro'] = $filtro;
 }
 
-$sql_analisis .= " GROUP BY i.id_inspeccion, ei.id_equipo";
-$sql_analisis .= " ORDER BY i.fecha_inspeccion DESC";
 
 $stmt_analisis = $pdo->prepare($sql_analisis);
 
@@ -65,9 +63,9 @@ $analisis = $stmt_analisis->fetchAll(PDO::FETCH_ASSOC);
 // Función para obtener parámetros de un análisis
 function obtenerParametros($pdo, $id_inspeccion) {
     $sql_params = "SELECT ri.id_resultado, ri.nombre_parametro, ri.valor_obtenido, ri.aprobado
-                  FROM Resultado_Inspeccion ri
-                  WHERE ri.id_inspeccion = :id_inspeccion
-                  ORDER BY ri.nombre_parametro";
+                    FROM Resultado_Inspeccion ri
+                    WHERE ri.id_inspeccion = :id_inspeccion
+                    ORDER BY ri.nombre_parametro";
     
     $stmt_params = $pdo->prepare($sql_params);
     $stmt_params->bindParam(':id_inspeccion', $id_inspeccion, PDO::PARAM_INT);
