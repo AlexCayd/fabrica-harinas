@@ -8,6 +8,9 @@ $analisis = null;
 $equipos_seleccionados = [];
 $parametros_cargados = false;
 
+// Verificar si hay parámetros cargados en sesión
+$parametros_sesion = isset($_SESSION['parametros_consulta']) ? $_SESSION['parametros_consulta'] : null;
+
 // Si se recibe un ID para editar por medio de GET entonces...
 if (isset($_GET['id']) && !empty($_GET['id'])) {
     $id_inspeccion = $_GET['id'];
@@ -103,87 +106,37 @@ if (!empty($lotes_existentes)) {
     $siguiente_lote = 'LOTE001';
 }
 
-// Función para obtener los parámetros de un cliente específico
-function obtenerParametrosCliente($pdo, $id_cliente) {
-    // Primero, verificar qué tipo de parámetros usa este cliente
-    $sql_cliente = "SELECT parametros FROM Clientes WHERE id_cliente = :id_cliente";
-    $stmt_cliente = $pdo->prepare($sql_cliente);
-    $stmt_cliente->bindParam(':id_cliente', $id_cliente, PDO::PARAM_INT);
-    $stmt_cliente->execute();
-    $tipo_parametros = $stmt_cliente->fetchColumn();
-    
-    // Consulta base
-    $sql = "SELECT nombre_parametro, lim_Inferior, lim_Superior 
-            FROM Parametros 
-            WHERE id_cliente = :id_cliente";
-            
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(':id_cliente', $id_cliente, PDO::PARAM_INT);
-    $stmt->execute();
-    
-    $parametros = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $parametros[$row['nombre_parametro']] = [
-            'min' => $row['lim_Inferior'],
-            'max' => $row['lim_Superior']
-        ];
-    }
-    
-    return $parametros;
-}
-
-// Función para obtener los parámetros de un equipo específico
-function obtenerParametrosEquipo($pdo, $id_equipo) {
-    $sql = "SELECT nombre_parametro, lim_Inferior, lim_Superior 
-            FROM Parametros 
-            WHERE id_equipo = :id_equipo";
-    
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(':id_equipo', $id_equipo, PDO::PARAM_INT);
-    $stmt->execute();
-    
-    $resultado = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $resultado[$row['nombre_parametro']] = [
-            'min' => $row['lim_Inferior'],
-            'max' => $row['lim_Superior']
-        ];
-    }
-    
-    return $resultado;
-}
-
-// INSPECCIONES para el alveógrafo y farinógrafo
+// INSPECCIONES para el alveógrafo y farinógrafo con valores iniciales vacíos
 $parametros_alveografo = [
-    ['nombre' => 'Humedad', 'id_parametro' => 'Humedad', 'valor_obtenido' => ''],
-    ['nombre' => 'Cenizas', 'id_parametro' => 'Cenizas', 'valor_obtenido' => ''],
-    ['nombre' => 'Gluten Humedo', 'id_parametro' => 'Gluten_Humedo', 'valor_obtenido' => ''],
-    ['nombre' => 'Gluten Seco', 'id_parametro' => 'Gluten_Seco', 'valor_obtenido' => ''],
-    ['nombre' => 'Indice de gluten', 'id_parametro' => 'Indice_Gluten', 'valor_obtenido' => ''],
-    ['nombre' => 'Indice de caída', 'id_parametro' => 'Indice_Caida', 'valor_obtenido' => ''],
-    ['nombre' => 'Valor P (mm H₂O)', 'id_parametro' => 'Alveograma_P', 'valor_obtenido' => ''],
-    ['nombre' => 'Valor L (mm)', 'id_parametro' => 'Alveograma_L', 'valor_obtenido' => ''],
-    ['nombre' => 'Valor W (10⁻⁴ J)', 'id_parametro' => 'Alveograma_W', 'valor_obtenido' => ''],
-    ['nombre' => 'Relación P/L', 'id_parametro' => 'Alveograma_PL', 'valor_obtenido' => ''],
-    ['nombre' => 'Índice de elasticidad (Ie)', 'id_parametro' => 'Alveograma_IE', 'valor_obtenido' => '']
-    
+    ['nombre' => 'Humedad', 'id_parametro' => 'Humedad', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Cenizas', 'id_parametro' => 'Cenizas', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Gluten Humedo', 'id_parametro' => 'Gluten_Humedo', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Gluten Seco', 'id_parametro' => 'Gluten_Seco', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Indice de gluten', 'id_parametro' => 'Indice_Gluten', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Indice de caída', 'id_parametro' => 'Indice_Caida', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Valor P (mm H₂O)', 'id_parametro' => 'Alveograma_P', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Valor L (mm)', 'id_parametro' => 'Alveograma_L', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Valor W (10⁻⁴ J)', 'id_parametro' => 'Alveograma_W', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Relación P/L', 'id_parametro' => 'Alveograma_PL', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Índice de elasticidad (Ie)', 'id_parametro' => 'Alveograma_IE', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => '']
 ];
 
 $parametros_farinografo = [
-    ['nombre' => 'Humedad', 'id_parametro' => 'Humedad', 'valor_obtenido' => ''],
-    ['nombre' => 'Cenizas', 'id_parametro' => 'Cenizas', 'valor_obtenido' => ''],
-    ['nombre' => 'Gluten Humedo', 'id_parametro' => 'Gluten_Humedo', 'valor_obtenido' => ''],
-    ['nombre' => 'Gluten Seco', 'id_parametro' => 'Gluten_Seco', 'valor_obtenido' => ''],
-    ['nombre' => 'Indice de gluten', 'id_parametro' => 'Indice_Gluten', 'valor_obtenido' => ''],
-    ['nombre' => 'Indice de caída', 'id_parametro' => 'Indice_Caida', 'valor_obtenido' => ''],
-    ['nombre' => 'Absorción de agua (%)', 'id_parametro' => 'Farinograma_Absorcion_Agua', 'valor_obtenido' => ''],
-    ['nombre' => 'Tiempo de desarrollo (min)', 'id_parametro' => 'Farinograma_Tiempo_Desarrollo', 'valor_obtenido' => ''],
-    ['nombre' => 'Estabilidad (min)', 'id_parametro' => 'Farinograma_Estabilidad', 'valor_obtenido' => ''],
-    ['nombre' => 'Grado Decaimiento', 'id_parametro' => 'Farinograma_Grado_Decaimiento', 'valor_obtenido' => '']
+    ['nombre' => 'Humedad', 'id_parametro' => 'Humedad', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Cenizas', 'id_parametro' => 'Cenizas', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Gluten Humedo', 'id_parametro' => 'Gluten_Humedo', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Gluten Seco', 'id_parametro' => 'Gluten_Seco', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Indice de gluten', 'id_parametro' => 'Indice_Gluten', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Indice de caída', 'id_parametro' => 'Indice_Caida', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Absorción de agua (%)', 'id_parametro' => 'Farinograma_Absorcion_Agua', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Tiempo de desarrollo (min)', 'id_parametro' => 'Farinograma_Tiempo_Desarrollo', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Estabilidad (min)', 'id_parametro' => 'Farinograma_Estabilidad', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Grado Decaimiento', 'id_parametro' => 'Farinograma_Grado_Decaimiento', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => '']
 ];
 
-// Cargar valores existentes si estamos editando
+// Cargar valores existentes si estamos editando o desde la sesión
 if ($editando && $parametros_cargados) {
+    // Cargar de la edición
     foreach ($parametros_alveografo as &$param) {
         if (isset($valores_parametros[$param['id_parametro']])) {
             $param['valor_obtenido'] = $valores_parametros[$param['id_parametro']]['valor_obtenido'];
@@ -193,6 +146,33 @@ if ($editando && $parametros_cargados) {
     foreach ($parametros_farinografo as &$param) {
         if (isset($valores_parametros[$param['id_parametro']])) {
             $param['valor_obtenido'] = $valores_parametros[$param['id_parametro']]['valor_obtenido'];
+        }
+    }
+}
+
+// Si hay resultados en la sesión, actualizar los límites de referencia
+if ($parametros_sesion !== null) {
+    $tipo_equipo_sesion = $parametros_sesion['tipo_equipo'];
+    $params_db = $parametros_sesion['parametros'];
+    
+    // Actualizar los límites para cada parámetro
+    foreach ($params_db as $param_db) {
+        $nombre_param = $param_db['nombre_parametro'];
+        
+        // Actualizar en alveográfo
+        foreach ($parametros_alveografo as &$param) {
+            if ($param['id_parametro'] === $nombre_param) {
+                $param['lim_Inferior'] = $param_db['lim_Inferior'];
+                $param['lim_Superior'] = $param_db['lim_Superior'];
+            }
+        }
+        
+        // Actualizar en farinógrafo
+        foreach ($parametros_farinografo as &$param) {
+            if ($param['id_parametro'] === $nombre_param) {
+                $param['lim_Inferior'] = $param_db['lim_Inferior'];
+                $param['lim_Superior'] = $param_db['lim_Superior'];
+            }
         }
     }
 }
@@ -363,7 +343,7 @@ if ($editando && $parametros_cargados) {
         }
         
         .parametro-inputs {
-            flex: 1;
+            flex: 2;
             display: flex;
             gap: 10px;
         }
@@ -373,11 +353,42 @@ if ($editando && $parametros_cargados) {
             border: 1px solid #ccc;
             border-radius: 4px;
             font-family: inherit;
+            flex: 1;
         }
         
         .parametro-label {
             font-size: 12px;
             color: #666;
+            text-align: center;
+        }
+
+        .parametros-consulta {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f8ff;
+            border: 1px solid #b8d0e8;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .parametros-consulta p {
+            margin: 5px 0;
+        }
+
+        .boton-verificar {
+            background-color: #4c3325;
+            
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            width: auto;
+        }
+
+        .boton-verificar:hover {
+            background-color: #6a4535;
         }
     </style>
 </head>
@@ -389,6 +400,17 @@ if ($editando && $parametros_cargados) {
             <a href="analisiscalidad.php" class="atras">Ir atrás</a>
             <h2 class="heading"><?php echo $editando ? 'Editar' : 'Agregar'; ?> Análisis de Calidad</h2>
             
+            <?php if ($parametros_sesion): ?>
+            <div class="parametros-consulta">
+                <h3>Parámetros Consultados</h3>
+                <p><strong>Origen:</strong> <?php echo $parametros_sesion['origen'] === 'cliente' ? 'Cliente' : 'Equipo'; ?></p>
+                <p><strong>Nombre:</strong> <?php echo htmlspecialchars($parametros_sesion['nombre_objetivo']); ?></p>
+                <p><strong>Tipo de Equipo:</strong> <?php echo htmlspecialchars($parametros_sesion['tipo_equipo']); ?></p>
+                <p><small>Parámetros cargados: <?php echo count($parametros_sesion['parametros']); ?></small></p>
+            </div>
+            <?php endif; ?>
+            
+            <!-- Formulario principal para análisis de calidad -->
             <form action="../config/procesar_analisis.php" class="formulario" method="POST" id="analisisForm" novalidate>
                 <!-- Campo oculto para identificar si estamos editando -->
                 <?php if ($editando): ?>
@@ -435,62 +457,94 @@ if ($editando && $parametros_cargados) {
                 
                 <div class="formulario__campo">
                     <label for="tipo_equipo" class="formulario__label">Tipo de Equipo</label>
-                    <select class="formulario__input" id="tipo_equipo" name="tipo_equipo">
-                        <option value="" disabled selected>-- Seleccione tipo de equipo --</option>
-                        <option value="Alveógrafo" <?php echo ($editando && isset($equipos_seleccionados[0]) && $equipos_seleccionados[0]['tipo_equipo'] == 'Alveógrafo') ? 'selected' : ''; ?>>Alveógrafo</option>
-                        <option value="Farinógrafo" <?php echo ($editando && isset($equipos_seleccionados[0]) && $equipos_seleccionados[0]['tipo_equipo'] == 'Farinógrafo') ? 'selected' : ''; ?>>Farinógrafo</option>
+                    <select class="formulario__input" id="tipo_equipo" name="tipo_equipo" <?php echo isset($parametros_sesion) ? 'readonly disabled' : ''; ?>>
+                        <option value="" disabled <?php echo (!isset($parametros_sesion) && !$editando) ? 'selected' : ''; ?>>-- Seleccione tipo de equipo --</option>
+                        <option value="Alveógrafo" <?php echo (isset($parametros_sesion) && $parametros_sesion['tipo_equipo'] == 'Alveógrafo') || ($editando && isset($equipos_seleccionados[0]) && $equipos_seleccionados[0]['tipo_equipo'] == 'Alveógrafo') ? 'selected' : ''; ?>>Alveógrafo</option>
+                        <option value="Farinógrafo" <?php echo (isset($parametros_sesion) && $parametros_sesion['tipo_equipo'] == 'Farinógrafo') || ($editando && isset($equipos_seleccionados[0]) && $equipos_seleccionados[0]['tipo_equipo'] == 'Farinógrafo') ? 'selected' : ''; ?>>Farinógrafo</option>
                     </select>
+                    <?php if (isset($parametros_sesion)): ?>
+                    <!-- Campo oculto para mantener el valor si el select está deshabilitado -->
+                    <input type="hidden" name="tipo_equipo" value="<?php echo htmlspecialchars($parametros_sesion['tipo_equipo']); ?>">
+                    <?php endif; ?>
                 </div>
                 
                 <!-- Campo oculto para almacenar el lote final -->
                 <input type="hidden" name="lote" id="lote_final" value="<?php echo $editando ? htmlspecialchars($analisis['lote']) : $siguiente_lote; ?>">
                 
-                <!-- Sección Origen de Parámetros -->
-                <h3 class="section-title">Origen de Parámetros</h3>
-                
-                <div class="switch-group">
-                    <div class="switch-option active" data-target="cliente-group">Parámetros por Cliente</div>
-                    <div class="switch-option" data-target="equipo-group">Parámetros por Equipo</div>
-                </div>
-                
-                <div class="option-group active" id="cliente-group">
-                    <div class="formulario__campo">
-                        <label for="id_cliente" class="formulario__label">Cliente</label>
-                        <select class="formulario__input" id="id_cliente" name="id_cliente">
-                            <option value="" disabled selected>-- Seleccione un cliente --</option>
-                            <?php foreach ($clientes as $cliente): ?>
-                            <option value="<?php echo $cliente['id_cliente']; ?>" 
-                                    data-parametros="<?php echo htmlspecialchars($cliente['parametros']); ?>"
-                                    <?php echo ($editando && isset($analisis['id_cliente']) && $analisis['id_cliente'] == $cliente['id_cliente']) ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($cliente['nombre']); ?> (<?php echo htmlspecialchars($cliente['rfc']); ?>)
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
+                <!-- Formulario para verificar parámetros - se envía a obtener_parametros.php -->
+                <div action="../config/obtener_parametros.php" method="POST" id="verificarParametrosForm">
+                    <?php if ($editando): ?>
+                    <input type="hidden" name="id_inspeccion" value="<?php echo htmlspecialchars($analisis['id_inspeccion']); ?>">
+                    <?php endif; ?>
+                    
+                    <!-- Sección Origen de Parámetros -->
+                    <h3 class="section-title">Origen de Parámetros</h3>
+                    
+                    <div class="switch-group">
+                        <div class="switch-option <?php echo !isset($parametros_sesion) || $parametros_sesion['origen'] === 'cliente' ? 'active' : ''; ?>" data-target="cliente-group">Parámetros por Cliente</div>
+                        <div class="switch-option <?php echo isset($parametros_sesion) && $parametros_sesion['origen'] === 'equipo' ? 'active' : ''; ?>" data-target="equipo-group">Parámetros por Equipo</div>
                     </div>
-                </div>
-                
-                <div class="option-group" id="equipo-group">                              
-                    <div class="formulario__campo">
-                        <label for="id_equipo" class="formulario__label">Equipo de Laboratorio</label>
-                        <select class="formulario__input" id="id_equipo" name="id_equipo">
-                            <option value="" disabled selected>-- Seleccione un equipo --</option>
-                            <?php foreach ($equipos as $equipo): ?>
-                            <option class="equipo-option" 
-                                    data-tipo="<?php echo htmlspecialchars($equipo['tipo_equipo']); ?>" 
-                                    value="<?php echo $equipo['id_equipo']; ?>" 
-                                    style="display: none;"
-                                    <?php echo ($editando && isset($equipos_seleccionados[0]) && $equipos_seleccionados[0]['id_equipo'] == $equipo['id_equipo']) ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($equipo['clave']); ?> - <?php echo htmlspecialchars($equipo['marca']); ?> <?php echo htmlspecialchars($equipo['modelo']); ?>
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
+                    
+                    <div class="option-group <?php echo !isset($parametros_sesion) || $parametros_sesion['origen'] === 'cliente' ? 'active' : ''; ?>" id="cliente-group">
+                        <div class="formulario__campo">
+                            <label for="id_cliente" class="formulario__label">Cliente</label>
+                            <select class="formulario__input" id="id_cliente" name="id_cliente" <?php echo isset($parametros_sesion) && $parametros_sesion['origen'] === 'cliente' ? 'readonly disabled' : ''; ?>>
+                                <option value="" disabled <?php echo (!isset($parametros_sesion) && !$editando) ? 'selected' : ''; ?>>-- Seleccione un cliente --</option>
+                                <?php foreach ($clientes as $cliente): ?>
+                                <option value="<?php echo $cliente['id_cliente']; ?>" 
+                                        data-parametros="<?php echo htmlspecialchars($cliente['parametros']); ?>"
+                                        <?php echo (isset($parametros_sesion) && $parametros_sesion['origen'] === 'cliente' && $parametros_sesion['id_objetivo'] == $cliente['id_cliente']) || ($editando && isset($analisis['id_cliente']) && $analisis['id_cliente'] == $cliente['id_cliente']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($cliente['nombre']); ?> (<?php echo htmlspecialchars($cliente['rfc']); ?>)
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <?php if (isset($parametros_sesion) && $parametros_sesion['origen'] === 'cliente'): ?>
+                            <!-- Campo oculto para mantener el valor si el select está deshabilitado -->
+                            <input type="hidden" name="id_cliente" value="<?php echo htmlspecialchars($parametros_sesion['id_objetivo']); ?>">
+                            <?php endif; ?>
+                        </div>
                     </div>
-                </div>
+                    
+                    <div class="option-group <?php echo isset($parametros_sesion) && $parametros_sesion['origen'] === 'equipo' ? 'active' : ''; ?>" id="equipo-group">                              
+                        <div class="formulario__campo">
+                            <label for="id_equipo" class="formulario__label">Equipo de Laboratorio</label>
+                            <select class="formulario__input" id="id_equipo" name="id_equipo" <?php echo isset($parametros_sesion) && $parametros_sesion['origen'] === 'equipo' ? 'readonly disabled' : ''; ?>>
+                                <option value="" disabled <?php echo (!isset($parametros_sesion) && !$editando) ? 'selected' : ''; ?>>-- Seleccione un equipo --</option>
+                                <?php foreach ($equipos as $equipo): ?>
+                                <option class="equipo-option" 
+                                        data-tipo="<?php echo htmlspecialchars($equipo['tipo_equipo']); ?>" 
+                                        value="<?php echo $equipo['id_equipo']; ?>" 
+                                        <?php echo (isset($parametros_sesion) && $parametros_sesion['origen'] === 'equipo' && $parametros_sesion['id_objetivo'] == $equipo['id_equipo']) || ($editando && isset($equipos_seleccionados[0]) && $equipos_seleccionados[0]['id_equipo'] == $equipo['id_equipo']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($equipo['clave']); ?> - <?php echo htmlspecialchars($equipo['marca']); ?> <?php echo htmlspecialchars($equipo['modelo']); ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <?php if (isset($parametros_sesion) && $parametros_sesion['origen'] === 'equipo'): ?>
+                            <!-- Campo oculto para mantener el valor si el select está deshabilitado -->
+                            <input type="hidden" name="id_equipo" value="<?php echo htmlspecialchars($parametros_sesion['id_objetivo']); ?>">
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                    <!-- Botón para verificar parámetros -->
+                    <input type="hidden" id="origen_parametros" value="<?php echo isset($parametros_sesion) ? $parametros_sesion['origen'] : 'cliente'; ?>">
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" id="btnVerificarParametros" class="formulario__submit boton-verificar" <?php echo isset($parametros_sesion) ? 'disabled' : ''; ?>>
+                            <?php echo isset($parametros_sesion) ? 'Parámetros Verificados ✓' : 'Verificar Parámetros Asociados'; ?>
+                        </button>
+                        
+                        <?php if (isset($parametros_sesion)): ?>
+                        <button type="button" id="btnCancelarVerificacion" class="formulario__submit boton-verificar" style="background-color: #d33;">
+                            Cancelar Verificación
+                        </button>
+                        <?php endif; ?>
+                    </div>                        
+                </form>
 
                 <!-- Sección Parámetros de Medición -->
                 <h3 class="section-title">Parámetros de Medición</h3>
                 
-                <div id="seccion-alveografo" class="parametros-section" style="display: none;">
+                <div id="seccion-alveografo" class="parametros-section" style="display: <?php echo (isset($parametros_sesion) && $parametros_sesion['tipo_equipo'] == 'Alveógrafo') ? 'block' : 'none'; ?>;">
                     <h3 class="parametros-title">Inspección para Alveógrafo</h3>
                     <?php foreach ($parametros_alveografo as $param): ?>
                     <div class="parametro-row">
@@ -502,15 +556,20 @@ if ($editando && $parametros_cargados) {
                                        value="<?php echo htmlspecialchars($param['valor_obtenido']); ?>" 
                                        placeholder="Valor"
                                        data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>">
-                                
+                                <div class="parametro-label">Valor</div>
                             </div>
+                            <?php if (!empty($param['lim_Inferior']) && !empty($param['lim_Superior'])): ?>
+                            <div class="parametro-referencia">
+                                <span>Referencia: <?php echo $param['lim_Inferior']; ?> - <?php echo $param['lim_Superior']; ?></span>
+                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <?php endforeach; ?>
                 </div>
 
                 <!-- Sección para Farinografo -->
-                <div id="seccion-farinografo" class="parametros-section" style="display: none;">
+                <div id="seccion-farinografo" class="parametros-section" style="display: <?php echo (isset($parametros_sesion) && $parametros_sesion['tipo_equipo'] == 'Farinógrafo') ? 'block' : 'none'; ?>;">
                     <div class="parametros-title">Inspección para Farinógrafo</div>
                     <?php foreach ($parametros_farinografo as $param): ?>
                     <div class="parametro-row">
@@ -522,15 +581,20 @@ if ($editando && $parametros_cargados) {
                                        placeholder="Valor"
                                        value="<?php echo htmlspecialchars($param['valor_obtenido']); ?>"
                                        data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>">
-                                
+                                <div class="parametro-label">Valor</div>
                             </div>
+                            <?php if (!empty($param['lim_Inferior']) && !empty($param['lim_Superior'])): ?>
+                            <div class="parametro-referencia">
+                                <span>Referencia: <?php echo $param['lim_Inferior']; ?> - <?php echo $param['lim_Superior']; ?></span>
+                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <?php endforeach; ?>
                 </div>
 
                 <input type="submit" class="formulario__submit" value="<?php echo $editando ? 'Guardar cambios' : 'Registrar análisis'; ?>">
-            </form>
+                </div>
         </div>
         <?php include '../includes/footer.php'; ?>
     </main>
@@ -539,6 +603,7 @@ if ($editando && $parametros_cargados) {
         document.addEventListener('DOMContentLoaded', function() {
             // Referencias a elementos del DOM
             const form = document.getElementById('analisisForm');
+            const verificarForm = document.getElementById('verificarParametrosForm');
             const tipoEquipoSelector = document.getElementById('tipo_equipo');
             const equipoSelector = document.getElementById('id_equipo');
             const clienteSelector = document.getElementById('id_cliente');
@@ -548,9 +613,11 @@ if ($editando && $parametros_cargados) {
             const loteFinal = document.getElementById('lote_final');
             const loteNuevo = document.getElementById('lote_nuevo');
             const loteExistente = document.getElementById('lote_existente');
+            const btnVerificarParametros = document.getElementById('btnVerificarParametros');
+            const origenParametrosInput = document.getElementById('origen_parametros');
             
             // Variable para rastrear el origen actual de parámetros (cliente o equipo)
-            let parametrosPorCliente = true;
+            let parametrosPorCliente = <?php echo (!isset($parametros_sesion) || $parametros_sesion['origen'] === 'cliente') ? 'true' : 'false'; ?>;
             
             // Inicializar selectores de opciones para cambio entre tabs
             switchOptions.forEach(option => {
@@ -581,8 +648,9 @@ if ($editando && $parametros_cargados) {
                         document.getElementById('cliente-group').classList.toggle('active', targetId === 'cliente-group');
                         document.getElementById('equipo-group').classList.toggle('active', targetId === 'equipo-group');
                         
-                        // Actualizar variable de seguimiento
+                        // Actualizar variable de seguimiento y campo oculto
                         parametrosPorCliente = targetId === 'cliente-group';
+                        origenParametrosInput.value = parametrosPorCliente ? 'cliente' : 'equipo';
                     }
                 });
             });
@@ -614,105 +682,91 @@ if ($editando && $parametros_cargados) {
                 seccionFarinografo.style.display = tipoSeleccionado === 'Farinógrafo' ? 'block' : 'none';
             }
             
-            // Función para obtener y mostrar parámetros
-            function cargarParametros() {
-                // Obtener valores seleccionados
-                const idEquipo = equipoSelector.value;
-                if (!idEquipo) return;
-                
-                const origenCliente = document.querySelector('.switch-option.active[data-target="cliente-group"]') !== null;
-                const idCliente = origenCliente ? clienteSelector.value : null;
-                
-                if (origenCliente && !idCliente) return;
-                
-                // Consulta directa PHP (no AJAX)
-                // Aquí solo actualizamos la UI con datos simulados para pruebas
-                const tipoEquipo = tipoEquipoSelector.value;
-                
-                if (tipoEquipo === 'Alveógrafo') {
-                    // Valores de ejemplo para Alveógrafo
-                    actualizarReferencia('alveograma_p', {min: 80, max: 100});
-                    actualizarReferencia('alveograma_l', {min: 100, max: 120});
-                    actualizarReferencia('alveograma_w', {min: 250, max: 300});
-                    actualizarReferencia('alveograma_pl', {min: 0.4, max: 0.6});
-                    actualizarReferencia('alveograma_ie', {min: 0.8, max: 1.2});
-                } else if (tipoEquipo === 'Farinógrafo') {
-                    // Valores de ejemplo para Farinógrafo
-                    actualizarReferencia('farinograma_absorcion_agua', {min: 58, max: 62});
-                    actualizarReferencia('farinograma_tiempo_desarrollo', {min: 1.5, max: 2.5});
-                    actualizarReferencia('farinograma_estabilidad', {min: 8, max: 10});
-                    actualizarReferencia('farinograma_grado_decaimiento', {min: 60, max: 80});
-                }
-                
-                // Nota: En una implementación real, aquí harías una consulta a la base de datos
-                // para obtener los valores reales de los parámetros según el cliente/equipo
-            }
-            
-            // Función para actualizar una referencia específica
-            function actualizarReferencia(id, parametro) {
-                if (!parametro) return;
-                
-                const input = document.getElementById(id);
-                const refSpan = document.getElementById(`ref-${id}`);
-                
-                if (input && refSpan) {
-                    refSpan.textContent = `Ref: ${parametro.min} - ${parametro.max}`;
-                    
-                    // Verificar si el valor actual está dentro del rango
-                    if (input.value) {
-                        const valor = parseFloat(input.value);
-                        const min = parseFloat(parametro.min);
-                        const max = parseFloat(parametro.max);
-                        
-                        if (valor >= min && valor <= max) {
-                            refSpan.classList.add('valor-dentro');
-                            refSpan.classList.remove('valor-fuera');
-                        } else {
-                            refSpan.classList.add('valor-fuera');
-                            refSpan.classList.remove('valor-dentro');
-                        }
-                    }
-                    
-                    // Agregar evento para verificación en tiempo real
-                    input.addEventListener('input', function() {
-                        const valor = parseFloat(this.value);
-                        if (!isNaN(valor)) {
-                            const min = parseFloat(parametro.min);
-                            const max = parseFloat(parametro.max);
-                            
-                            if (valor >= min && valor <= max) {
-                                refSpan.classList.add('valor-dentro');
-                                refSpan.classList.remove('valor-fuera');
-                            } else {
-                                refSpan.classList.add('valor-fuera');
-                                refSpan.classList.remove('valor-dentro');
-                            }
-                        }
-                    });
-                }
-            }
-            
             // Función para cargar información de un lote existente
             function cargarInfoLote() {
                 const lote = loteExistente.value;
                 if (!lote) return;
                 
-                // Aquí simularemos la carga de datos del lote
-                // En una implementación real, harías una consulta a la base de datos
-                
-                // Simular que encontramos un lote con un cliente y un equipo específico
-                // Nota: Esto es solo para demostración
-                Swal.fire({
-                    title: 'Lote seleccionado',
-                    text: `Has seleccionado el lote ${lote}. En una implementación real, se cargarían los datos desde la base de datos.`,
-                    icon: 'info'
-                });
-                
                 // Actualizar valor final del lote
                 loteFinal.value = lote;
             }
             
-            // Validación del formulario antes de enviar
+            // Función para verificar parámetros (redirección manual en lugar de envío de formulario)
+            function verificarParametros() {
+                // Validaciones previas a redirigir
+                let isValid = true;
+                let errorMessage = '';
+                
+                // 1. Verificar que hay un tipo de equipo seleccionado
+                if (!tipoEquipoSelector.value) {
+                    isValid = false;
+                    errorMessage = 'Por favor seleccione un tipo de equipo.';
+                    tipoEquipoSelector.classList.add('input-error');
+                } else {
+                    tipoEquipoSelector.classList.remove('input-error');
+                }
+                
+                // 2. Verificar el origen de parámetros
+                parametrosPorCliente = document.querySelector('.switch-option.active[data-target="cliente-group"]') !== null;
+                const origen = parametrosPorCliente ? 'cliente' : 'equipo';
+                
+                // 3. Verificar selección según origen
+                let idObjetivo = '';
+                if (parametrosPorCliente) {
+                    // Si usamos parámetros por cliente, verificar que hay un cliente seleccionado
+                    if (!clienteSelector.value) {
+                        isValid = false;
+                        errorMessage = errorMessage || 'Por favor seleccione un cliente.';
+                        clienteSelector.classList.add('input-error');
+                    } else {
+                        clienteSelector.classList.remove('input-error');
+                        idObjetivo = clienteSelector.value;
+                    }
+                } else {
+                    // Si usamos parámetros por equipo, verificar que hay un equipo seleccionado
+                    if (!equipoSelector.value) {
+                        isValid = false;
+                        errorMessage = errorMessage || 'Por favor seleccione un equipo de laboratorio.';
+                        equipoSelector.classList.add('input-error');
+                    } else {
+                        equipoSelector.classList.remove('input-error');
+                        idObjetivo = equipoSelector.value;
+                    }
+                }
+                
+                // 4. Si hay errores, mostrarlos
+                if (!isValid) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de validación',
+                        text: errorMessage
+                    });
+                    return;
+                }
+                
+                // 5. Construir y navegar a la URL
+                let url = '../config/obtener_parametros.php';
+                let params = new URLSearchParams();
+                params.append('origen_parametros', origen);
+                params.append('tipo_equipo', tipoEquipoSelector.value);
+                
+                if (parametrosPorCliente) {
+                    params.append('id_cliente', idObjetivo);
+                } else {
+                    params.append('id_equipo', idObjetivo);
+                }
+                
+                // Agregar id_inspeccion si estamos editando
+                const idInspeccion = document.querySelector('input[name="id_inspeccion"]');
+                if (idInspeccion) {
+                    params.append('id_inspeccion', idInspeccion.value);
+                }
+                
+                // Redirigir
+                window.location.href = url + '?' + params.toString();
+            }
+            
+            // Validación del formulario principal antes de enviar
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
 
@@ -732,39 +786,14 @@ if ($editando && $parametros_cargados) {
                     loteExistente.classList.remove('input-error');
                 }
 
-                // 2. Verificar que hay un tipo de equipo seleccionado
-                if (!tipoEquipoSelector.value) {
-                    isValid = false;
-                    errorMessage = errorMessage || 'Por favor seleccione un tipo de equipo.';
-                    tipoEquipoSelector.classList.add('input-error');
-                } else {
-                    tipoEquipoSelector.classList.remove('input-error');
-                }
+                // 2. Verificar que hay parámetros cargados
+                <?php if (!isset($parametros_sesion)): ?>
+                isValid = false;
+                errorMessage = errorMessage || 'Por favor verifique los parámetros asociados antes de registrar el análisis.';
+                btnVerificarParametros.classList.add('input-error');
+                <?php endif; ?>
 
-                // 3. Verificar origen de parámetros
-                parametrosPorCliente = document.querySelector('.switch-option.active[data-target="cliente-group"]') !== null;
-                
-                if (parametrosPorCliente) {
-                    // 3.1 Si usamos parámetros por cliente, validar que hay un cliente seleccionado
-                    if (!clienteSelector.value) {
-                        isValid = false;
-                        errorMessage = errorMessage || 'Por favor seleccione un cliente.';
-                        clienteSelector.classList.add('input-error');
-                    } else {
-                        clienteSelector.classList.remove('input-error');
-                    }
-                } else {
-                    // 3.2 Si usamos parámetros por equipo, validar que hay un equipo seleccionado
-                    if (!equipoSelector.value) {
-                        isValid = false;
-                        errorMessage = errorMessage || 'Por favor seleccione un equipo de laboratorio.';
-                        equipoSelector.classList.add('input-error');
-                    } else {
-                        equipoSelector.classList.remove('input-error');
-                    }
-                }
-
-                // 4. Verificar que hay parámetros visibles y que tienen valores
+                // 3. Verificar que hay parámetros visibles y que tienen valores
                 let seccionesParametrosVisibles = false;
                 let parametrosIncompletos = false;
                 
@@ -796,13 +825,13 @@ if ($editando && $parametros_cargados) {
                 
                 if (!seccionesParametrosVisibles) {
                     isValid = false;
-                    errorMessage = errorMessage || 'No hay sección de parámetros visible. Por favor, seleccione un tipo de equipo válido.';
+                    errorMessage = errorMessage || 'No hay sección de parámetros visible. Por favor, verifique los parámetros asociados.';
                 } else if (parametrosIncompletos) {
                     isValid = false;
                     errorMessage = errorMessage || 'Por favor, complete todos los valores de parámetros.';
                 }
 
-                // 5. Mostrar errores o continuar con el envío
+                // 4. Mostrar errores o continuar con el envío
                 if (!isValid) {
                     Swal.fire({
                         icon: 'error',
@@ -812,7 +841,7 @@ if ($editando && $parametros_cargados) {
                     return;
                 }
 
-                // 6. Confirmación antes de enviar
+                // 5. Confirmación antes de enviar
                 Swal.fire({
                     title: '¿Confirmar registro?',
                     text: 'Se procederá a registrar el análisis con los parámetros ingresados.',
@@ -828,19 +857,35 @@ if ($editando && $parametros_cargados) {
                     }
                 });
             });
+
+            // Función para cancelar la verificación
+            function cancelarVerificacion() {
+                Swal.fire({
+                    title: '¿Cancelar verificación?',
+                    text: 'Esto permitirá cambiar el cliente/equipo y tipo de equipo seleccionados.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, cancelar',
+                    cancelButtonText: 'No, mantener'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirigir a un archivo que limpie la sesión
+                        window.location.href = '../config/limpiar_parametros_sesion.php';
+                    }
+                });
+            }
+
+            // Añade este evento con el resto de eventos
+            if (document.getElementById('btnCancelarVerificacion')) {
+                document.getElementById('btnCancelarVerificacion').addEventListener('click', cancelarVerificacion);
+            }
             
             // Configurar eventos
-            tipoEquipoSelector.addEventListener('change', function() {
-                actualizarSecciones();
-                cargarParametros();
-            });
-            equipoSelector.addEventListener('change', cargarParametros);
-            clienteSelector.addEventListener('change', cargarParametros);
-            loteExistente.addEventListener('change', function() {
-                cargarInfoLote();
-                // Actualizar lote final cuando cambia la selección
-                loteFinal.value = this.value;
-            });
+            tipoEquipoSelector.addEventListener('change', actualizarSecciones);
+            loteExistente.addEventListener('change', cargarInfoLote);
+            btnVerificarParametros.addEventListener('click', verificarParametros);
             
             // Inicializar la vista
             actualizarSecciones();
@@ -848,11 +893,6 @@ if ($editando && $parametros_cargados) {
             // Si estamos editando y ya hay tipo de equipo, actualizar secciones al cargar
             if (tipoEquipoSelector.value) {
                 actualizarSecciones();
-                
-                // Si hay equipo seleccionado, mostrar parámetros correspondientes
-                if (equipoSelector.value || clienteSelector.value) {
-                    cargarParametros();
-                }
             }
         });
     </script>

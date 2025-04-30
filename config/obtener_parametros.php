@@ -12,17 +12,17 @@ session_start();
 
 
 // Verificar que se reciben los datos necesarios
-if (!isset($_POST['origen_parametros']) || 
-   ($_POST['origen_parametros'] === 'cliente' && !isset($_POST['id_cliente'])) || 
-   ($_POST['origen_parametros'] === 'equipo' && !isset($_POST['id_equipo']))) {
+if (!isset($_GET['origen_parametros']) || 
+   ($_GET['origen_parametros'] === 'cliente' && !isset($_GET['id_cliente'])) || 
+   ($_GET['origen_parametros'] === 'equipo' && !isset($_GET['id_equipo']))) {
     
     $_SESSION['error'] = "Faltan datos necesarios para obtener los parámetros.";
-    header('Location: analisiscalidadform.php');
+    header('Location: ../modulos/analisiscalidadform.php');
     exit;
 }
 
 // Obtener el origen de los parámetros
-$origen_parametros = $_POST['origen_parametros'];
+$origen_parametros = $_GET['origen_parametros'];
 
 // Variable para almacenar el tipo de equipo
 $tipo_equipo = null;
@@ -33,7 +33,7 @@ $parametros = [];
 try {
     // Caso 1: Origen de parámetros es CLIENTE
     if ($origen_parametros === 'cliente') {
-        $id_cliente = $_POST['id_cliente'];
+        $id_cliente = $_GET['id_cliente'];
         $id_objetivo = $id_cliente;
         
         // 1. Obtener información del cliente (incluyendo tipo de parámetros)
@@ -55,12 +55,12 @@ try {
         if ($tipo_parametros === 'Internacionales') {
             // Si son parámetros internacionales, 
             // primero necesitamos determinar el tipo de equipo seleccionado
-            if (isset($_POST['tipo_equipo']) && !empty($_POST['tipo_equipo'])) {
-                $tipo_equipo = $_POST['tipo_equipo'];
+            if (isset($_GET['tipo_equipo']) && !empty($_GET['tipo_equipo'])) {
+                $tipo_equipo = $_GET['tipo_equipo'];
             } else {
                 throw new Exception("Para parámetros internacionales, debe seleccionar un tipo de equipo.");
             }
-            
+
             // Usar cliente ID 1 como fuente de parámetros internacionales, filtrando por tipo de equipo
             $prefijo_parametro = ($tipo_equipo === 'Alveógrafo') ? 'Alveograma_' : 'Farinograma_'; // Si no es Alveógrafo, asumimos que es Farinógrafo osea Farinograma_
             
@@ -111,12 +111,11 @@ try {
             $stmt_parametros->bindParam(':id_cliente', $id_cliente, PDO::PARAM_INT);
         }
         
-    } 
     // Caso 2: Origen de parámetros es EQUIPO
-    else if ($origen_parametros === 'equipo') {
-        $id_equipo = $_POST['id_equipo'];
+    } else if ($origen_parametros === 'equipo') {
+        $id_equipo = $_GET['id_equipo'];
         $id_objetivo = $id_equipo;
-        
+            
         // 1. Obtener información del equipo, incluyendo el tipo
         $sql_equipo = "SELECT clave, tipo_equipo FROM Equipos_Laboratorio WHERE id_equipo = :id_equipo";
         $stmt_equipo = $pdo->prepare($sql_equipo);
@@ -169,21 +168,20 @@ try {
         ": $nombre_objetivo";
         
     // Si hay un ID de inspección en el formulario original, preservarlo
-    if (isset($_POST['id_inspeccion'])) {
-        header("Location: analisiscalidadform.php?id=" . $_POST['id_inspeccion']);
+    if (isset($_GET['id_inspeccion'])) {
+        header("Location: ../modulos/analisiscalidadform.php?id=" . $_GET['id_inspeccion']);
     } else {
-        header("Location: analisiscalidadform.php");
+        header("Location: ../modulos/analisiscalidadform.php");
     }
     exit;
     
 } catch (Exception $e) {
-    $_SESSION['error'] = "Error al obtener parámetros: " . $e->getMessage();
-    
+    $_SESSION['error'] = "Error al obtener parámetros: " . $e->getMessage();    
     // Si hay un ID de inspección en el formulario original, preservarlo
-    if (isset($_POST['id_inspeccion'])) {
-        header("Location: analisiscalidadform.php?id=" . $_POST['id_inspeccion']);
+    if (isset($_GET['id_inspeccion'])) {
+        header("Location: ../modulos/analisiscalidadform.php?id=" . $_GET['id_inspeccion']);
     } else {
-        header("Location: analisiscalidadform.php");
+        header("Location: ../modulos/analisiscalidadform.php");
     }
     exit;
 }
