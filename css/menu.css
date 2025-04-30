@@ -110,3 +110,6 @@
   border: none;
   cursor: pointer;
 }
+.oculto{
+  visibility: hidden;
+}
