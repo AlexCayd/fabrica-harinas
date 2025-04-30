@@ -122,8 +122,8 @@ if ($filtro != 'internacionales' && $filtro != 'personalizados') {
                                     echo '<td>' . $tipo . '</td>';
                                     $primera = false;
                                 } else {
-                                    echo '<td></td>';
-                                    echo '<td></td>';
+                                    echo '<td class = "oculto">' . $origen . '</td>';
+                                    echo '<td class = "oculto">' . $tipo . '</td>';
                                 }
 
                                 echo '<td>' . htmlspecialchars($parametro['nombre_parametro']) . '</td>';
