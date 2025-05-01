@@ -47,6 +47,7 @@ CREATE TABLE Clientes (
     telefono_contacto VARCHAR(20) NOT NULL,
     direccion_fiscal TEXT,
     estado ENUM('Activo', 'Inactivo', 'Baja') NOT NULL DEFAULT 'Activo',
+    tipo_equipo ENUM('Alveógrafo', 'Farinógrafo') NOT NULL,
     parametros ENUM('Internacionales', 'Personalizados')
 );
 -- Tabla Direcciones
