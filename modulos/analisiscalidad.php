@@ -12,18 +12,17 @@ if (isset($_GET['filtro']) && !empty($_GET['filtro'])) {
     $filtro = $_GET['filtro'];
 }
 
-// Construir la consulta SQL con filtros
+// Construir la consulta SQL con filtros - incluyendo tipo_equipo del cliente
 $sql_analisis = "SELECT 
                 i.id_inspeccion, i.lote, i.secuencia, i.fecha_inspeccion, i.clave,
-                e.id_equipo, e.clave as equipo_clave, e.tipo_equipo, e.marca, e.modelo,
-                c.nombre as cliente_nombre,
+                e.id_equipo, e.clave as equipo_clave, e.tipo_equipo as equipo_tipo, e.marca, e.modelo,
+                c.id_cliente, c.nombre as cliente_nombre, c.tipo_equipo as cliente_tipo,
                 COUNT(DISTINCT ri.id_resultado) as total_parametros,
                 SUM(CASE WHEN ri.aprobado IS NULL OR ri.aprobado = 0 THEN 1 ELSE 0 END) as parametros_fallidos
                 FROM Inspeccion i
-                INNER JOIN Equipo_Inspeccion ei ON i.id_inspeccion = ei.id_inspeccion
-                INNER JOIN Equipos_Laboratorio e ON ei.id_equipo = e.id_equipo
                 LEFT JOIN Clientes c ON i.id_cliente = c.id_cliente
-                LEFT JOIN Resultado_Inspeccion ri ON i.id_inspeccion = ri.id_inspeccion";
+                LEFT JOIN Resultado_Inspeccion ri ON i.id_inspeccion = ri.id_inspeccion
+                LEFT JOIN Equipos_Laboratorio e ON i.id_equipo = e.id_equipo";
 
 $where_added = false;
 $params = [];
@@ -38,15 +37,15 @@ if (!empty($busqueda)) {
 // Añadir filtro por tipo de equipo si está seleccionado
 if (!empty($filtro)) {
     if ($where_added) {
-        $sql_analisis .= " AND e.tipo_equipo = :filtro";
+        $sql_analisis .= " AND (e.tipo_equipo = :filtro OR c.tipo_equipo = :filtro)";
     } else {
-        $sql_analisis .= " WHERE e.tipo_equipo = :filtro";
+        $sql_analisis .= " WHERE (e.tipo_equipo = :filtro OR c.tipo_equipo = :filtro)";
         $where_added = true;
     }
     $params[':filtro'] = $filtro;
 }
 
-$sql_analisis .= " GROUP BY i.id_inspeccion, ei.id_equipo";
+$sql_analisis .= " GROUP BY i.id_inspeccion";
 $sql_analisis .= " ORDER BY i.fecha_inspeccion DESC";
 
 $stmt_analisis = $pdo->prepare($sql_analisis);
@@ -100,6 +99,43 @@ function analisisAprobado($total_parametros, $parametros_fallidos) {
     }
     return $parametros_fallidos == 0;
 }
+
+// Función para mostrar información de equipo/cliente
+function mostrarOrigenInspeccion($item) {
+    $info = '';
+    
+    // Si tiene cliente, mostrar la información del cliente
+    if (!empty($item['cliente_nombre'])) {
+        $info .= '<span class="origen-cliente">Cliente: ' . htmlspecialchars($item['cliente_nombre']) . '</span>';
+    }
+    
+    // Si tiene equipo, mostrar la información del equipo
+    if (!empty($item['equipo_clave'])) {
+        if (!empty($info)) {
+            $info .= '<br>';
+        }
+        $info .= '<span class="origen-equipo">Equipo: ' . htmlspecialchars($item['equipo_clave']) . ' (' . 
+                htmlspecialchars($item['marca']) . ' ' . htmlspecialchars($item['modelo']) . ')</span>';
+    }
+    
+    return $info ?: 'No especificado';
+}
+
+// Función para determinar el tipo de equipo de la inspección
+function determinarTipoEquipo($item) {
+    // Prioridad 1: Usar tipo de equipo de la tabla Equipos_Laboratorio si está disponible
+    if (!empty($item['equipo_tipo'])) {
+        return htmlspecialchars($item['equipo_tipo']);
+    }
+    
+    // Prioridad 2: Usar tipo de equipo de la tabla Clientes si está disponible
+    if (!empty($item['cliente_tipo'])) {
+        return htmlspecialchars($item['cliente_tipo']);
+    }
+    
+    // Si no hay información disponible
+    return 'No especificado';
+}
 ?>
 
 <!DOCTYPE html>
@@ -129,7 +165,13 @@ function analisisAprobado($total_parametros, $parametros_fallidos) {
             color: red;
             font-weight: bold;
         }
-
+        .origen-cliente {
+            color: #4c3325;
+            font-weight: bold;
+        }
+        .origen-equipo {
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -167,7 +209,7 @@ function analisisAprobado($total_parametros, $parametros_fallidos) {
                             <th>Lote de producción</th>
                             <th>Secuencia</th>
                             <th>Fecha</th>
-                            <th>Equipo</th>
+                            <th>Origen</th>
                             <th>Tipo</th>
                             <th>Estado</th>
                             <th>Parámetros</th>
@@ -179,22 +221,21 @@ function analisisAprobado($total_parametros, $parametros_fallidos) {
                             <?php foreach ($analisis as $item): ?>
                             <?php 
                                 $aprobado = analisisAprobado($item['total_parametros'], $item['parametros_fallidos']);
-                                // Debug: Mostrar valores para verificación
-                                // var_dump($item);
+                                $tipo_equipo = determinarTipoEquipo($item);
                             ?>
                             <tr class="tabla__fila">
                                 <td><?= htmlspecialchars($item['lote']) ?></td>
                                 <td><?= htmlspecialchars($item['secuencia']) ?></td>
                                 <td><?= date('d/m/Y H:i', strtotime($item['fecha_inspeccion'])) ?></td>
-                                <td><?= htmlspecialchars($item['equipo_clave']) ?> (<?= htmlspecialchars($item['marca']) ?> <?= htmlspecialchars($item['modelo']) ?>)</td>
-                                <td><?= htmlspecialchars($item['tipo_equipo']) ?></td>
+                                <td><?= mostrarOrigenInspeccion($item) ?></td>
+                                <td><?= $tipo_equipo ?></td>
                                 <td class="<?= $aprobado ? 'estado-aprobado' : 'estado-fallido' ?>">
                                     <?= $aprobado ? 'Aprobado' : 'Fallido' ?>
                                     <?php if($item['total_parametros'] > 0): ?>
                                         <small>(<?= $item['parametros_fallidos'] ?>/<?= $item['total_parametros'] ?>)</small>
                                     <?php endif; ?>
                                 </td>
-                                <td><?= mostrarParametros($pdo, $item['id_inspeccion'], $item['tipo_equipo']) ?></td>
+                                <td><?= mostrarParametros($pdo, $item['id_inspeccion'], $tipo_equipo) ?></td>
                                 <td class="tabla__botones">
                                     <a href="analisiscalidadform.php?id=<?= $item['id_inspeccion'] ?>">
                                         <img src="../img/edit.svg" alt="Editar" class="tabla__boton">

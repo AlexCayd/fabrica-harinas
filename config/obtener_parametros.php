@@ -10,6 +10,13 @@ require './conn.php';
 // Iniciar sesión para almacenar los resultados
 session_start();
 
+// Capturar información de selección de lote si está presente
+if (isset($_GET['lote_option']) && isset($_GET['lote_value'])) {
+    $_SESSION['lote_selection'] = [
+        'option' => $_GET['lote_option'],
+        'value' => $_GET['lote_value']
+    ];
+}
 
 // Verificar que se reciben los datos necesarios
 if (!isset($_GET['origen_parametros']) || 
@@ -17,7 +24,7 @@ if (!isset($_GET['origen_parametros']) ||
    ($_GET['origen_parametros'] === 'equipo' && !isset($_GET['id_equipo']))) {
     
     $_SESSION['error'] = "Faltan datos necesarios para obtener los parámetros.";
-    header('Location: ../modulos/analisiscalidadform.php');
+    header('Location: ../modulos/analisiscalidadform.php' . (isset($_GET['id_inspeccion']) ? '?id=' . $_GET['id_inspeccion'] : ''));
     exit;
 }
 
@@ -37,7 +44,7 @@ try {
         $id_objetivo = $id_cliente;
         
         // 1. Obtener información del cliente (incluyendo tipo de parámetros)
-        $sql_cliente = "SELECT nombre, parametros FROM Clientes WHERE id_cliente = :id_cliente";
+        $sql_cliente = "SELECT nombre, parametros, tipo_equipo FROM Clientes WHERE id_cliente = :id_cliente";
         $stmt_cliente = $pdo->prepare($sql_cliente);
         $stmt_cliente->bindParam(':id_cliente', $id_cliente, PDO::PARAM_INT);
         $stmt_cliente->execute();
@@ -51,26 +58,33 @@ try {
         $nombre_objetivo = $cliente['nombre'];
         $tipo_parametros = $cliente['parametros']; // 'Internacionales' o 'Personalizados'
         
+        // Si el cliente tiene tipo de equipo definido, usarlo preferentemente
+        if (!empty($cliente['tipo_equipo'])) {
+            $tipo_equipo = $cliente['tipo_equipo'];
+        } 
+        // Si no, usar el tipo de equipo seleccionado en el formulario
+        else if (isset($_GET['tipo_equipo']) && !empty($_GET['tipo_equipo'])) {
+            $tipo_equipo = $_GET['tipo_equipo'];
+        }
+        
         // 2. Obtener los parámetros según el tipo
         if ($tipo_parametros === 'Internacionales') {
             // Si son parámetros internacionales, 
-            // primero necesitamos determinar el tipo de equipo seleccionado
-            if (isset($_GET['tipo_equipo']) && !empty($_GET['tipo_equipo'])) {
-                $tipo_equipo = $_GET['tipo_equipo'];
-            } else {
+            // necesitamos asegurarnos de tener un tipo de equipo seleccionado
+            if (empty($tipo_equipo)) {
                 throw new Exception("Para parámetros internacionales, debe seleccionar un tipo de equipo.");
             }
 
-            // Usar prefijo de parámetro según el tipo de equipo
-            $prefijo_parametro = ($tipo_equipo === 'Alveógrafo') ? 'Alveograma_' : 'Farinograma_';
+            // Determinar qué equipo de referencia usar según el tipo
+            $id_equipo_referencia = ($tipo_equipo === 'Alveógrafo') ? 1 : 2;
             
+            // Consultar parámetros directamente del equipo de referencia
             $sql_parametros = "SELECT nombre_parametro, lim_Inferior, lim_Superior 
                               FROM Parametros 
-                              WHERE (nombre_parametro LIKE :prefijo OR 
-                                   nombre_parametro IN ('Humedad', 'Cenizas', 'Gluten_Humedo', 'Gluten_Seco', 'Indice_Gluten', 'Indice_Caida'))";
+                              WHERE id_equipo = :id_equipo_referencia";
             
             $stmt_parametros = $pdo->prepare($sql_parametros);
-            $stmt_parametros->bindValue(':prefijo', $prefijo_parametro . '%', PDO::PARAM_STR);
+            $stmt_parametros->bindParam(':id_equipo_referencia', $id_equipo_referencia, PDO::PARAM_INT);
             
         } else { // Personalizados
             // Para parámetros personalizados, obtener directamente los del cliente
@@ -166,21 +180,38 @@ try {
         ($origen_parametros === 'cliente' ? "cliente" : "equipo") . 
         ": $nombre_objetivo";
         
-    // Si hay un ID de inspección en el formulario original, preservarlo
+    // Generar la URL de redirección, preservando el id_inspeccion si existe
+    $redirect_url = "../modulos/analisiscalidadform.php";
+    $params = [];
+    
     if (isset($_GET['id_inspeccion'])) {
-        header("Location: ../modulos/analisiscalidadform.php?id=" . $_GET['id_inspeccion']);
-    } else {
-        header("Location: ../modulos/analisiscalidadform.php");
+        $params[] = "id=" . $_GET['id_inspeccion'];
     }
+    
+    // Construir URL completa con parámetros
+    if (!empty($params)) {
+        $redirect_url .= '?' . implode('&', $params);
+    }
+    
+    header("Location: $redirect_url");
     exit;
     
 } catch (Exception $e) {
     $_SESSION['error'] = "Error al obtener parámetros: " . $e->getMessage();    
-    // Si hay un ID de inspección en el formulario original, preservarlo
+    
+    // Generar la URL de redirección para caso de error, preservando el id_inspeccion si existe
+    $redirect_url = "../modulos/analisiscalidadform.php";
+    $params = [];
+    
     if (isset($_GET['id_inspeccion'])) {
-        header("Location: ../modulos/analisiscalidadform.php?id=" . $_GET['id_inspeccion']);
-    } else {
-        header("Location: ../modulos/analisiscalidadform.php");
+        $params[] = "id=" . $_GET['id_inspeccion'];
     }
+    
+    // Construir URL completa con parámetros
+    if (!empty($params)) {
+        $redirect_url .= '?' . implode('&', $params);
+    }
+    
+    header("Location: $redirect_url");
     exit;
 }

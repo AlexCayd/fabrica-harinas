@@ -574,7 +574,7 @@ VALUES -- Cliente 1: Molinos ABC - Lote 001
     (
         2,
         'LOTE002',
-        'B',
+        'A',
         'INSP-002',
         '2025-04-12 10:45:00'
     ),
@@ -582,14 +582,14 @@ VALUES -- Cliente 1: Molinos ABC - Lote 001
     (
         3,
         'LOTE003',
-        'C',
+        'A',
         'INSP-003',
         '2025-04-18 08:30:00'
     ),
     (
         3,
         'LOTE003',
-        'D',
+        'B',
         'INSP-004',
         '2025-04-19 11:00:00'
     );
@@ -604,7 +604,7 @@ INSERT INTO Inspeccion (
 VALUES(
         4,
         'LOTE004',
-        'E',
+        'C',
         'INSP-005',
         '2025-04-20 12:00:00'
     );

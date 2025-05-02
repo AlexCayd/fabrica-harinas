@@ -80,7 +80,7 @@ foreach ($equipos as $equipo) {
 }
 
 // Consulta para obtener todos los clientes
-$sql_clientes = "SELECT id_cliente, nombre, rfc, parametros FROM Clientes WHERE estado = 'Activo' ORDER BY nombre";
+$sql_clientes = "SELECT id_cliente, nombre, rfc, parametros, tipo_equipo FROM Clientes WHERE estado = 'Activo' ORDER BY nombre";
 $stmt_clientes = $pdo->query($sql_clientes);
 $clientes = $stmt_clientes->fetchAll(PDO::FETCH_ASSOC);
 
@@ -114,10 +114,11 @@ $parametros_alveografo = [
     ['nombre' => 'Gluten Seco', 'id_parametro' => 'Gluten_Seco', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
     ['nombre' => 'Indice de gluten', 'id_parametro' => 'Indice_Gluten', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
     ['nombre' => 'Indice de caída', 'id_parametro' => 'Indice_Caida', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Almidon Dañado', 'id_parametro' => 'Almidon_Danado', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
     ['nombre' => 'Valor P (mm H₂O)', 'id_parametro' => 'Alveograma_P', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Valor L (mm)', 'id_parametro' => 'Alveograma_L', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
-    ['nombre' => 'Valor W (10⁻⁴ J)', 'id_parametro' => 'Alveograma_W', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Valor L (mm)', 'id_parametro' => 'Alveograma_L', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],    
     ['nombre' => 'Relación P/L', 'id_parametro' => 'Alveograma_PL', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Valor W (10⁻⁴ J)', 'id_parametro' => 'Alveograma_W', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
     ['nombre' => 'Índice de elasticidad (Ie)', 'id_parametro' => 'Alveograma_IE', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => '']
 ];
 
@@ -128,6 +129,7 @@ $parametros_farinografo = [
     ['nombre' => 'Gluten Seco', 'id_parametro' => 'Gluten_Seco', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
     ['nombre' => 'Indice de gluten', 'id_parametro' => 'Indice_Gluten', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
     ['nombre' => 'Indice de caída', 'id_parametro' => 'Indice_Caida', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
+    ['nombre' => 'Almidon Dañado', 'id_parametro' => 'Almidon_Danado', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
     ['nombre' => 'Absorción de agua (%)', 'id_parametro' => 'Farinograma_Absorcion_Agua', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
     ['nombre' => 'Tiempo de desarrollo (min)', 'id_parametro' => 'Farinograma_Tiempo_Desarrollo', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
     ['nombre' => 'Estabilidad (min)', 'id_parametro' => 'Farinograma_Estabilidad', 'valor_obtenido' => '', 'lim_Inferior' => '', 'lim_Superior' => ''],
@@ -151,7 +153,7 @@ if ($editando && $parametros_cargados) {
 }
 
 // Si hay resultados en la sesión, actualizar los límites de referencia
-if ($parametros_sesion !== null) {
+/*if ($parametros_sesion !== null) {
     $tipo_equipo_sesion = $parametros_sesion['tipo_equipo'];
     $params_db = $parametros_sesion['parametros'];
     
@@ -179,6 +181,49 @@ if ($parametros_sesion !== null) {
             }
         }
     }
+}
+    */
+// Si hay resultados en la sesión, actualizar los límites de referencia
+if ($parametros_sesion !== null) {
+    $tipo_equipo_sesion = $parametros_sesion['tipo_equipo'];
+    $params_db = $parametros_sesion['parametros'];
+    
+    // Crear un array asociativo para facilitar las búsquedas
+    $limites_por_parametro = [];
+    foreach ($params_db as $param_db) {
+        $limites_por_parametro[$param_db['nombre_parametro']] = [
+            'lim_Inferior' => $param_db['lim_Inferior'],
+            'lim_Superior' => $param_db['lim_Superior']
+        ];
+    }
+    
+    // Actualizar solo los parámetros del tipo de equipo correspondiente
+    if ($tipo_equipo_sesion === 'Alveógrafo') {
+        // Actualizar los parámetros de alveógrafo
+        for ($i = 0; $i < count($parametros_alveografo); $i++) {
+            $id_param = $parametros_alveografo[$i]['id_parametro'];
+            if (isset($limites_por_parametro[$id_param])) {
+                $parametros_alveografo[$i]['lim_Inferior'] = $limites_por_parametro[$id_param]['lim_Inferior'];
+                $parametros_alveografo[$i]['lim_Superior'] = $limites_por_parametro[$id_param]['lim_Superior'];
+            }
+        }
+    } else if ($tipo_equipo_sesion === 'Farinógrafo') {
+        // Actualizar los parámetros de farinógrafo
+        for ($i = 0; $i < count($parametros_farinografo); $i++) {
+            $id_param = $parametros_farinografo[$i]['id_parametro'];
+            if (isset($limites_por_parametro[$id_param])) {
+                $parametros_farinografo[$i]['lim_Inferior'] = $limites_por_parametro[$id_param]['lim_Inferior'];
+                $parametros_farinografo[$i]['lim_Superior'] = $limites_por_parametro[$id_param]['lim_Superior'];
+            }
+        }
+    }
+}
+
+$lote_selection = null;
+if (isset($_SESSION['lote_selection'])) {
+    $lote_selection = $_SESSION['lote_selection'];
+    // Limpiar la información de la sesión para evitar problemas con futuras cargas
+    unset($_SESSION['lote_selection']);
 }
 ?>
 
@@ -404,16 +449,16 @@ if ($parametros_sesion !== null) {
             <a href="analisiscalidad.php" class="atras">Ir atrás</a>
             <h2 class="heading"><?php echo $editando ? 'Editar' : 'Agregar'; ?> Análisis de Calidad</h2>
             
-            <?php if ($parametros_sesion): ?>
+            <!--</*?php if ($parametros_sesion): ?>
             <div class="parametros-consulta">
                 <h3>Parámetros Consultados</h3>
-                <p><strong>Origen:</strong> <?php echo $parametros_sesion['origen'] === 'cliente' ? 'Cliente' : 'Equipo'; ?></p>
-                <p><strong>Nombre:</strong> <?php echo htmlspecialchars($parametros_sesion['nombre_objetivo']); ?></p>
-                <p><strong>Tipo de Equipo:</strong> <?php echo htmlspecialchars($parametros_sesion['tipo_equipo']); ?></p>
-                <p><small>Parámetros cargados: <?php echo count($parametros_sesion['parametros']); ?></small></p>
+                <p><strong>Origen:</strong> <//?php echo $parametros_sesion['origen'] === 'cliente' ? 'Cliente' : 'Equipo'; ?></p>
+                <p><strong>Nombre:</strong> <//?php echo htmlspecialchars($parametros_sesion['nombre_objetivo']); ?></p>
+                <p><strong>Tipo de Equipo:</strong> <//?php echo htmlspecialchars($parametros_sesion['tipo_equipo']); ?></p>
+                <p><small>Parámetros cargados: <//?php echo count($parametros_sesion['parametros']); ?></small></p>
             </div>
-            <?php endif; ?>
-            
+            <//?php endif; ?/*>
+            -->
             <!-- Formulario principal para análisis de calidad -->
             <form action="../config/procesar_analisis.php" class="formulario" method="POST" id="analisisForm" novalidate>
                 <!-- Campo oculto para identificar si estamos editando -->
@@ -483,14 +528,14 @@ if ($parametros_sesion !== null) {
                     <input type="hidden" name="id_inspeccion" value="<?php echo htmlspecialchars($analisis['id_inspeccion']); ?>">
                     <?php endif; ?>
                     
-                    <!-- Sección Origen de Parámetros -->
+                   <!-- Sección Origen de Parámetros -->
                     <h3 class="section-title">Origen de Parámetros</h3>
-                    
+
                     <div class="switch-group">
                         <div class="switch-option <?php echo !isset($parametros_sesion) || $parametros_sesion['origen'] === 'cliente' ? 'active' : ''; ?>" data-target="cliente-group">Parámetros por Cliente</div>
                         <div class="switch-option <?php echo isset($parametros_sesion) && $parametros_sesion['origen'] === 'equipo' ? 'active' : ''; ?>" data-target="equipo-group">Parámetros por Equipo</div>
                     </div>
-                                        
+                                                    
                     <div class="option-group <?php echo !isset($parametros_sesion) || $parametros_sesion['origen'] === 'cliente' ? 'active' : ''; ?>" id="cliente-group">
                         <div class="formulario__campo">
                             <label for="id_cliente" class="formulario__label">Cliente</label>
@@ -499,8 +544,9 @@ if ($parametros_sesion !== null) {
                                 <?php foreach ($clientes as $cliente): ?>
                                 <option value="<?php echo $cliente['id_cliente']; ?>" 
                                         data-parametros="<?php echo htmlspecialchars($cliente['parametros']); ?>"
+                                        data-tipo="<?php echo htmlspecialchars($cliente['tipo_equipo']); ?>"
                                         <?php echo (isset($parametros_sesion) && $parametros_sesion['origen'] === 'cliente' && $parametros_sesion['id_objetivo'] == $cliente['id_cliente']) || ($editando && isset($analisis['id_cliente']) && $analisis['id_cliente'] == $cliente['id_cliente']) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($cliente['nombre']); ?> (<?php echo htmlspecialchars($cliente['rfc']); ?>)
+                                    <?php echo htmlspecialchars($cliente['nombre']); ?> (<?php echo htmlspecialchars($cliente['rfc']); ?>) - <?php echo htmlspecialchars($cliente['tipo_equipo']); ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>
@@ -605,56 +651,70 @@ if ($parametros_sesion !== null) {
         <?php include '../includes/footer.php'; ?>
     </main>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // =========================================================
-        // 1. REFERENCIAS A ELEMENTOS DEL DOM
-        // =========================================================
-        const form = document.getElementById('analisisForm');
-        const verificarForm = document.getElementById('verificarParametrosForm');
-        const tipoEquipoSelector = document.getElementById('tipo_equipo');
-        const equipoSelector = document.getElementById('id_equipo');
-        const clienteSelector = document.getElementById('id_cliente');
-        const seccionAlveografo = document.getElementById('seccion-alveografo');
-        const seccionFarinografo = document.getElementById('seccion-farinografo');
-        const switchOptions = document.querySelectorAll('.switch-option');
-        const loteFinal = document.getElementById('lote_final');
-        const loteNuevo = document.getElementById('lote_nuevo');
-        const loteExistente = document.getElementById('lote_existente');
-        const btnVerificarParametros = document.getElementById('btnVerificarParametros');
-        const origenParametrosInput = document.getElementById('origen_parametros');
-        const origenParametrosFinal = document.getElementById('origen_parametros_final');
+        document.addEventListener('DOMContentLoaded', function() {
+    // =========================================================
+    // 1. REFERENCIAS A ELEMENTOS DEL DOM
+    // =========================================================
+    const form = document.getElementById('analisisForm');
+    const verificarForm = document.getElementById('verificarParametrosForm');
+    const tipoEquipoSelector = document.getElementById('tipo_equipo');
+    const equipoSelector = document.getElementById('id_equipo');
+    const clienteSelector = document.getElementById('id_cliente');
+    const seccionAlveografo = document.getElementById('seccion-alveografo');
+    const seccionFarinografo = document.getElementById('seccion-farinografo');
+    const switchOptions = document.querySelectorAll('.switch-option');
+    const loteFinal = document.getElementById('lote_final');
+    const loteNuevo = document.getElementById('lote_nuevo');
+    const loteExistente = document.getElementById('lote_existente');
+    const btnVerificarParametros = document.getElementById('btnVerificarParametros');
+    const origenParametrosInput = document.getElementById('origen_parametros');
+    const origenParametrosFinal = document.getElementById('origen_parametros_final');
+    
+    // Variable para rastrear el origen actual de parámetros (cliente o equipo)
+    let parametrosPorCliente = document.querySelector('.switch-option.active[data-target="cliente-group"]') !== null;
+    
+    // =========================================================
+    // 2. FUNCIONES AUXILIARES
+    // =========================================================
+    
+    // Función para guardar el estado del formulario antes de la verificación
+    function storeFormState() {
+        // Obtener estado actual del formulario
+        let formState = {
+            loteOption: document.querySelector('.switch-option.active[data-target="lote-nuevo"]') !== null ? 'nuevo' : 'existente',
+            loteExistente: document.getElementById('lote_existente')?.value || '',
+            loteNuevo: document.getElementById('lote_nuevo')?.value || ''
+        };
         
-        // Variable para rastrear el origen actual de parámetros (cliente o equipo)
-        let parametrosPorCliente = <?php echo (!isset($parametros_sesion) || $parametros_sesion['origen'] === 'cliente') ? 'true' : 'false'; ?>;
-        
-        // =========================================================
-        // 2. FUNCIONES AUXILIARES
-        // =========================================================
-        
-        // Función para actualizar el valor del lote final según la pestaña activa
-        function actualizarLoteFinal() {
-            const usandoLoteNuevo = document.querySelector('.switch-option.active[data-target="lote-nuevo"]') !== null;
-            if (usandoLoteNuevo) {
-                loteFinal.value = loteNuevo.value;
-            } else if (loteExistente.value) {
-                loteFinal.value = loteExistente.value;
-            }
+        // Guardar en sessionStorage
+        sessionStorage.setItem('analisisFormState', JSON.stringify(formState));
+    }
+    
+    // Función para actualizar el valor del lote final según la pestaña activa
+    function actualizarLoteFinal() {
+        const usandoLoteNuevo = document.querySelector('.switch-option.active[data-target="lote-nuevo"]') !== null;
+        if (usandoLoteNuevo) {
+            loteFinal.value = loteNuevo.value;
+        } else if (loteExistente && loteExistente.value) {
+            loteFinal.value = loteExistente.value;
         }
+    }
+    
+    // Función para actualizar el campo origen_parametros_final según la opción activa
+    function actualizarOrigenParametros() {
+        const parametrosPorCliente = document.querySelector('.switch-option.active[data-target="cliente-group"]') !== null;
+        origenParametrosFinal.value = parametrosPorCliente ? 'cliente' : 'equipo';
+    }
+    
+    // Función para mostrar/ocultar secciones según tipo de equipo
+    function actualizarSecciones() {
+        const tipoSeleccionado = tipoEquipoSelector.value;
         
-        // Función para actualizar el campo origen_parametros_final según la opción activa
-        function actualizarOrigenParametros() {
-            const parametrosPorCliente = document.querySelector('.switch-option.active[data-target="cliente-group"]') !== null;
-            origenParametrosFinal.value = parametrosPorCliente ? 'cliente' : 'equipo';
-        }
-        
-        // Función para mostrar/ocultar secciones según tipo de equipo
-        function actualizarSecciones() {
-            const tipoSeleccionado = tipoEquipoSelector.value;
-            
-            // Filtrar opciones de equipos según el tipo seleccionado
-            const opciones = document.querySelectorAll('.equipo-option');
-            opciones.forEach(opcion => {
-                if (tipoSeleccionado === opcion.dataset.tipo) {
+        // Filtrar opciones de equipos según el tipo seleccionado
+        if (equipoSelector) {
+            const opcionesEquipo = equipoSelector.querySelectorAll('option:not(:first-child)');
+            opcionesEquipo.forEach(opcion => {
+                if (!tipoSeleccionado || tipoSeleccionado === opcion.dataset.tipo) {
                     opcion.style.display = '';
                 } else {
                     opcion.style.display = 'none';
@@ -668,182 +728,293 @@ if ($parametros_sesion !== null) {
                     equipoSelector.selectedIndex = 0;
                 }
             }
+        }
+        
+        // Filtrar opciones de clientes según el tipo seleccionado
+        if (clienteSelector) {
+            const opcionesCliente = clienteSelector.querySelectorAll('option:not(:first-child)');
+            opcionesCliente.forEach(opcion => {
+                if (!tipoSeleccionado || tipoSeleccionado === opcion.dataset.tipo) {
+                    opcion.style.display = '';
+                } else {
+                    opcion.style.display = 'none';
+                }
+            });
             
-            // Mostrar sección de parámetros correspondiente
+            // Resetear selección de cliente si cambiamos el tipo y no coincide
+            if (clienteSelector.selectedIndex > 0) {
+                const clienteOption = clienteSelector.options[clienteSelector.selectedIndex];
+                if (clienteOption.dataset.tipo !== tipoSeleccionado) {
+                    clienteSelector.selectedIndex = 0;
+                }
+            }
+        }
+        
+        // Mostrar sección de parámetros correspondiente
+        if (seccionAlveografo) {
             seccionAlveografo.style.display = tipoSeleccionado === 'Alveógrafo' ? 'block' : 'none';
+        }
+        if (seccionFarinografo) {
             seccionFarinografo.style.display = tipoSeleccionado === 'Farinógrafo' ? 'block' : 'none';
         }
+    }
+    
+    // Función para verificar parámetros (redirección manual en lugar de envío de formulario)
+    function verificarParametros() {
+        // Guardar estado del formulario antes de redirigir
+        storeFormState();
         
-        // Función para verificar parámetros (redirección manual en lugar de envío de formulario)
-        function verificarParametros() {
-            // Validaciones previas a redirigir
-            let isValid = true;
-            let errorMessage = '';
-            
-            // 1. Verificar que hay un tipo de equipo seleccionado
-            if (!tipoEquipoSelector.value) {
+        // Validaciones previas a redirigir
+        let isValid = true;
+        let errorMessage = '';
+        
+        // 1. Verificar que hay un tipo de equipo seleccionado
+        if (!tipoEquipoSelector.value) {
+            isValid = false;
+            errorMessage = 'Por favor seleccione un tipo de equipo.';
+            tipoEquipoSelector.classList.add('input-error');
+        } else {
+            tipoEquipoSelector.classList.remove('input-error');
+        }
+        
+        // 2. Verificar el origen de parámetros
+        parametrosPorCliente = document.querySelector('.switch-option.active[data-target="cliente-group"]') !== null;
+        const origen = parametrosPorCliente ? 'cliente' : 'equipo';
+        
+        // 3. Verificar selección según origen
+        let idObjetivo = '';
+        if (parametrosPorCliente) {
+            // Si usamos parámetros por cliente, verificar que hay un cliente seleccionado
+            if (!clienteSelector.value) {
                 isValid = false;
-                errorMessage = 'Por favor seleccione un tipo de equipo.';
-                tipoEquipoSelector.classList.add('input-error');
+                errorMessage = errorMessage || 'Por favor seleccione un cliente.';
+                clienteSelector.classList.add('input-error');
             } else {
-                tipoEquipoSelector.classList.remove('input-error');
+                clienteSelector.classList.remove('input-error');
+                idObjetivo = clienteSelector.value;
             }
-            
-            // 2. Verificar el origen de parámetros
-            parametrosPorCliente = document.querySelector('.switch-option.active[data-target="cliente-group"]') !== null;
-            const origen = parametrosPorCliente ? 'cliente' : 'equipo';
-            
-            // 3. Verificar selección según origen
-            let idObjetivo = '';
-            if (parametrosPorCliente) {
-                // Si usamos parámetros por cliente, verificar que hay un cliente seleccionado
-                if (!clienteSelector.value) {
-                    isValid = false;
-                    errorMessage = errorMessage || 'Por favor seleccione un cliente.';
-                    clienteSelector.classList.add('input-error');
-                } else {
-                    clienteSelector.classList.remove('input-error');
-                    idObjetivo = clienteSelector.value;
-                }
+        } else {
+            // Si usamos parámetros por equipo, verificar que hay un equipo seleccionado
+            if (!equipoSelector.value) {
+                isValid = false;
+                errorMessage = errorMessage || 'Por favor seleccione un equipo de laboratorio.';
+                equipoSelector.classList.add('input-error');
             } else {
-                // Si usamos parámetros por equipo, verificar que hay un equipo seleccionado
-                if (!equipoSelector.value) {
-                    isValid = false;
-                    errorMessage = errorMessage || 'Por favor seleccione un equipo de laboratorio.';
-                    equipoSelector.classList.add('input-error');
-                } else {
-                    equipoSelector.classList.remove('input-error');
-                    idObjetivo = equipoSelector.value;
-                }
+                equipoSelector.classList.remove('input-error');
+                idObjetivo = equipoSelector.value;
             }
-            
-            // 4. Si hay errores, mostrarlos
-            if (!isValid) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error de validación',
-                    text: errorMessage
-                });
-                return;
-            }
-            
-            // 5. Construir y navegar a la URL
-            let url = '../config/obtener_parametros.php';
-            let params = new URLSearchParams();
-            params.append('origen_parametros', origen);
-            params.append('tipo_equipo', tipoEquipoSelector.value);
-            
-            if (parametrosPorCliente) {
-                params.append('id_cliente', idObjetivo);
-            } else {
-                params.append('id_equipo', idObjetivo);
-            }
-            
-            // Agregar id_inspeccion si estamos editando
-            const idInspeccion = document.querySelector('input[name="id_inspeccion"]');
-            if (idInspeccion) {
-                params.append('id_inspeccion', idInspeccion.value);
-            }
-            
-            // Redirigir
-            window.location.href = url + '?' + params.toString();
         }
         
-        // Función para cancelar la verificación
-        function cancelarVerificacion() {
+        // 4. Si hay errores, mostrarlos
+        if (!isValid) {
             Swal.fire({
-                title: '¿Cancelar verificación?',
-                text: 'Esto permitirá cambiar el cliente/equipo y tipo de equipo seleccionados.',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sí, cancelar',
-                cancelButtonText: 'No, mantener'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Redirigir a un archivo que limpie la sesión
-                    window.location.href = '../config/limpiar_parametros_sesion.php';
-                }
+                icon: 'error',
+                title: 'Error de validación',
+                text: errorMessage
             });
+            return;
         }
         
-        // =========================================================
-        // 3. INICIALIZACIÓN
-        // =========================================================
+        // 5. Construir y navegar a la URL
+        let url = '../config/obtener_parametros.php';
+        let params = new URLSearchParams();
+        params.append('origen_parametros', origen);
+        params.append('tipo_equipo', tipoEquipoSelector.value);
         
-        // Inicializar lote_final al cargar la página
-        actualizarLoteFinal();
-        
-        // Inicializar secciones de parámetros
-        actualizarSecciones();
-        
-        // =========================================================
-        // 4. CONFIGURACIÓN DE EVENTOS
-        // =========================================================
-        
-        // Cambio de tipo de equipo
-        tipoEquipoSelector.addEventListener('change', actualizarSecciones);
-        
-        // Botón para verificar parámetros
-        btnVerificarParametros.addEventListener('click', verificarParametros);
-        
-        // Evento para cambiar el lote existente
-        if (loteExistente) {
-            loteExistente.addEventListener('change', function() {
-                if (document.querySelector('.switch-option.active[data-target="lote-existente"]') !== null) {
-                    loteFinal.value = this.value;
-                }
-            });
+        if (parametrosPorCliente) {
+            params.append('id_cliente', idObjetivo);
+        } else {
+            params.append('id_equipo', idObjetivo);
         }
         
-        // Botón para cancelar verificación
-        if (document.getElementById('btnCancelarVerificacion')) {
-            document.getElementById('btnCancelarVerificacion').addEventListener('click', cancelarVerificacion);
+        // Agregar parámetros de selección de lote
+        const isLoteNuevo = document.querySelector('.switch-option.active[data-target="lote-nuevo"]') !== null;
+        params.append('lote_option', isLoteNuevo ? 'nuevo' : 'existente');
+        
+        if (isLoteNuevo) {
+            params.append('lote_value', loteNuevo.value);
+        } else if (loteExistente && loteExistente.value) {
+            params.append('lote_value', loteExistente.value);
         }
         
-        // Cambio entre pestañas
-        switchOptions.forEach(option => {
-            option.addEventListener('click', function() {
-                // Quitar clase activa de todos los del mismo grupo
-                const parent = this.parentElement;
-                parent.querySelectorAll('.switch-option').forEach(opt => opt.classList.remove('active'));
-                
-                // Agregar clase activa al seleccionado
-                this.classList.add('active');
-                
-                // Activar/desactivar bloques correspondientes
-                const targetId = this.dataset.target;
-                
-                if (parent.querySelector('[data-target="lote-nuevo"]') && parent.querySelector('[data-target="lote-existente"]')) {
-                    // Toggle entre lotes nuevo y existente
-                    document.getElementById('lote-nuevo').classList.toggle('active', targetId === 'lote-nuevo');
-                    document.getElementById('lote-existente').classList.toggle('active', targetId === 'lote-existente');
+        // Agregar id_inspeccion si estamos editando
+        const idInspeccion = document.querySelector('input[name="id_inspeccion"]');
+        if (idInspeccion) {
+            params.append('id_inspeccion', idInspeccion.value);
+        }
+        
+        // Redirigir
+        window.location.href = url + '?' + params.toString();
+    }
+    
+    // Función para cancelar la verificación
+    function cancelarVerificacion() {
+        Swal.fire({
+            title: '¿Cancelar verificación?',
+            text: 'Esto permitirá cambiar el cliente/equipo y tipo de equipo seleccionados.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, cancelar',
+            cancelButtonText: 'No, mantener'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirigir a un archivo que limpie la sesión
+                window.location.href = '../config/limpiar_parametros_sesion.php';
+            }
+        });
+    }
+    
+    // =========================================================
+    // 3. INICIALIZACIÓN
+    // =========================================================
+    
+    // Inicializar lote_final al cargar la página
+    actualizarLoteFinal();
+    
+    // Inicializar secciones de parámetros
+    actualizarSecciones();
+    
+    // Restaurar estado del formulario desde sessionStorage
+    const savedState = sessionStorage.getItem('analisisFormState');
+    if (savedState) {
+        try {
+            const formState = JSON.parse(savedState);
+            
+            // Restaurar selección de lote
+            if (formState.loteOption === 'existente') {
+                // Encontrar y hacer clic en la opción "Usar Lote Existente"
+                const loteExistenteOption = document.querySelector('.switch-option[data-target="lote-existente"]');
+                if (loteExistenteOption) {
+                    loteExistenteOption.click();
                     
-                    // Actualizar valor del lote final
-                    actualizarLoteFinal();
-                } else {
-                    // Toggle entre origen de parámetros (cliente o equipo)
-                    document.getElementById('cliente-group').classList.toggle('active', targetId === 'cliente-group');
-                    document.getElementById('equipo-group').classList.toggle('active', targetId === 'equipo-group');
-                    
-                    // Actualizar variable de seguimiento y campo oculto
-                    parametrosPorCliente = targetId === 'cliente-group';
-                    origenParametrosInput.value = parametrosPorCliente ? 'cliente' : 'equipo';
-                    
-                    // Si es cambio entre cliente y equipo, limpiar el otro valor
-                    if (targetId === 'cliente-group') {
-                        // Si seleccionamos cliente, limpiar equipo
-                        if (equipoSelector) equipoSelector.selectedIndex = 0;
-                    } else if (targetId === 'equipo-group') {
-                        // Si seleccionamos equipo, limpiar cliente
-                        if (clienteSelector) clienteSelector.selectedIndex = 0;
+                    // Seleccionar el lote almacenado si existe
+                    if (formState.loteExistente && loteExistente) {
+                        // Buscar la opción en el select
+                        for (let i = 0; i < loteExistente.options.length; i++) {
+                            if (loteExistente.options[i].value === formState.loteExistente) {
+                                loteExistente.selectedIndex = i;
+                                break;
+                            }
+                        }
+                        
+                        // Actualizar el campo oculto
+                        if (loteFinal) {
+                            loteFinal.value = formState.loteExistente;
+                        }
                     }
                 }
-            });
+            }
+            
+            // Limpiar el estado guardado para evitar restauraciones no deseadas
+            sessionStorage.removeItem('analisisFormState');
+        } catch (e) {
+            console.error("Error al restaurar el estado del formulario:", e);
+        }
+    }
+    
+    // =========================================================
+    // 4. CONFIGURACIÓN DE EVENTOS
+    // =========================================================
+    
+    // Cambio de tipo de equipo
+    if (tipoEquipoSelector) {
+        tipoEquipoSelector.addEventListener('change', actualizarSecciones);
+    }
+    
+    // Botón para verificar parámetros
+    if (btnVerificarParametros) {
+        btnVerificarParametros.addEventListener('click', verificarParametros);
+    }
+    
+    // Evento para cambiar el lote existente
+    if (loteExistente) {
+        loteExistente.addEventListener('change', function() {
+            if (document.querySelector('.switch-option.active[data-target="lote-existente"]') !== null) {
+                loteFinal.value = this.value;
+            }
         });
-        
-        // Validación del formulario antes de enviar
+    }
+    
+    // Botón para cancelar verificación
+    const btnCancelar = document.getElementById('btnCancelarVerificacion');
+    if (btnCancelar) {
+        btnCancelar.addEventListener('click', cancelarVerificacion);
+    }
+    
+    // Cambio entre pestañas
+    switchOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Quitar clase activa de todos los del mismo grupo
+            const parent = this.parentElement;
+            parent.querySelectorAll('.switch-option').forEach(opt => opt.classList.remove('active'));
+            
+            // Agregar clase activa al seleccionado
+            this.classList.add('active');
+            
+            // Activar/desactivar bloques correspondientes
+            const targetId = this.dataset.target;
+            
+            if (parent.querySelector('[data-target="lote-nuevo"]') && parent.querySelector('[data-target="lote-existente"]')) {
+                // Toggle entre lotes nuevo y existente
+                const loteNuevoDiv = document.getElementById('lote-nuevo');
+                const loteExistenteDiv = document.getElementById('lote-existente');
+                
+                if (loteNuevoDiv) loteNuevoDiv.classList.toggle('active', targetId === 'lote-nuevo');
+                if (loteExistenteDiv) loteExistenteDiv.classList.toggle('active', targetId === 'lote-existente');
+                
+                // Actualizar valor del lote final
+                actualizarLoteFinal();
+            } else {
+                // Toggle entre origen de parámetros (cliente o equipo)
+                const clienteGroupDiv = document.getElementById('cliente-group');
+                const equipoGroupDiv = document.getElementById('equipo-group');
+                
+                if (clienteGroupDiv) clienteGroupDiv.classList.toggle('active', targetId === 'cliente-group');
+                if (equipoGroupDiv) equipoGroupDiv.classList.toggle('active', targetId === 'equipo-group');
+                
+                // Actualizar variable de seguimiento y campo oculto
+                parametrosPorCliente = targetId === 'cliente-group';
+                if (origenParametrosInput) origenParametrosInput.value = parametrosPorCliente ? 'cliente' : 'equipo';
+                
+                // Si es cambio entre cliente y equipo, limpiar el otro valor
+                if (targetId === 'cliente-group') {
+                    // Si seleccionamos cliente, limpiar equipo
+                    if (equipoSelector) equipoSelector.selectedIndex = 0;
+                } else if (targetId === 'equipo-group') {
+                    // Si seleccionamos equipo, limpiar cliente
+                    if (clienteSelector) clienteSelector.selectedIndex = 0;
+                }
+            }
+        });
+    });
+
+    // Sincronizar tipo de equipo con clientes
+    if (clienteSelector) {
+        clienteSelector.addEventListener('change', function() {
+            if (this.selectedIndex > 0) {
+                const selectedOption = this.options[this.selectedIndex];
+                const tipoEquipoCliente = selectedOption.dataset.tipo;
+                
+                if (tipoEquipoCliente && tipoEquipoSelector) {
+                    // Actualizar el selector de tipo de equipo según el cliente seleccionado
+                    for (let i = 0; i < tipoEquipoSelector.options.length; i++) {
+                        if (tipoEquipoSelector.options[i].value === tipoEquipoCliente) {
+                            tipoEquipoSelector.selectedIndex = i;
+                            // Disparar el evento change para actualizar las secciones visibles
+                            const event = new Event('change');
+                            tipoEquipoSelector.dispatchEvent(event);
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Validación del formulario antes de enviar
+    if (form) {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -861,26 +1032,27 @@ if ($parametros_sesion !== null) {
             const usandoLoteNuevo = document.querySelector('.switch-option.active[data-target="lote-nuevo"]') !== null;
             const usandoLoteExistente = document.querySelector('.switch-option.active[data-target="lote-existente"]') !== null;
             
-            if (usandoLoteExistente && !loteExistente.value) {
+            if (usandoLoteExistente && loteExistente && !loteExistente.value) {
                 isValid = false;
                 errorMessage = 'Por favor seleccione un lote existente.';
                 loteExistente.classList.add('input-error');
-            } else {
+            } else if (loteExistente) {
                 loteExistente.classList.remove('input-error');
             }
 
             // 2. Verificar que hay parámetros cargados
-            <?php if (!isset($parametros_sesion)): ?>
-            isValid = false;
-            errorMessage = errorMessage || 'Por favor verifique los parámetros asociados antes de registrar el análisis.';
-            btnVerificarParametros.classList.add('input-error');
-            <?php endif; ?>
+            const parametrosSesion = document.querySelector('.parametros-consulta');
+            if (!parametrosSesion) {
+                isValid = false;
+                errorMessage = errorMessage || 'Por favor verifique los parámetros asociados antes de registrar el análisis.';
+                if (btnVerificarParametros) btnVerificarParametros.classList.add('input-error');
+            }
 
             // 3. Verificar que hay parámetros visibles y que tienen valores
             let seccionesParametrosVisibles = false;
             let parametrosIncompletos = false;
             
-            if (seccionAlveografo.style.display !== 'none') {
+            if (seccionAlveografo && seccionAlveografo.style.display !== 'none') {
                 seccionesParametrosVisibles = true;
                 const inputs = seccionAlveografo.querySelectorAll('input[type="number"]');
                 inputs.forEach(input => {
@@ -893,7 +1065,7 @@ if ($parametros_sesion !== null) {
                 });
             }
             
-            if (seccionFarinografo.style.display !== 'none') {
+            if (seccionFarinografo && seccionFarinografo.style.display !== 'none') {
                 seccionesParametrosVisibles = true;
                 const inputs = seccionFarinografo.querySelectorAll('input[type="number"]');
                 inputs.forEach(input => {
@@ -940,32 +1112,66 @@ if ($parametros_sesion !== null) {
                 }
             });
         });
-    });
+    }
+});
 
-    // =========================================================
-    // 5. EVENTO PARA LIMPIAR SESIÓN AL SALIR DE LA PÁGINA
-    // =========================================================
-    window.addEventListener('beforeunload', function (e) {
-        // Solo enviar la solicitud si no es una redirección a obtener_parametros.php o procesar_analisis.php
-        // o si no es el botón de cancelar verificación
-        const activeElement = document.activeElement;
-        if (activeElement && (
-            activeElement.id === 'btnVerificarParametros' || 
-            activeElement.id === 'btnCancelarVerificacion' ||
-            activeElement.type === 'submit'
-        )) {
-            // No hacer nada, estos botones ya manejan la sesión correctamente
-            return;
-        }
+// =========================================================
+// 5. EVENTO PARA LIMPIAR SESIÓN AL SALIR DE LA PÁGINA
+// =========================================================
+window.addEventListener('beforeunload', function (e) {
+    // Solo enviar la solicitud si no es una redirección a obtener_parametros.php o procesar_analisis.php
+    // o si no es el botón de cancelar verificación
+    const activeElement = document.activeElement;
+    if (activeElement && (
+        activeElement.id === 'btnVerificarParametros' || 
+        activeElement.id === 'btnCancelarVerificacion' ||
+        activeElement.type === 'submit'
+    )) {
+        // No hacer nada, estos botones ya manejan la sesión correctamente
+        return;
+    }
 
-        // Crear una solicitud para limpiar la sesión
-        const limpieza = new XMLHttpRequest();
-        limpieza.open('GET', '../config/limpiar_parametros_sesion.php', false); // síncrono para garantizar que se ejecute
-        limpieza.send();
+    // Crear una solicitud para limpiar la sesión
+    const limpieza = new XMLHttpRequest();
+    limpieza.open('GET', '../config/limpiar_parametros_sesion.php', false); // síncrono para garantizar que se ejecute
+    limpieza.send();
+});
+
+    </script>
+    <script>
+// Verificar si hay información de selección de lote y aplicarla
+<?php if ($lote_selection): ?>
+document.addEventListener('DOMContentLoaded', function() {
+    const loteOption = "<?php echo $lote_selection['option']; ?>";
+    const loteValue = "<?php echo $lote_selection['value']; ?>";
+    
+    // Buscar y hacer clic en la opción correspondiente
+    const targetOption = document.querySelector('.switch-option[data-target="lote-' + loteOption + '"]');
+    if (targetOption) {
+        targetOption.click();
         
-        // No mostrar mensaje de confirmación al usuario
-        // Para eso usamos el valor de retorno undefined en lugar de return false
-    });
+        // Si es lote existente, seleccionar el valor
+        if (loteOption === 'existente') {
+            const loteExistenteSelect = document.getElementById('lote_existente');
+            if (loteExistenteSelect) {
+                // Buscar la opción con el valor correcto
+                for (let i = 0; i < loteExistenteSelect.options.length; i++) {
+                    if (loteExistenteSelect.options[i].value === loteValue) {
+                        loteExistenteSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+                
+                // Actualizar el valor oculto final
+                const loteFinal = document.getElementById('lote_final');
+                if (loteFinal) {
+                    loteFinal.value = loteValue;
+                }
+            }
+        }
+    }
+});
+<?php endif; ?>
 </script>
 </body>
 </html>

@@ -16,13 +16,7 @@ if (isset($_GET['id']) && isset($_GET['accion']) && $_GET['accion'] == 'eliminar
         $stmt_delete_resultados->bindParam(':id_inspeccion', $id_inspeccion, PDO::PARAM_INT);
         $stmt_delete_resultados->execute();
         
-        // 2. Eliminar relaciones con equipos
-        $sql_delete_equipos = "DELETE FROM Equipo_Inspeccion WHERE id_inspeccion = :id_inspeccion";
-        $stmt_delete_equipos = $pdo->prepare($sql_delete_equipos);
-        $stmt_delete_equipos->bindParam(':id_inspeccion', $id_inspeccion, PDO::PARAM_INT);
-        $stmt_delete_equipos->execute();
-        
-        // 3. Verificar si hay certificados asociados
+        // 2. Verificar si hay certificados asociados
         $sql_check_certificados = "SELECT COUNT(*) FROM Certificados WHERE id_inspeccion = :id_inspeccion";
         $stmt_check = $pdo->prepare($sql_check_certificados);
         $stmt_check->bindParam(':id_inspeccion', $id_inspeccion, PDO::PARAM_INT);
@@ -44,7 +38,7 @@ if (isset($_GET['id']) && isset($_GET['accion']) && $_GET['accion'] == 'eliminar
             $stmt_delete_cert->execute();
         }
         
-        // 4. Finalmente eliminar la inspección
+        // 3. Finalmente eliminar la inspección
         $sql_delete_inspeccion = "DELETE FROM Inspeccion WHERE id_inspeccion = :id_inspeccion";
         $stmt_delete_inspeccion = $pdo->prepare($sql_delete_inspeccion);
         $stmt_delete_inspeccion->bindParam(':id_inspeccion', $id_inspeccion, PDO::PARAM_INT);
@@ -124,12 +118,14 @@ try {
         // Actualizar inspección existente
         $sql_inspeccion = "UPDATE Inspeccion SET 
                            id_cliente = :id_cliente, 
+                           id_equipo = :id_equipo,
                            lote = :lote,
                            fecha_inspeccion = NOW()
                            WHERE id_inspeccion = :id_inspeccion";
         
         $stmt_inspeccion = $pdo->prepare($sql_inspeccion);
         $stmt_inspeccion->bindParam(':id_cliente', $id_cliente, PDO::PARAM_INT);
+        $stmt_inspeccion->bindParam(':id_equipo', $id_equipo, PDO::PARAM_INT);
         $stmt_inspeccion->bindParam(':lote', $lote, PDO::PARAM_STR);
         $stmt_inspeccion->bindParam(':id_inspeccion', $id_inspeccion, PDO::PARAM_INT);
         $stmt_inspeccion->execute();
@@ -139,12 +135,6 @@ try {
         $stmt_delete = $pdo->prepare($sql_delete_resultados);
         $stmt_delete->bindParam(':id_inspeccion', $id_inspeccion, PDO::PARAM_INT);
         $stmt_delete->execute();
-        
-        // Eliminar relación con equipos anteriores
-        $sql_delete_equipos = "DELETE FROM Equipo_Inspeccion WHERE id_inspeccion = :id_inspeccion";
-        $stmt_delete_equipos = $pdo->prepare($sql_delete_equipos);
-        $stmt_delete_equipos->bindParam(':id_inspeccion', $id_inspeccion, PDO::PARAM_INT);
-        $stmt_delete_equipos->execute();
     } else {
         // Generar secuencia (A, B, ..., Z, AA, AB, ..., ZZ, AAA, etc.)
         $sql_secuencia = "SELECT MAX(secuencia) as max_sec FROM Inspeccion WHERE lote = :lote";
@@ -162,29 +152,21 @@ try {
         $num_lote = ($result['max_num'] ?? 0) + 1;
         $clave = 'LOTE-' . str_pad($num_lote, 3, '0', STR_PAD_LEFT);
         
-        // Insertar nueva inspección
+        // Insertar nueva inspección con id_equipo directo
         $sql_inspeccion = "INSERT INTO Inspeccion 
-                          (id_cliente, lote, secuencia, clave, fecha_inspeccion) 
+                          (id_cliente, id_equipo, lote, secuencia, clave, fecha_inspeccion) 
                           VALUES 
-                          (:id_cliente, :lote, :secuencia, :clave, NOW())";
+                          (:id_cliente, :id_equipo, :lote, :secuencia, :clave, NOW())";
         
         $stmt_inspeccion = $pdo->prepare($sql_inspeccion);
         $stmt_inspeccion->bindParam(':id_cliente', $id_cliente, PDO::PARAM_INT);
+        $stmt_inspeccion->bindParam(':id_equipo', $id_equipo, PDO::PARAM_INT);
         $stmt_inspeccion->bindParam(':lote', $lote, PDO::PARAM_STR);
         $stmt_inspeccion->bindParam(':secuencia', $secuencia, PDO::PARAM_STR);
         $stmt_inspeccion->bindParam(':clave', $clave, PDO::PARAM_STR);
         $stmt_inspeccion->execute();
         
         $id_inspeccion = $pdo->lastInsertId();
-    }
-
-    // 2. Insertar relación con equipo(s)
-    if ($id_equipo) {
-        $sql_equipo_inspeccion = "INSERT INTO Equipo_Inspeccion (id_equipo, id_inspeccion) VALUES (:id_equipo, :id_inspeccion)";
-        $stmt_equipo = $pdo->prepare($sql_equipo_inspeccion);
-        $stmt_equipo->bindParam(':id_equipo', $id_equipo, PDO::PARAM_INT);
-        $stmt_equipo->bindParam(':id_inspeccion', $id_inspeccion, PDO::PARAM_INT);
-        $stmt_equipo->execute();
     }
 
     // 3. Insertar resultados con validación de parámetros
@@ -213,19 +195,6 @@ try {
                 $aprobado = ($valor_obtenido >= $lim_inf && $valor_obtenido <= $lim_sup);
             }
         }
-        
-        // Debug: Mostrar información de validación
-        /*
-        error_log("Validando parámetro: $nombre_parametro");
-        error_log("Valor obtenido: $valor_obtenido");
-        if (isset($limites_parametros[$nombre_parametro])) {
-            error_log("Límite inferior: " . $limites_parametros[$nombre_parametro]['lim_Inferior']);
-            error_log("Límite superior: " . $limites_parametros[$nombre_parametro]['lim_Superior']);
-        } else {
-            error_log("Sin límites definidos para este parámetro");
-        }
-        error_log("Aprobado: " . ($aprobado ? 'Sí' : 'No'));
-        */
         
         // Insertar resultado
         $sql_resultado = "INSERT INTO Resultado_Inspeccion 
@@ -331,19 +300,16 @@ function obtenerLimitesParametros($pdo, $id_cliente, $id_equipo, $tipo_equipo, $
         $tipo_parametros = $stmt_tipo->fetchColumn();
         
         if ($tipo_parametros === 'Internacionales') {
-            // Caso de parámetros internacionales
-            // Definir prefijo según tipo de equipo
-            $prefijo_parametro = ($tipo_equipo === 'Alveógrafo') ? 'Alveograma_' : 'Farinograma_';
+            // Determinar qué equipo de referencia usar según el tipo
+            $id_equipo_referencia = ($tipo_equipo === 'Alveógrafo') ? 1 : 2;
             
-            // Consultar todos los parámetros relevantes para el tipo de equipo
-            // Incluye parámetros comunes (Humedad, Cenizas, etc.) y específicos del equipo
+            // Consultar parámetros directamente del equipo de referencia
             $sql = "SELECT nombre_parametro, lim_Inferior, lim_Superior 
                    FROM Parametros 
-                   WHERE (nombre_parametro LIKE :prefijo OR 
-                          nombre_parametro IN ('Humedad', 'Cenizas', 'Gluten_Humedo', 'Gluten_Seco', 'Indice_Gluten', 'Indice_Caida'))";
+                   WHERE id_equipo = :id_equipo_referencia";
             
             $stmt = $pdo->prepare($sql);
-            $stmt->bindValue(':prefijo', $prefijo_parametro . '%', PDO::PARAM_STR);
+            $stmt->bindParam(':id_equipo_referencia', $id_equipo_referencia, PDO::PARAM_INT);
             $stmt->execute();
             
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
