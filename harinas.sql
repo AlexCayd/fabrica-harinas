@@ -441,25 +441,6 @@ VALUES (
         'Planta principal'
     );
 -- PARÁMETROS para cada cliente
--- Cliente 1: Molinos ABC
-INSERT INTO Parametros (
-        id_cliente,
-        nombre_parametro,
-        lim_Superior,
-        lim_Inferior
-    )
-VALUES (1, 'Humedad', 14.0, 12.0),
-    (1, 'Cenizas', 0.65, 0.55),
-    (1, 'Gluten_Humedo', 32.0, 28.0),
-    (1, 'Gluten_Seco', 11.0, 9.0),
-    (1, 'Indice_Gluten', 95.0, 85.0),
-    (1, 'Indice_Caida', 350.0, 300.0),
-    (1, 'Almidon_Danado', 375.0, 300.0),
-    (1, 'Alveograma_P', 110.0, 90.0),
-    (1, 'Alveograma_L', 130.0, 110.0),
-    (1, 'Alveograma_PL', 0.7, 0.5),
-    (1, 'Alveograma_W', 320.0, 270.0),
-    (1, 'Alveograma_IE', 1.3, 0.9);
 -- Cliente 2: Panificadora La Espiga
 INSERT INTO Parametros (
         id_cliente,
@@ -553,6 +534,61 @@ VALUES (3, 'Humedad', 14.2, 12.2),
     (3, 'Alveograma_PL', 0.65, 0.45),
     (3, 'Alveograma_W', 310.0, 260.0),
     (3, 'Alveograma_IE', 1.25, 0.85);
+-- Equipo 4: 
+INSERT INTO Parametros (
+        id_equipo,
+        nombre_parametro,
+        lim_Superior,
+        lim_Inferior
+    )
+VALUES (4, 'Humedad', 14.2, 12.2),
+    (4, 'Cenizas', 0.86, 0.56),
+    (4, 'Gluten_Humedo', 35.0, 27.0),
+    (4, 'Gluten_Seco', 11.8, 8.8),
+    (4, 'Indice_Gluten', 103.0, 83.0),
+    (4, 'Indice_Caida', 345.0, 295.0),
+    (4, 'Almidon_Danado', 350.0, 300.0),
+    (4, 'Alveograma_P', 105.0, 85.0),
+    (4, 'Alveograma_L', 125.0, 105.0),
+    (4, 'Alveograma_PL', 0.65, 0.45),
+    (4, 'Alveograma_W', 310.0, 260.0),
+    (4, 'Alveograma_IE', 1.25, 0.85);
+-- Equipo 5: Farinógrafo 
+INSERT INTO Parametros (
+        id_equipo,
+        nombre_parametro,
+        lim_Superior,
+        lim_Inferior
+    )
+VALUES (5, 'Humedad', 14.0, 12.0),
+    (5, 'Cenizas', 0.65, 0.55),
+    (5, 'Gluten_Humedo', 32.0, 28.0),
+    (5, 'Gluten_Seco', 11.0, 9.0),
+    (5, 'Indice_Gluten', 95.0, 85.0),
+    (5, 'Indice_Caida', 350.0, 300.0),
+    (5, 'Almidon_Danado', 30.0, 25.0),
+    (5, 'Farinograma_Absorcion_Agua', 63.0, 59.0),
+    (5, 'Farinograma_Tiempo_Desarrollo', 2.8, 1.8),
+    (5, 'Farinograma_Estabilidad', 10.5, 8.5),
+    (5, 'Farinograma_Grado_Decaimiento', 85.0, 65.0);
+-- Equipo 6: Farinógrafo 
+INSERT INTO Parametros (
+        id_equipo,
+        nombre_parametro,
+        lim_Superior,
+        lim_Inferior
+    )
+VALUES (6, 'Humedad', 14.0, 12.0),
+    (6, 'Cenizas', 0.65, 0.55),
+    (6, 'Gluten_Humedo', 32.0, 28.0),
+    (6, 'Gluten_Seco', 11.0, 9.0),
+    (6, 'Indice_Gluten', 95.0, 85.0),
+    (6, 'Indice_Caida', 350.0, 300.0),
+    (6, 'Almidon_Danado', 30.0, 25.0),
+    (6, 'Farinograma_Absorcion_Agua', 63.0, 59.0),
+    (6, 'Farinograma_Tiempo_Desarrollo', 2.8, 1.8),
+    (6, 'Farinograma_Estabilidad', 10.5, 8.5),
+    (6, 'Farinograma_Grado_Decaimiento', 85.0, 65.0);
 -- INSPECCIONES COMPLETAS
 -- Primero insertar las inspecciones
 INSERT INTO Inspeccion (

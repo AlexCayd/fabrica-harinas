@@ -113,6 +113,18 @@ if (empty($parametros_form)) {
 try {
     $pdo->beginTransaction();
 
+    if (isset($_POST['origen_parametros'])) {
+        $origen = $_POST['origen_parametros'];
+        
+        if ($origen === 'cliente') {
+            // Si el origen es cliente, asegurar que id_equipo sea NULL
+            $id_equipo = null;
+        } else if ($origen === 'equipo') {
+            // Si el origen es equipo, asegurar que id_cliente sea NULL
+            $id_cliente = null;
+        }
+    }
+
     // 1. Insertar o actualizar la inspección
     if ($editando) {
         // Actualizar inspección existente
@@ -145,12 +157,12 @@ try {
         
         $secuencia = generarSiguienteSecuencia($result['max_sec'] ?? null);
         
-        // Generar clave única (LOTE-00N)
-        $sql_max_lote = "SELECT MAX(CAST(SUBSTRING(clave, 6) AS UNSIGNED)) as max_num FROM Inspeccion WHERE clave LIKE 'LOTE-%'";
-        $stmt_max_lote = $pdo->query($sql_max_lote);
-        $result = $stmt_max_lote->fetch(PDO::FETCH_ASSOC);
-        $num_lote = ($result['max_num'] ?? 0) + 1;
-        $clave = 'LOTE-' . str_pad($num_lote, 3, '0', STR_PAD_LEFT);
+        // Generar clave única para la nueva inspección (INSP-XXX)
+        $sql_max_clave = "SELECT MAX(CAST(SUBSTRING(clave, 6) AS UNSIGNED)) as max_num FROM Inspeccion WHERE clave LIKE 'INSP-%'";
+        $stmt_max_clave = $pdo->query($sql_max_clave);
+        $result = $stmt_max_clave->fetch(PDO::FETCH_ASSOC);
+        $num_clave = ($result['max_num'] ?? 0) + 1;
+        $clave = 'INSP-' . str_pad($num_clave, 3, '0', STR_PAD_LEFT);
         
         // Insertar nueva inspección con id_equipo directo
         $sql_inspeccion = "INSERT INTO Inspeccion 
@@ -167,6 +179,19 @@ try {
         $stmt_inspeccion->execute();
         
         $id_inspeccion = $pdo->lastInsertId();
+        $sql_inspeccion = "INSERT INTO Inspeccion 
+                  (id_cliente, id_equipo, lote, secuencia, clave, fecha_inspeccion) 
+                  VALUES 
+                  (:id_cliente, :id_equipo, :lote, :secuencia, :clave, NOW())";
+
+// Añadir depuración
+      /*  echo "Valores a insertar: <br>";
+        echo "id_cliente: " . ($id_cliente ? $id_cliente : "NULL") . "<br>";
+        echo "id_equipo: " . ($id_equipo ? $id_equipo : "NULL") . "<br>";
+        echo "lote: " . $lote . "<br>";
+        echo "secuencia: " . $secuencia . "<br>";
+        echo "clave: " . $clave . "<br>";
+        die(); // Detener la ejecución para ver estos valores*/
     }
 
     // 3. Insertar resultados con validación de parámetros

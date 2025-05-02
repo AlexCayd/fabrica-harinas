@@ -32,10 +32,10 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
     }
     
     // Consultar los equipos utilizados en esta inspección
-    $sql_equipos_inspeccion = "SELECT ei.id_equipo, e.clave, e.marca, e.modelo, e.tipo_equipo 
-                              FROM Equipo_Inspeccion ei 
-                              JOIN Equipos_Laboratorio e ON ei.id_equipo = e.id_equipo 
-                              WHERE ei.id_inspeccion = :id_inspeccion";
+    $sql_equipos_inspeccion = "SELECT i.id_equipo, e.clave, e.marca, e.modelo, e.tipo_equipo 
+                              FROM Inspeccion i 
+                              JOIN Equipos_Laboratorio e ON i.id_equipo = e.id_equipo 
+                              WHERE i.id_inspeccion = :id_inspeccion";
     $stmt_equipos = $pdo->prepare($sql_equipos_inspeccion);
     $stmt_equipos->bindParam(':id_inspeccion', $id_inspeccion);
     $stmt_equipos->execute();
@@ -78,6 +78,30 @@ foreach ($equipos as $equipo) {
         $equipos_farinografo[] = $equipo;
     }
 }
+
+// Modificación de la consulta actual de lotes
+$sql_lotes = "SELECT DISTINCT i.lote, e.tipo_equipo as equipo_tipo, c.tipo_equipo as cliente_tipo 
+              FROM Inspeccion i 
+              LEFT JOIN Clientes c ON i.id_cliente = c.id_cliente 
+              LEFT JOIN Equipos_Laboratorio e ON i.id_equipo = e.id_equipo 
+              ORDER BY i.lote DESC";
+$stmt_lotes = $pdo->query($sql_lotes);
+$lotes_con_tipo = $stmt_lotes->fetchAll(PDO::FETCH_ASSOC);
+
+// Separar en arrays para uso en PHP y luego en JavaScript
+$lotes_existentes = array_column($lotes_con_tipo, 'lote');
+$lotes_tipo_map = [];
+foreach ($lotes_con_tipo as $lote_info) {
+    // Tomar el tipo del equipo o del cliente, priorizando el que no sea nulo
+    $tipo_equipo = !empty($lote_info['equipo_tipo']) ? $lote_info['equipo_tipo'] : $lote_info['cliente_tipo'];
+    
+    if (!empty($tipo_equipo)) {
+        $lotes_tipo_map[$lote_info['lote']] = $tipo_equipo;
+    }
+}
+
+// Convertir a formato JSON para usar en JavaScript
+$lotes_tipo_json = json_encode($lotes_tipo_map);
 
 // Consulta para obtener todos los clientes
 $sql_clientes = "SELECT id_cliente, nombre, rfc, parametros, tipo_equipo FROM Clientes WHERE estado = 'Activo' ORDER BY nombre";
@@ -467,6 +491,24 @@ if (isset($_SESSION['lote_selection'])) {
                 <input type="hidden" name="id_inspeccion" value="<?php echo htmlspecialchars($analisis['id_inspeccion']); ?>">
                 <?php endif; ?>
 
+                
+
+                <!-- Sección Equipo de Laboratorio -->
+                <h3 class="section-title">Equipo de Laboratorio</h3>
+                
+                <div class="formulario__campo">
+                    <label for="tipo_equipo" class="formulario__label">Tipo de Equipo</label>
+                    <select class="formulario__input" id="tipo_equipo" name="tipo_equipo" <?php echo isset($parametros_sesion) ? 'readonly disabled' : ''; ?>>
+                        <option value="" disabled <?php echo (!isset($parametros_sesion) && !$editando) ? 'selected' : ''; ?>>-- Seleccione tipo de equipo --</option>
+                        <option value="Alveógrafo" <?php echo (isset($parametros_sesion) && $parametros_sesion['tipo_equipo'] == 'Alveógrafo') || ($editando && isset($equipos_seleccionados[0]) && $equipos_seleccionados[0]['tipo_equipo'] == 'Alveógrafo') ? 'selected' : ''; ?>>Alveógrafo</option>
+                        <option value="Farinógrafo" <?php echo (isset($parametros_sesion) && $parametros_sesion['tipo_equipo'] == 'Farinógrafo') || ($editando && isset($equipos_seleccionados[0]) && $equipos_seleccionados[0]['tipo_equipo'] == 'Farinógrafo') ? 'selected' : ''; ?>>Farinógrafo</option>
+                    </select>
+                    <?php if (isset($parametros_sesion)): ?>
+                    <!-- Campo oculto para mantener el valor si el select está deshabilitado -->
+                    <input type="hidden" name="tipo_equipo" value="<?php echo htmlspecialchars($parametros_sesion['tipo_equipo']); ?>">
+                    <?php endif; ?>
+                </div>
+
                 <!-- Sección Lote -->
                 <h3 class="section-title">Información del Lote</h3>
                 
@@ -499,22 +541,6 @@ if (isset($_SESSION['lote_selection'])) {
                             <?php endforeach; ?>
                         </select>                        
                     </div>
-                </div>
-
-                <!-- Sección Equipo de Laboratorio -->
-                <h3 class="section-title">Equipo de Laboratorio</h3>
-                
-                <div class="formulario__campo">
-                    <label for="tipo_equipo" class="formulario__label">Tipo de Equipo</label>
-                    <select class="formulario__input" id="tipo_equipo" name="tipo_equipo" <?php echo isset($parametros_sesion) ? 'readonly disabled' : ''; ?>>
-                        <option value="" disabled <?php echo (!isset($parametros_sesion) && !$editando) ? 'selected' : ''; ?>>-- Seleccione tipo de equipo --</option>
-                        <option value="Alveógrafo" <?php echo (isset($parametros_sesion) && $parametros_sesion['tipo_equipo'] == 'Alveógrafo') || ($editando && isset($equipos_seleccionados[0]) && $equipos_seleccionados[0]['tipo_equipo'] == 'Alveógrafo') ? 'selected' : ''; ?>>Alveógrafo</option>
-                        <option value="Farinógrafo" <?php echo (isset($parametros_sesion) && $parametros_sesion['tipo_equipo'] == 'Farinógrafo') || ($editando && isset($equipos_seleccionados[0]) && $equipos_seleccionados[0]['tipo_equipo'] == 'Farinógrafo') ? 'selected' : ''; ?>>Farinógrafo</option>
-                    </select>
-                    <?php if (isset($parametros_sesion)): ?>
-                    <!-- Campo oculto para mantener el valor si el select está deshabilitado -->
-                    <input type="hidden" name="tipo_equipo" value="<?php echo htmlspecialchars($parametros_sesion['tipo_equipo']); ?>">
-                    <?php endif; ?>
                 </div>
                 
                 <!-- Campo oculto para almacenar el lote final -->
@@ -673,6 +699,7 @@ if (isset($_SESSION['lote_selection'])) {
     // Variable para rastrear el origen actual de parámetros (cliente o equipo)
     let parametrosPorCliente = document.querySelector('.switch-option.active[data-target="cliente-group"]') !== null;
     
+    const lotesTipoMap = <?php echo $lotes_tipo_json; ?>;
     // =========================================================
     // 2. FUNCIONES AUXILIARES
     // =========================================================
@@ -748,6 +775,33 @@ if (isset($_SESSION['lote_selection'])) {
                     clienteSelector.selectedIndex = 0;
                 }
             }
+        }
+
+        if (loteExistente) {
+        const opcionesLote = loteExistente.querySelectorAll('option:not(:first-child)');
+        opcionesLote.forEach(opcion => {
+            const loteValor = opcion.value;
+            const loteTipo = lotesTipoMap[loteValor];
+            
+            // Mostrar solo si no hay tipo seleccionado, o si el tipo del lote coincide con el seleccionado,
+            // o si el lote no tiene tipo definido aún
+            if (!tipoSeleccionado || !loteTipo || loteTipo === tipoSeleccionado) {
+                opcion.style.display = '';
+            } else {
+                opcion.style.display = 'none';
+            }
+        });
+        
+        // Resetear selección si ya no es visible
+        if (loteExistente.selectedIndex > 0) {
+            const loteOption = loteExistente.options[loteExistente.selectedIndex];
+            const loteValor = loteOption.value;
+            const loteTipo = lotesTipoMap[loteValor];
+            
+            if (loteTipo && loteTipo !== tipoSeleccionado) {
+                loteExistente.selectedIndex = 0;
+            }
+        }
         }
         
         // Mostrar sección de parámetros correspondiente
@@ -1018,6 +1072,24 @@ if (isset($_SESSION['lote_selection'])) {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
 
+            // Verificar qué origen de parámetros está activo
+            const parametrosPorCliente = document.querySelector('.switch-option.active[data-target="cliente-group"]') !== null;
+            
+            // Basado en el origen, asegurar que solo uno de los campos tenga valor
+            if (parametrosPorCliente) {
+                // Si es por cliente, asegurar que id_equipo sea null/vacío
+                const equipoInput = document.querySelector('input[name="id_equipo"]');
+                if (equipoInput) {
+                    equipoInput.value = '';
+                }
+            } else {
+                // Si es por equipo, asegurar que id_cliente sea null/vacío
+                const clienteInput = document.querySelector('input[name="id_cliente"]');
+                if (clienteInput) {
+                    clienteInput.value = '';
+                }
+            }
+
             // Actualizar lote final antes de validar
             actualizarLoteFinal();
             
@@ -1041,12 +1113,9 @@ if (isset($_SESSION['lote_selection'])) {
             }
 
             // 2. Verificar que hay parámetros cargados
-            const parametrosSesion = document.querySelector('.parametros-consulta');
-            if (!parametrosSesion) {
-                isValid = false;
-                errorMessage = errorMessage || 'Por favor verifique los parámetros asociados antes de registrar el análisis.';
-                if (btnVerificarParametros) btnVerificarParametros.classList.add('input-error');
-            }
+            
+
+            
 
             // 3. Verificar que hay parámetros visibles y que tienen valores
             let seccionesParametrosVisibles = false;

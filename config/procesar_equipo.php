@@ -107,6 +107,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Validar campos únicos antes de procesar
         $errores = [];
         
+
+
         // Verificar clave
         $sql_check_clave = "SELECT COUNT(*) as total FROM Equipos_Laboratorio WHERE clave = :clave";
         $params_clave = [':clave' => $clave];
