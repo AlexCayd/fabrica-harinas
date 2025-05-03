@@ -1,7 +1,35 @@
-<?php require '../config/validar_permisos.php'; ?>
+<?php
+require '../config/validar_permisos.php';
+include '../config/conn.php';
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Recuperamos los datos de los certificados y los resultados de la inspección
+$sql = "SELECT DISTINCT 
+    i.lote, 
+    i.id_inspeccion, 
+    c.nombre, 
+    ce.cantidad_solicitada, 
+    ce.cantidad_recibida,
+    ri.aprobado
+FROM Inspeccion i
+INNER JOIN Clientes c ON i.id_cliente = c.id_cliente
+INNER JOIN Resultado_Inspeccion ri ON ri.id_inspeccion = i.id_inspeccion
+INNER JOIN Certificados ce ON ce.id_inspeccion = i.id_inspeccion;
+";
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+$resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+
+?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +37,7 @@
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
 </head>
+
 <body>
     <main class="contenedor hoja">
         <?php include '../includes/header.php' ?>
@@ -32,72 +61,46 @@
                 </div>
 
                 <h2 class="botones__buscar">Buscar</h2>
+                <a href="generar_certificadoform.php" class="botones__crear"> Generar certificado </a>
+
             </div>
 
             <table class="tabla">
-            <thead>
-                <tr class="tabla__encabezado">
-                    <th>Lote de producción</th>
-                    <th>Id inspección</th>
-                    <th>Cliente</th>
-                    <th>Cantidad solicitada (kg)</th>
-                    <th>Cantidad recibida (kg)</th>
-                    <th>Resultados del análisis</th>
-                    <th>Certificado</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="tabla__fila">
-                    <td>BARBS1012</td>
-                    <td>38</td>
-                    <td>Martín Jiménez</td>
-                    <td>90</td>
-                    <td>85</td>
-                    <td>Aprobado</td>
-                    <td>
-                        <a href="../certificados/Certificado.pdf" class="tabla__descargar" download>Descargar PDF</a>
-                    </td>
-                </tr>
+                <thead>
+                    <tr class="tabla__encabezado">
+                        <th>Lote de producción</th>
+                        <th>Id inspección</th>
+                        <th>Cliente</th>
+                        <th>Cantidad solicitada (kg)</th>
+                        <th>Cantidad recibida (kg)</th>
+                        <th>Resultados del análisis</th>
+                        <th>Certificado</th>
+                    </tr>
+                </thead>
+                <tbody>
 
-                <tr class="tabla__fila">
-                    <td>BARBS1012</td>
-                    <td>38</td>
-                    <td>Martín Jiménez</td>
-                    <td>90</td>
-                    <td>85</td>
-                    <td>Aprobado</td>
-                    <td>
-                        <a href="../certificados/Certificado.pdf" class="tabla__descargar" download>Descargar PDF</a>
-                    </td>
-                </tr>
+                    <?php foreach ($resultado as $row) { ?>
 
-                <tr class="tabla__fila">
-                    <td>BARBS1012</td>
-                    <td>38</td>
-                    <td>Martín Jiménez</td>
-                    <td>90</td>
-                    <td>85</td>
-                    <td>Aprobado</td>
-                    <td>
-                        <a href="../certificados/Certificado.pdf" class="tabla__descargar" download>Descargar PDF</a>
-                    </td>
-                </tr>
-
-                <tr class="tabla__fila">
-                    <td>BARBS1012</td>
-                    <td>38</td>
-                    <td>Martín Jiménez</td>
-                    <td>90</td>
-                    <td>85</td>
-                    <td>Aprobado</td>
-                    <td>
-                        <a href="../certificados/Certificado.pdf" class="tabla__descargar" download>Descargar PDF</a>
-                    </td>
-                </tr>
+                        <tr class="tabla__fila">
+                            <td><?php echo $row['lote'] ?></td>
+                            <td><?php echo $row['id_inspeccion'] ?></td>
+                            <td><?php echo $row['nombre'] ?></td>
+                            <td><?php echo $row['cantidad_solicitada'] ?></td>
+                            <td><?php echo $row['cantidad_recibida'] ?></td>
+                            <td><?php 
+                                $aprobado = strtolower($row['aprobado']) === 'sí' || $row['aprobado'] === '1';
+                                echo $aprobado ? 'Aprobado' : 'Desaprobado'; 
+                            ?></td>
+                            <td>
+                                <a href="generar_pdf.php?id=<?php echo $row['id_inspeccion'] ?>" class="tabla__descargar" download>Descargar PDF</a>
+                            </td>
+                        </tr>
+                    <?php } ?>
                 </tbody>
             </table>
         </div>
         <?php include '../includes/footer.php' ?>
     </main>
 </body>
+
 </html>
