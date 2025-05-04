@@ -24,7 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $tipo = test_data($_POST['tipo_equipo']);
 
     // Validaciones iniciales
-    if(empty($certificado) || empty($nombre) || empty($rfc) || empty($nombre_contacto) || empty($puesto) || empty($correo) || empty($telefono) || empty($direccion_fiscal) || empty($estado) || empty($parametros)) {
+    if(empty($certificado) || empty($nombre) || empty($rfc) || empty($nombre_contacto) || empty($puesto) || empty($correo) || empty($telefono) || empty($direccion_fiscal) || 
+    empty($estado) || empty($parametros) || empty($tipo)) {
         $_SESSION['error'] = 'Debes llenar todos los campos.';
         $pdo->rollBack();
         header("Location: /fabrica-harinas/modulos/clientesform.php");
@@ -46,8 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Insertar cliente
-    $sql = "INSERT INTO Clientes (req_certificado, nombre, rfc, nombre_contacto, puesto_contacto, correo_contacto, telefono_contacto, direccion_fiscal, estado, parametros) 
-            VALUES (:certificado, :nombre, :rfc, :nombre_contacto, :puesto, :correo, :telefono, :direccion_fiscal, :estado, :parametros)";
+    $sql = "INSERT INTO Clientes (req_certificado, nombre, rfc, nombre_contacto, puesto_contacto, correo_contacto, telefono_contacto, direccion_fiscal, estado, tipo_equipo, parametros) 
+            VALUES (:certificado, :nombre, :rfc, :nombre_contacto, :puesto, :correo, :telefono, :direccion_fiscal, :estado, :tipo, :parametros)";
 
     $stmt = $pdo->prepare($sql);
 
@@ -61,6 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         ':telefono' => $telefono,
         ':direccion_fiscal' => $direccion_fiscal,
         ':estado' => $estado,
+        ':tipo' => $tipo,
         ':parametros' => $parametros
     ])) {
         $_SESSION['error'] = 'Error al insertar el cliente.';

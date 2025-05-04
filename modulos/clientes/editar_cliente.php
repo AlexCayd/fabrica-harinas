@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Verificamos si los campos estan llenos
     if(empty($certificado) || empty($nombre) || empty($rfc) || empty($nombre_contacto) || empty($puesto) || empty($correo) || empty($telefono) || empty($direccion_fiscal) 
-    || empty($estado)) {
+    || empty($estado) ){
         $_SESSION['error'] = 'Debes de llenar todos los campos.';
         header("Location: /fabrica-harinas/modulos/clientes_editar.php?id=$id");
         exit;
