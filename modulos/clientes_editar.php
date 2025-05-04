@@ -36,11 +36,6 @@ $stmt_parametros->bindParam(':id_cliente', $id_cliente);
 $stmt_parametros->execute();
 $parametros = $stmt_parametros->fetchAll(PDO::FETCH_ASSOC);
 
-if(count($parametros) == 16) {
-   $maquina = 'Alveografo';
-} else {
-   $maquina = 'Farinografo';
-}
 // Separar parámetros por tipo de equipo
 $parametros_alveografo = [];
 $parametros_farinografo = [];
@@ -181,8 +176,8 @@ foreach ($parametros as $param) {
                 <div class="formulario__campo">
                     <label for="tipo_equipo" class="formulario__label">Tipo de Equipo [lectura]</label>
                     <select class="formulario__input" id="tipo_equipo" name="tipo_equipo" required disabled>
-                        <option value="Alveógrafo" <?php echo $maquina == 'Alveografo' ? 'selected' : ''; ?>>Alveógrafo</option>
-                        <option value="Farinógrafo" <?php echo $maquina == 'Farinografo' ? 'selected' : ''; ?>>Farinógrafo</option>
+                        <option value="Alveógrafo" <?php echo $cliente['tipo_equipo'] == 'Alveógrafo' ? 'selected' : ''; ?>>Alveógrafo</option>
+                        <option value="Farinógrafo" <?php echo $cliente['tipo_equipo'] == 'Farinógrafo' ? 'selected' : ''; ?>>Farinógrafo</option>
                     </select>
                 </div>
 

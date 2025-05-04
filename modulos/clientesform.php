@@ -162,8 +162,8 @@ $parametros_farinografo = [
                     <label for="tipo_equipo" class="formulario__label">Tipo de Equipo</label>
                     <select class="formulario__input" id="tipo_equipo" name="tipo_equipo" required>
                         <option value="" disabled <?php echo !$editando ? 'selected' : ''; ?>>-- Seleccione tipo de equipo --</option>
-                        <option value="Alveografo" >Alveógrafo</option>
-                        <option value="Farinografo">Farinógrafo</option>
+                        <option value="Alveógrafo" >Alveógrafo</option>
+                        <option value="Farinógrafo">Farinógrafo</option>
                     </select>
                 </div>
 
