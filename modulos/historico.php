@@ -23,7 +23,12 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-
+// Determinamos el numero parametros aprobados y desaprobados
+$aprobados = 0;
+$desaprobados = 0;
+foreach ($resultado as $row) {
+    $row['aprobado'] == '1' ? $aprobados++ : $desaprobados++;
+}
 
 ?>
 
@@ -88,8 +93,7 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <td><?php echo $row['cantidad_solicitada'] ?></td>
                             <td><?php echo $row['cantidad_recibida'] ?></td>
                             <td><?php 
-                                $aprobado = strtolower($row['aprobado']) === 'sí' || $row['aprobado'] === '1';
-                                echo $aprobado ? 'Aprobado' : 'Desaprobado'; 
+                                echo $desaprobados > 0 ? 'Desaprobado' : 'Aprobado'; 
                             ?></td>
                             <td>
                                 <a href="generar_pdf.php?id=<?php echo $row['id_inspeccion'] ?>" class="tabla__descargar" download>Descargar PDF</a>
