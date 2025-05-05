@@ -26,7 +26,7 @@
             header("Location: /fabrica-harinas/menu.php");
             exit;
         } else {
-            $_SESSION['error'] = 'Credenciales incorrectas';
+            $_SESSION['error'] = 'Credenciales no válidas';
             header("Location: /fabrica-harinas/index.php");
             exit;
         }
