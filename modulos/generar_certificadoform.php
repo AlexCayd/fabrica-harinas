@@ -1,6 +1,6 @@
 <?php 
 include '../config/conn.php';
-// include '../config/validar_permisos.php';
+include '../config/validar_permisos.php';
 
 $sql = "SELECT nombre, id_inspeccion FROM Inspeccion, Clientes WHERE Inspeccion.id_cliente = Clientes.id_cliente";
 $stmt = $pdo->prepare($sql);
