@@ -16,23 +16,34 @@ $fecha_envio = test_data($_POST['fecha_envio']);
 $fecha_caducidad = test_data($_POST['fecha_caducidad']);
 $desviacion = test_data($_POST['desviacion']);
 
+// Convertir las fechas a objetos DateTime
+$emision = new DateTime($fecha_emision);
+$caducidad = new DateTime($fecha_caducidad);
+$envio = new DateTime($fecha_envio);
+
 // Validar que la cantidad recibida no sea mayor a la cantidad solicitada
 if($cantidad_recibida > $cantidad_solicitada){
     $_SESSION['error'] = "La cantidad recibida no puede ser mayor a la cantidad solicitada";
-    header('Location: ../modulos/historico.php');
+    header('Location: ../modulos/generar_certificadoform.php');
+    exit;
+}
+
+if($fecha_envio > $emision){
+    $_SESSION['error'] = "La fecha de envio no puede ser mayor a la fecha de emisión";
+    header('Location: ../modulos/generar_certificadoform.php');
     exit;
 }
 
 // Validar que la desviación no sea negativa
 if($desviacion < 0){
     $_SESSION['error'] = "La desviación no puede ser negativa";
-    header('Location: ../modulos/historico.php');
+    header('Location: ../modulos/generar_certificadoform.php');
     exit;
 }
 // Validar que la fecha de emisión no sea mayor a la fecha de caducidad
-if($fecha_emision > $fecha_caducidad){
+if($emision > $caducidad){
     $_SESSION['error'] = "La fecha de emisión no puede ser mayor a la fecha de caducidad";
-    header('Location: ../modulos/historico.php');
+    header('Location: ../modulos/generar_certificadoform.php');
     exit;
 }
 
