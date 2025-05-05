@@ -1,10 +1,12 @@
 <?php 
 include '../config/conn.php';
+session_start();
 
 $sql = "SELECT nombre, id_inspeccion, tipo_equipo FROM Inspeccion, Clientes WHERE Inspeccion.id_cliente = Clientes.id_cliente";
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 
 ?>
 <!DOCTYPE html>
@@ -23,7 +25,7 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <div class="contenedor__modulo">
             <a href="historico.php" class="atras">Ir atrás</a>
-            <h2 class="heading">Agregar Cliente</h2>
+            <h2 class="heading">Generar certificado</h2>
             <form action="../config/crear_certificado.php" class="formulario" method="post">
                 <div class="formulario__campo">
                     <label for="nombre" class="formulario__label"> Nombre cliente </label>
