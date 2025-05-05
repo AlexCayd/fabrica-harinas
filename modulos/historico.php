@@ -7,29 +7,23 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // Recuperamos los datos de los certificados y los resultados de la inspección
-$sql = "SELECT DISTINCT 
+$sql = "SELECT 
     i.lote, 
     i.id_inspeccion, 
     c.nombre, 
     ce.cantidad_solicitada, 
     ce.cantidad_recibida,
-    ri.aprobado
+    MIN(ri.aprobado) AS aprobado
 FROM Inspeccion i
 INNER JOIN Clientes c ON i.id_cliente = c.id_cliente
-INNER JOIN Resultado_Inspeccion ri ON ri.id_inspeccion = i.id_inspeccion
-INNER JOIN Certificados ce ON ce.id_inspeccion = i.id_inspeccion;
-";
+INNER JOIN Certificados ce ON ce.id_inspeccion = i.id_inspeccion
+LEFT JOIN Resultado_Inspeccion ri ON ri.id_inspeccion = i.id_inspeccion
+GROUP BY i.id_inspeccion, i.lote, c.nombre, ce.cantidad_solicitada, ce.cantidad_recibida
+ORDER BY i.id_inspeccion DESC";
+
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Determinamos el numero parametros aprobados y desaprobados
-$aprobados = 0;
-$desaprobados = 0;
-foreach ($resultado as $row) {
-    $row['aprobado'] == '1' ? $aprobados++ : $desaprobados++;
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -92,9 +86,11 @@ foreach ($resultado as $row) {
                             <td><?php echo $row['nombre'] ?></td>
                             <td><?php echo $row['cantidad_solicitada'] ?></td>
                             <td><?php echo $row['cantidad_recibida'] ?></td>
-                            <td><?php 
-                                echo $desaprobados > 0 ? 'Desaprobado' : 'Aprobado'; 
-                            ?></td>
+                            <td>
+                                <?php
+                                    echo $row['aprobado'] ? 'Aprobado' : 'Desaprobado';
+                                ?>
+                                </td>
                             <td>
                                 <a href="generar_pdf.php?id=<?php echo $row['id_inspeccion'] ?>" class="tabla__descargar" download>Descargar PDF</a>
                             </td>
