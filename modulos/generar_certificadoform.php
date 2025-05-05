@@ -1,8 +1,9 @@
 <?php 
 include '../config/conn.php';
 // include '../config/validar_permisos.php';
+session_start();
 
-$sql = "SELECT nombre, id_inspeccion FROM Inspeccion, Clientes WHERE Inspeccion.id_cliente = Clientes.id_cliente";
+$sql = "SELECT nombre, id_inspeccion, tipo_equipo FROM Inspeccion, Clientes WHERE Inspeccion.id_cliente = Clientes.id_cliente";
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -30,7 +31,8 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <label for="nombre" class="formulario__label"> Nombre cliente </label>
                     <select name="nombre" class="formulario__input">
                         <?php foreach($clientes as $cliente): ?>
-                            <option value="<?php echo $cliente['id_inspeccion']; ?>"><?php echo $cliente['nombre']; ?></option>
+                            <option value="<?php echo $cliente['id_inspeccion']; ?>"><?php echo $cliente['nombre'] . ' - ' . $cliente['tipo_equipo'] . ' - ' . 
+                            $cliente['id_inspeccion']; ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -42,12 +44,12 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 
                 <div class="formulario__campo">
                     <label for="cantidad_solicitada" class="formulario__label"> Cantidad solicitada </label>
-                    <input type="text" name="cantidad_solicitada" class="formulario__input" placeholder="Cantidad solicitada" required>
+                    <input type="number" name="cantidad_solicitada" class="formulario__input" placeholder="Cantidad solicitada" required>
                 </div> 
 
                 <div class="formulario__campo">
                     <label for="cantidad_recibida" class="formulario__label"> Cantidad recibida </label>
-                    <input type="text" name="cantidad_recibida" class="formulario__input" placeholder="Cantidad recibida" required>
+                    <input type="number" name="cantidad_recibida" class="formulario__input" placeholder="Cantidad recibida" required>
                 </div>  
 
                 <div class="formulario__campo">
