@@ -68,7 +68,9 @@ $stmt->bindParam(8, $numero_orden_compra);
 
 if($stmt->execute()){
     $_SESSION['exito'] = "Certificado creado correctamente";
+    // Creamos el pdf
     header('Location: ../modulos/historico.php');
+    // header('Location: ../modulos/generar_pdf.php?id='.$id_inspeccion);
 }else{
     $_SESSION['error'] = "Error al crear el certificado";
     header('Location: ../modulos/historico.php');
