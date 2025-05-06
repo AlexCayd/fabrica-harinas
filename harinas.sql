@@ -48,8 +48,8 @@ CREATE TABLE Clientes (
     direccion_fiscal TEXT,
     estado ENUM('Activo', 'Inactivo', 'Baja') NOT NULL DEFAULT 'Activo',
     tipo_equipo ENUM('Alveógrafo', 'Farinógrafo') NOT NULL,
-    parametros ENUM('Internacionales', 'Personalizados')
-    causa_baja VARCHAR(255);
+    parametros ENUM('Internacionales', 'Personalizados'),
+    causa_baja VARCHAR(255)
 );
 -- Tabla Direcciones
 CREATE TABLE Direcciones (
@@ -160,7 +160,8 @@ CREATE TABLE Certificados (
     Cantidad_recibida INT NOT NULL,
     fecha_envio DATE,
     fecha_caducidad DATE NOT NULL,
-    desviacion DECIMAL(10, 2),
+    numero_factura VARCHAR(100),
+    numero_orden_compra VARCHAR(100),
     FOREIGN KEY (id_inspeccion) REFERENCES Inspeccion(id_inspeccion)
 );
 -- Tabla Hist_Certificados
