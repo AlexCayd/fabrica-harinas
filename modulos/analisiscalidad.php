@@ -34,15 +34,17 @@ if (!empty($busqueda)) {
     $params[':busqueda'] = "%$busqueda%";
 }
 
+
 // Añadir filtro por tipo de equipo si está seleccionado
 if (!empty($filtro)) {
     if ($where_added) {
-        $sql_analisis .= " AND (e.tipo_equipo = :filtro OR c.tipo_equipo = :filtro)";
+        $sql_analisis .= " AND (e.tipo_equipo = :filtro_equipo OR c.tipo_equipo = :filtro_cliente)";
     } else {
-        $sql_analisis .= " WHERE (e.tipo_equipo = :filtro OR c.tipo_equipo = :filtro)";
+        $sql_analisis .= " WHERE (e.tipo_equipo = :filtro_equipo OR c.tipo_equipo = :filtro_cliente)";
         $where_added = true;
     }
-    $params[':filtro'] = $filtro;
+    $params[':filtro_equipo'] = $filtro;
+    $params[':filtro_cliente'] = $filtro;
 }
 
 $sql_analisis .= " GROUP BY i.id_inspeccion";
