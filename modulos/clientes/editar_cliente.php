@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $telefono = test_data($_POST['numero-telefonico']);
     $direccion_fiscal = test_data($_POST['direccion-fiscal']);
     $estado = test_data($_POST['estado']);
+    $causa_baja = test_data($_POST['causa-baja']);
 
      // Agregamos validaciones a los datos
 
@@ -38,16 +39,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Verificamos si el RFC tiene 13 digitos
-    if(strlen($rfc) != 13) {
+    if(strlen($rfc) != 13 && strlen($rfc) != 12) {
         $_SESSION['error'] = 'El RFC debe de tener 13 digitos.';
         header("Location: /fabrica-harinas/modulos/clientes_editar.php?id=$id");
         exit;
     }
 
     // Actualizar los datos del cliente
-    $sql = "UPDATE Clientes SET req_certificado = $certificado, nombre = '$nombre', rfc = '$rfc', nombre_contacto = '$nombre_contacto', 
-    puesto_contacto = '$puesto', correo_contacto = '$correo', telefono_contacto = '$telefono', 
-    direccion_fiscal = '$direccion_fiscal', estado = '$estado' WHERE id_cliente = $id";
+
+    if($causa_baja != '' && $estado == 'inactivo') {
+        $sql = "UPDATE Clientes SET req_certificado = $certificado, nombre = '$nombre', rfc = '$rfc', nombre_contacto = '$nombre_contacto', 
+        puesto_contacto = '$puesto', correo_contacto = '$correo', telefono_contacto = '$telefono', 
+        direccion_fiscal = '$direccion_fiscal', estado = '$estado', causa_baja = '$causa_baja' WHERE id_cliente = $id";
+    } else {
+        $sql = "UPDATE Clientes SET req_certificado = $certificado, nombre = '$nombre', rfc = '$rfc', nombre_contacto = '$nombre_contacto', 
+        puesto_contacto = '$puesto', correo_contacto = '$correo', telefono_contacto = '$telefono', 
+        direccion_fiscal = '$direccion_fiscal', estado = '$estado', causa_baja = null WHERE id_cliente = $id";
+    }
 
     $stmt = $pdo->prepare($sql);
 
