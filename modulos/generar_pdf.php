@@ -23,6 +23,7 @@ $stmt = $pdo->prepare("SELECT DISTINCT
     c.nombre, 
     ce.cantidad_solicitada, 
     ce.cantidad_recibida,
+    ce.fecha_caducidad,
     ri.aprobado,
     i.fecha_inspeccion,
     c.tipo_equipo,
@@ -161,7 +162,7 @@ if (count($resultado) > 0) {
 
             // Titulo
             $this->SetFont('Arial', 'B', 20);
-            $this->Cell(0, 15, utf8_decode('Certificado de Inspección'), 0, 1, 'C');
+            $this->Cell(0, 15, mb_convert_encoding('Certificado de Inspección', 'ISO-8859-1', 'UTF-8'), 0, 1, 'C');
 
             // Linea
             $this->SetDrawColor($this->secondaryColor[0], $this->secondaryColor[1], $this->secondaryColor[2]);
@@ -185,7 +186,7 @@ if (count($resultado) > 0) {
             $this->SetFont('Arial', 'I', 8);
 
             // Numero de pagina
-            $this->Cell(0, 10, utf8_decode('Página ') . $this->PageNo() . '/{nb}', 0, 0, 'C');
+            $this->Cell(0, 10, mb_convert_encoding('Página ' . $this->PageNo() . '/{nb}', 'ISO-8859-1', 'UTF-8'), 0, 0, 'C');
 
             // Linea
             $this->SetDrawColor($this->secondaryColor[0], $this->secondaryColor[1], $this->secondaryColor[2]);
@@ -198,7 +199,7 @@ if (count($resultado) > 0) {
         {
             $this->SetFont('Arial', '', $fontSize);
             $this->SetTextColor($this->secondaryColor[0], $this->secondaryColor[1], $this->secondaryColor[2]);
-            $this->MultiCell(0, 10, utf8_decode($text), 0, $align);
+            $this->MultiCell(0, 10, mb_convert_encoding($text, 'ISO-8859-1', 'UTF-8'), 0, $align);
         }
     }
 
@@ -209,41 +210,41 @@ if (count($resultado) > 0) {
 
     // Title and basic info
     $pdf->SetFont('Arial', 'B', 16);
-    $pdf->Cell(0, 10, utf8_decode('Información del Certificado'), 0, 1, 'C');
+    $pdf->Cell(0, 10, mb_convert_encoding('Información del Certificado', 'ISO-8859-1', 'UTF-8'), 0, 1, 'C');
     $pdf->Ln(5);
 
     // Client and Production Information
 
     // Client and Production Information
     $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(60, 10, utf8_decode('Lote de producción:'), 0, 0);
+    $pdf->Cell(60, 10, mb_convert_encoding('Lote de producción:', 'ISO-8859-1', 'UTF-8'), 0, 0);
     $pdf->SetFont('Arial', '', 12);
-    $pdf->Cell(0, 10, utf8_decode($resultado['lote']), 0, 1);
+    $pdf->Cell(0, 10, mb_convert_encoding($resultado['lote'], 'ISO-8859-1', 'UTF-8'), 0, 1);
 
     $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(60, 10, utf8_decode('Cliente:'), 0, 0);
+    $pdf->Cell(60, 10, mb_convert_encoding('Cliente:', 'ISO-8859-1', 'UTF-8'), 0, 0);
     $pdf->SetFont('Arial', '', 12);
-    $pdf->Cell(0, 10, utf8_decode($resultado['nombre']), 0, 1);
+    $pdf->Cell(0, 10, mb_convert_encoding($resultado['nombre'], 'ISO-8859-1', 'UTF-8'), 0, 1);
 
     $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(60, 10, utf8_decode('Clave de inspección:'), 0, 0);
+    $pdf->Cell(60, 10, mb_convert_encoding('Clave de inspección:', 'ISO-8859-1', 'UTF-8'), 0, 0);
     $pdf->SetFont('Arial', '', 12);
-    $pdf->Cell(0, 10, utf8_decode($resultado['clave']), 0, 1);
+    $pdf->Cell(0, 10, mb_convert_encoding($resultado['clave'], 'ISO-8859-1', 'UTF-8'), 0, 1);
 
     // Quantity Information
     $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(60, 10, utf8_decode('Cantidad solicitada:'), 0, 0);
+    $pdf->Cell(60, 10, mb_convert_encoding('Cantidad solicitada:', 'ISO-8859-1', 'UTF-8'), 0, 0);
     $pdf->SetFont('Arial', '', 12);
-    $pdf->Cell(0, 10, utf8_decode($resultado['cantidad_solicitada']) . ' kg', 0, 1);
+    $pdf->Cell(0, 10, mb_convert_encoding($resultado['cantidad_solicitada'] . ' kg', 'ISO-8859-1', 'UTF-8'), 0, 1);
 
     $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(60, 10, utf8_decode('Cantidad recibida:'), 0, 0);
+    $pdf->Cell(60, 10, mb_convert_encoding('Cantidad recibida:', 'ISO-8859-1', 'UTF-8'), 0, 0);
     $pdf->SetFont('Arial', '', 12);
-    $pdf->Cell(0, 10, utf8_decode($resultado['cantidad_recibida']) . ' kg', 0, 1);
+    $pdf->Cell(0, 10, mb_convert_encoding($resultado['cantidad_recibida'] . ' kg', 'ISO-8859-1', 'UTF-8'), 0, 1);
 
     // Agregamos todos los parametros de la inspeccion
     $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(60, 10, utf8_decode('Fecha de inspección:' . $resultado['fecha_inspeccion']), 0, 0);
+    $pdf->Cell(60, 10, mb_convert_encoding('Fecha de inspección:' . $resultado['fecha_inspeccion'], 'ISO-8859-1', 'UTF-8'), 0, 0);
     $pdf->Ln(10);
 
     if ($resultado['parametros'] == 'Personalizados') {
@@ -251,7 +252,7 @@ if (count($resultado) > 0) {
             // Fuente para el nombre del parámetro
             $pdf->SetFont('Arial', 'B', 12);
             $pdf->SetTextColor(0, 0, 0); // Negro
-            $pdf->Cell(80, 10, utf8_decode($resultado_inspeccion['nombre_parametro']), 0, 0);
+            $pdf->Cell(80, 10, mb_convert_encoding($resultado_inspeccion['nombre_parametro'], 'ISO-8859-1', 'UTF-8'), 0, 0);
 
             // Cambiamos color según resultado
             if ($resultado_inspeccion['aprobado'] == 1) {
@@ -268,14 +269,14 @@ if (count($resultado) > 0) {
             $pdf->SetTextColor(100, 100, 100);
             $pdf->SetFont('Arial', 'I', 10);
             $referencia = 'Referencia: ' . $resultado_inspeccion['lim_Inferior'] . ' - ' . $resultado_inspeccion['lim_Superior'];
-            $pdf->Cell(0, 10, utf8_decode($referencia), 0, 1);
+            $pdf->Cell(0, 10, mb_convert_encoding($referencia, 'ISO-8859-1', 'UTF-8'), 0, 1);
         }
     } else {
         foreach ($resultado_final as $parametro) {
             // Fuente para el nombre del parámetro
             $pdf->SetFont('Arial', 'B', 12);
             $pdf->SetTextColor(0, 0, 0); // Negro
-            $pdf->Cell(80, 10, utf8_decode($parametro['nombre_parametro']), 0, 0);
+            $pdf->Cell(80, 10, mb_convert_encoding($parametro['nombre_parametro'], 'ISO-8859-1', 'UTF-8'), 0, 0);
 
             // Cambiamos color según resultado
             if ($parametro['aprobado'] == 1) {
@@ -293,7 +294,7 @@ if (count($resultado) > 0) {
             $pdf->SetTextColor(100, 100, 100);
             $pdf->SetFont('Arial', 'I', 10);
             $referencia = 'Referencia: ' . $parametro['lim_Inferior'] . ' - ' . $parametro['lim_Superior'];
-            $pdf->Cell(0, 10, utf8_decode($referencia), 0, 1);
+            $pdf->Cell(0, 10, mb_convert_encoding($referencia, 'ISO-8859-1', 'UTF-8'), 0, 1);
 
         }
     }
@@ -301,9 +302,9 @@ if (count($resultado) > 0) {
 
     // Rsultados de la prueba
     $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(60, 10, utf8_decode('Resultado de la prueba:'), 0, 0);
+    $pdf->Cell(60, 10, mb_convert_encoding('Resultado de la prueba:', 'ISO-8859-1', 'UTF-8'), 0, 0);
     $pdf->SetFont('Arial', '', 12);
-    $pdf->Cell(0, 10, $desaprobados > 0 ? utf8_decode('Desaprobado') : utf8_decode('Aprobado'), 0, 1);
+    $pdf->Cell(0, 10, $desaprobados > 0 ? mb_convert_encoding('Desaprobado', 'ISO-8859-1', 'UTF-8') : mb_convert_encoding('Aprobado', 'ISO-8859-1', 'UTF-8'), 0, 1);
 
     $pdf->Ln(5);
 
@@ -311,7 +312,7 @@ if (count($resultado) > 0) {
     $pdf->AddContent('Este certificado es un documento oficial que acredita los resultados de la inspección realizada.', 10, 'C');
     $pdf->AddContent('Fecha de emisión: ' . $resultado['fecha_inspeccion'], 10, 'R');
 
-    $pdf->Output('D', 'Certificado_de_inspeccion_' . utf8_decode($resultado['nombre']) . '.pdf');
+    $pdf->Output('D', 'Certificado_de_inspeccion_' . mb_convert_encoding($resultado['nombre'], 'ISO-8859-1', 'UTF-8') . '.pdf');
 } else {
     echo "No se encontró la inspección con ID $id_inspeccion.";
 }
