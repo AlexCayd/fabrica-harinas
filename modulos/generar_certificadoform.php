@@ -41,6 +41,16 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <label for="fecha_emision" class="formulario__label">  Fecha de emisión </label>
                     <input type="date" name="fecha_emision" id="fecha_emision" class="formulario__input" value="<?php echo date('Y-m-d'); ?>" required>
                 </div>
+
+                <div class="formulario__campo">
+                    <label for="numero_factura" class="formulario__label">  Numero de factura </label>
+                    <input type="text" name="numero_factura" id="numero_factura" class="formulario__input" placeholder="Numero de factura" required>
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="numero_orden_compra" class="formulario__label">  Numero de orden de compra </label>
+                    <input type="text" name="numero_orden_compra" id="numero_orden_compra" class="formulario__input" placeholder="Numero de orden de compra" required>
+                </div>
                 
                 <div class="formulario__campo">
                     <label for="cantidad_solicitada" class="formulario__label"> Cantidad solicitada </label>
