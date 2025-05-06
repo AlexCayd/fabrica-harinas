@@ -35,6 +35,7 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>FHE | Certificados</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -48,7 +49,7 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="controles">
                 <div class="buscador">
                     <h4 class="buscador__label">Buscar</h4>
-                    <input type="text" class="buscador__input" placeholder="Lote de producción">
+                    <input type="text" class="buscador__input" id="searchBar" placeholder="Lote de producción">
                 </div>
 
                 <div class="ordenar">
@@ -101,6 +102,26 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
         <?php include '../includes/footer.php' ?>
     </main>
+
+    <script>
+           // Buscar por nombre
+           const buscador = document.getElementById('searchBar');
+        const filasUsuarios = document.querySelectorAll('.tabla__fila');
+
+        buscador.addEventListener('input', () => {
+            busquedaUsuario = buscador.value.toLowerCase();
+
+            filasUsuarios.forEach((fila) => {
+                const contenidoFila = fila.textContent.toLocaleLowerCase();
+
+                if (contenidoFila.includes(busquedaUsuario)) {
+                    fila.style.display = '';
+                } else {
+                    fila.style.display = 'none';
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
