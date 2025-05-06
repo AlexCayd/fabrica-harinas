@@ -2,7 +2,7 @@
 
     include '../config/conn.php';
     include '../fpdf186/fpdf.php';
-
+    session_start();
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
@@ -266,32 +266,32 @@
         StyledDoubleRow($pdf, 'Fecha de envío:', $resultado['fecha_envio'], 'Fecha de caducidad:', $resultado['fecha_caducidad']);
 
 
-        if ($resultado['parametros'] == 'Personalizados') { 
+        if ($resultado['parametros'] == 'Personalizados') {
             foreach ($resultados_inspeccion_personalizados as $resultado_inspeccion) {
                 // Fuente para el nombre del parámetro
                 $pdf->SetFont('Arial', 'B', 12);
                 $pdf->SetTextColor(0, 0, 0); // Negro
                 $pdf->Cell(80, 10, mb_convert_encoding($resultado_inspeccion['nombre_parametro'], 'ISO-8859-1', 'UTF-8'), 0, 0);
-            
+
                 // Cambiamos color según resultado
                 if ($resultado_inspeccion['aprobado'] == 1) {
                     $pdf->SetTextColor(0, 128, 0); // Verde
                 } else {
                     $pdf->SetTextColor(255, 0, 0); // Rojo
                 }
-            
+
                 // Valor obtenido
                 $pdf->SetFont('Arial', '', 12);
                 $valor = floatval($resultado_inspeccion['valor_obtenido']);
                 $pdf->Cell(40, 10, $valor, 0, 0);
-            
+
                 // Referencia (gris, más pequeño)
                 $pdf->SetTextColor(100, 100, 100);
                 $pdf->SetFont('Arial', 'I', 10);
                 $lim_inf = floatval($resultado_inspeccion['lim_Inferior']);
                 $lim_sup = floatval($resultado_inspeccion['lim_Superior']);
                 $referencia = 'Referencia: ' . $lim_inf . ' - ' . $lim_sup;
-            
+
                 // Agregar desviación si no está aprobado
                 if ($resultado_inspeccion['aprobado'] != 1) {
                     if ($valor < $lim_inf) {
@@ -303,36 +303,35 @@
                     }
                     $referencia .= ' | Desviación: ' . number_format($desviacion, 2);
                 }
-            
+
                 $pdf->Cell(0, 10, mb_convert_encoding($referencia, 'ISO-8859-1', 'UTF-8'), 0, 1);
             }
-            
         } else {
             foreach ($resultado_final as $parametro) {
                 // Fuente para el nombre del parámetro
                 $pdf->SetFont('Arial', 'B', 12);
                 $pdf->SetTextColor(0, 0, 0); // Negro
                 $pdf->Cell(80, 10, mb_convert_encoding($parametro['nombre_parametro'], 'ISO-8859-1', 'UTF-8'), 0, 0);
-            
+
                 // Cambiamos color según resultado
                 if ($parametro['aprobado'] == 1) {
                     $pdf->SetTextColor(0, 128, 0); // Verde
                 } else {
                     $pdf->SetTextColor(255, 0, 0); // Rojo
                 }
-            
+
                 // Valor obtenido
                 $pdf->SetFont('Arial', '', 12);
                 $valor = floatval($parametro['valor_obtenido']);
                 $pdf->Cell(40, 10, $valor, 0, 0);
-            
+
                 // Referencia (gris, más pequeño)
                 $pdf->SetTextColor(100, 100, 100);
                 $pdf->SetFont('Arial', 'I', 10);
                 $lim_inf = floatval($parametro['lim_Inferior']);
                 $lim_sup = floatval($parametro['lim_Superior']);
                 $referencia = 'Referencia: ' . $lim_inf . ' - ' . $lim_sup;
-            
+
                 // Agregar desviación si no está aprobado
                 if ($parametro['aprobado'] != 1) {
                     if ($valor < $lim_inf) {
@@ -344,10 +343,9 @@
                     }
                     $referencia .= ' | Desviación: ' . number_format($desviacion, 2);
                 }
-            
+
                 $pdf->Cell(0, 10, mb_convert_encoding($referencia, 'ISO-8859-1', 'UTF-8'), 0, 1);
             }
-            
         }
         $pdf->SetTextColor(0, 0, 0); // Reset to default color
 
@@ -359,11 +357,31 @@
 
         $pdf->Ln(5);
 
-        // Additional Information
+        // Informacion adicional
         $pdf->AddContent('Este certificado es un documento oficial que acredita los resultados de la inspección realizada.', 10, 'C');
         $pdf->AddContent('Fecha de inspección: ' . $resultado['fecha_inspeccion'], 10, 'R');
 
-        $pdf->Output('D', 'Certificado_de_inspeccion_' . mb_convert_encoding($resultado['nombre'], 'ISO-8859-1', 'UTF-8') . '.pdf');
+
+        // $pdf->Output('F', $ruta_guardado);
+
+        // $pdf->Output('D', 'Certificado_de_inspeccion_' . mb_convert_encoding($resultado['nombre'], 'ISO-8859-1', 'UTF-8') . '.pdf');
+
+        // Proceso para guardar el pdf en el servidor
+        $pdf_string = $pdf->Output('S'); // 'S' => return as string
+
+        // Guardar el pdf en el servidor
+        $ruta_guardado = '../certificados/Certificado_de_inspeccion_' .
+            mb_convert_encoding($resultado['nombre'], 'ISO-8859-1', 'UTF-8') .
+            '.pdf';
+        file_put_contents($ruta_guardado, $pdf_string);
+
+        // Forzar descarga en navegador
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="Certificado_de_inspeccion_' .
+            mb_convert_encoding($resultado['nombre'], 'ISO-8859-1', 'UTF-8') .
+            '.pdf"');
+        echo $pdf_string;
+        exit;
     } else {
         echo "No se encontró la inspección con ID $id_inspeccion.";
     }
