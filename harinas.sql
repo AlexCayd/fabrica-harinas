@@ -781,8 +781,8 @@ VALUES -- RESULTADO_INSPECCION PARA EL EQUIPO 3 ALV-001
     (5, 'Indice_Gluten', 84.0, TRUE),
     (5, 'Indice_Caida', 330.0, TRUE),
     (5, 'Almidon_Danado', 320.0, TRUE),
-    (4, 'Alveograma_P', 90.0, TRUE),
-    (4, 'Alveograma_L', 98.0, TRUE),
-    (4, 'Alveograma_PL', 0.60, TRUE),
-    (4, 'Alveograma_W', 265.0, TRUE),
-    (4, 'Alveograma_IE', 0.90, TRUE);
+    (5, 'Alveograma_P', 90.0, TRUE),
+    (5, 'Alveograma_L', 98.0, TRUE),
+    (5, 'Alveograma_PL', 0.60, TRUE),
+    (5, 'Alveograma_W', 265.0, TRUE),
+    (5, 'Alveograma_IE', 0.90, TRUE);
