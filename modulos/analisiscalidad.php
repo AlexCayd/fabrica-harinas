@@ -34,15 +34,17 @@ if (!empty($busqueda)) {
     $params[':busqueda'] = "%$busqueda%";
 }
 
+
 // Añadir filtro por tipo de equipo si está seleccionado
 if (!empty($filtro)) {
     if ($where_added) {
-        $sql_analisis .= " AND (e.tipo_equipo = :filtro OR c.tipo_equipo = :filtro)";
+        $sql_analisis .= " AND (e.tipo_equipo = :filtro_equipo OR c.tipo_equipo = :filtro_cliente)";
     } else {
-        $sql_analisis .= " WHERE (e.tipo_equipo = :filtro OR c.tipo_equipo = :filtro)";
+        $sql_analisis .= " WHERE (e.tipo_equipo = :filtro_equipo OR c.tipo_equipo = :filtro_cliente)";
         $where_added = true;
     }
-    $params[':filtro'] = $filtro;
+    $params[':filtro_equipo'] = $filtro;
+    $params[':filtro_cliente'] = $filtro;
 }
 
 $sql_analisis .= " GROUP BY i.id_inspeccion";
@@ -92,12 +94,22 @@ function mostrarParametros($pdo, $id_inspeccion, $tipo_equipo) {
 }
 
 // Función para determinar si un análisis está aprobado
-function analisisAprobado($total_parametros, $parametros_fallidos) {
+function analisisAprobado($total_parametros, $parametros_fallidos, $tipo_equipo) {
     // Si no hay parámetros, considerar como aprobado (depende de tu lógica de negocio)
     if ($total_parametros == 0) {
-        return true;
+        return [true, 0, 0];
     }
-    return $parametros_fallidos == 0;
+    
+    // Definir el número máximo de parámetros según el tipo de equipo
+    $max_parametros = ($tipo_equipo == 'Alveógrafo') ? 12 : 11;
+    
+    // Calcular parámetros correctos
+    $parametros_correctos = $total_parametros - $parametros_fallidos;
+    
+    // Determinar si está aprobado (sin errores)
+    $aprobado = ($parametros_fallidos == 0);
+    
+    return [$aprobado, $parametros_correctos, $max_parametros];
 }
 
 // Función para mostrar información de equipo/cliente
@@ -219,10 +231,14 @@ function determinarTipoEquipo($item) {
                     <tbody>
                         <?php if(count($analisis) > 0): ?>
                             <?php foreach ($analisis as $item): ?>
-                            <?php 
-                                $aprobado = analisisAprobado($item['total_parametros'], $item['parametros_fallidos']);
-                                $tipo_equipo = determinarTipoEquipo($item);
-                            ?>
+                                <?php 
+                                    $tipo_equipo = determinarTipoEquipo($item);
+                                    list($aprobado, $parametros_correctos, $max_parametros) = analisisAprobado(
+                                        $item['total_parametros'], 
+                                        $item['parametros_fallidos'],
+                                        $tipo_equipo
+                                    );
+                                ?>
                             <tr class="tabla__fila">
                                 <td><?= htmlspecialchars($item['lote']) ?></td>
                                 <td><?= htmlspecialchars($item['secuencia']) ?></td>
@@ -232,7 +248,7 @@ function determinarTipoEquipo($item) {
                                 <td class="<?= $aprobado ? 'estado-aprobado' : 'estado-fallido' ?>">
                                     <?= $aprobado ? 'Aprobado' : 'Fallido' ?>
                                     <?php if($item['total_parametros'] > 0): ?>
-                                        <small>(<?= $item['parametros_fallidos'] ?>/<?= $item['total_parametros'] ?>)</small>
+                                        <small>(<?= $parametros_correctos ?>/<?= $max_parametros ?>)</small>
                                     <?php endif; ?>
                                 </td>
                                 <td><?= mostrarParametros($pdo, $item['id_inspeccion'], $tipo_equipo) ?></td>
