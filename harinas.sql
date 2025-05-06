@@ -49,6 +49,7 @@ CREATE TABLE Clientes (
     estado ENUM('Activo', 'Inactivo', 'Baja') NOT NULL DEFAULT 'Activo',
     tipo_equipo ENUM('Alveógrafo', 'Farinógrafo') NOT NULL,
     parametros ENUM('Internacionales', 'Personalizados')
+    causa_baja VARCHAR(255);
 );
 -- Tabla Direcciones
 CREATE TABLE Direcciones (
