@@ -62,11 +62,6 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <input type="date" name="fecha_caducidad" id="fecha_caducidad" class="formulario__input" required>
                 </div>
 
-                <div class="formulario__campo">
-                    <label for="desviacion" class="formulario__label">  Desviacion </label>
-                    <input type="number" name="desviacion" id="desviacion" class="formulario__input" required>
-                </div>
-
                 <input type="submit" class="formulario__submit" value="Generar certificado">
             </form>
         </div>
