@@ -172,7 +172,7 @@ CREATE TABLE Hist_Certificados (
     FOREIGN KEY (id_certificado) REFERENCES Certificados(id_certificado)
 );
 INSERT INTO Usuarios (nombre, correo, contrasena, rol)
-VALUES ('admin', 'admin@correo.com', '1', 'TI');
+VALUES ('admin', 'admin@correo.com', '$2y$10$Rwwpj5/OC3MFaG0K1XkyW.7ja0W.0JlyIaejZ7C4Mx7W9rridtn5q', 'TI');
 -- INSERTS --
 -- USUARIOS (Uno por cada rol)
 INSERT INTO Usuarios (nombre, correo, contrasena, rol)
