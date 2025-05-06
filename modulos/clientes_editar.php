@@ -128,6 +128,11 @@ foreach ($parametros as $param) {
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-bottom: 2rem;
         }
+
+        .formulario-baja {
+            display: none;
+        }
+
     </style>
     <main class="contenedor hoja">
         <?php include '../includes/header.php' ?>
@@ -159,10 +164,25 @@ foreach ($parametros as $param) {
 
                 <div class="formulario__campo">
                     <label for="estado" class="formulario__label">Estado</label>
-                    <select name="estado" class="formulario__select">
-                        <option value="activo" <?php echo $cliente['estado'] == 'activo' ? 'selected' : ''; ?>>Activo</option>
-                        <option value="inactivo" <?php echo $cliente['estado'] == 'inactivo' ? 'selected' : ''; ?>>Inactivo</option>
+                    <select name="estado" id="estado" class="formulario__select">
+                        <option value="activo" <?php echo $cliente['estado'] == 'Activo' ? 'selected' : ''; ?>>Activo</option>
+                        <option value="inactivo" <?php echo $cliente['estado'] == 'Inactivo' ? 'selected' : ''; ?>>Inactivo</option>
                     </select>
+                </div>
+
+                <div class="formulario__campo">
+                    <label for="filtro-aprobacion" class="formulario__label">Filtrar por aprobación</label>
+                    <select name="filtro-aprobacion" id="filtro-aprobacion" class="formulario__select">
+                        <option value="todos">Todos</option>
+                        <option value="aprobado">Aprobado</option>
+                        <option value="desaprobado">Desaprobado</option>
+                    </select>
+                </div>
+                
+                <div class="formulario__campo formulario-baja" id="causa-baja">
+                    <label for="causa-baja" class="formulario__label"> Causa de la baja </label>
+                    <input type="text" name="causa-baja" class="formulario__input"
+                        value="<?php echo $cliente['causa_baja']; ?>">
                 </div>
 
                 <div class="formulario__campo">
@@ -181,9 +201,9 @@ foreach ($parametros as $param) {
                     </select>
                 </div>
 
-                <div class="formulario__campo">
+                <div class="formulario__campo" id="datos-contacto">
                     <h1>Datos de contacto</h1> 
-                </div> <br>
+                </div> 
 
                 <div class="formulario__campo">
                     <label for="puesto_nombre" class="formulario__label"> Nombre </label>
@@ -194,26 +214,27 @@ foreach ($parametros as $param) {
                 <div class="formulario__campo">
                     <label for="puesto" class="formulario__label"> Puesto </label>
                     <input type="text" name="puesto" class="formulario__input" placeholder="Puesto" 
-                    value="<?php echo htmlspecialchars($cliente['puesto_contacto']); ?>" required>
+                    value="<?php echo $cliente['puesto_contacto']; ?>" required>
                 </div>
 
                 <div class="formulario__campo">
                     <label for="email" class="formulario__label">Correo electrónico</label>
                     <input type="email" name="email" class="formulario__input"
-                        value="<?php echo htmlspecialchars($cliente['correo_contacto']); ?>" required>
+                        value="<?php echo $cliente['correo_contacto']; ?>" required>
                 </div>
 
                 <div class="formulario__campo">
                     <label for="numero-telefonico" class="formulario__label">Número telefónico</label>
                     <input type="text" name="numero-telefonico" class="formulario__input"
-                        value="<?php echo htmlspecialchars($cliente['telefono_contacto']); ?>" required>
+                        value="<?php echo $cliente['telefono_contacto']; ?>" required>
                 </div>
 
                 <div class="formulario__campo">
                     <label for="direccion-fiscal" class="formulario__label">Dirección fiscal</label>
                     <input type="text" name="direccion-fiscal" class="formulario__input"
-                        value="<?php echo htmlspecialchars($cliente['direccion_fiscal']); ?>" required>
+                        value="<?php echo $cliente['direccion_fiscal']; ?>" required>
                 </div>
+
                 
                 <input type="submit" class="formulario__submit" value="Actualizar cliente">
             </form>
@@ -222,51 +243,54 @@ foreach ($parametros as $param) {
     </main>
 
     <script>
-        // Get DOM elements
-        const tipoEquipoSelector = document.getElementById('tipo_equipo');
-        const parametrosSelector = document.getElementById('parametros');
-        const seccionAlveografo = document.getElementById('parametros-alveografo');
-        const seccionFarinografo = document.getElementById('parametros-farinografo');
+        const estadoSelector = document.getElementById('estado');
+        const filtroAprobacion = document.getElementById('filtro-aprobacion');
 
-        // Function to update sections visibility
-        function actualizarSecciones() {
-            const tipoSeleccionado = tipoEquipoSelector.value;
-            const parametrosSeleccionados = parametrosSelector.value;
+        // Función para mostrar campo de causa de la baja
+        function verCausaBaja() {
+            const causaBaja = document.getElementById('causa-baja');
+            const datosContacto = document.getElementById('datos-contacto');
 
-            // Hide both sections if "Internacionales" is selected
-            if (parametrosSeleccionados === 'Internacionales') {
-                seccionAlveografo.style.display = 'none';
-                if (seccionFarinografo) {
-                    seccionFarinografo.style.display = 'none';
-                }
-                return;
-            }
-
-            // Show/hide sections based on equipment type when "Personalizados" is selected
-            if (tipoSeleccionado === 'Alveógrafo') {
-                seccionAlveografo.style.display = 'block';
-                if (seccionFarinografo) {
-                    seccionFarinografo.style.display = 'none';
-                }
-            } else if (tipoSeleccionado === 'Farinógrafo') {
-                seccionAlveografo.style.display = 'none';
-                if (seccionFarinografo) {
-                    seccionFarinografo.style.display = 'block';
-                }
+            if(estadoSelector.value === 'inactivo') {
+                causaBaja.style.display = 'flex';
+                datosContacto.style.gridColumn = '1 / 3';
+            } else if(estadoSelector.value === 'activo') {
+                causaBaja.style.display = 'none';
+                datosContacto.style.gridColumn = '1 / 3';
             } else {
-                seccionAlveografo.style.display = 'none';
-                if (seccionFarinografo) {
-                    seccionFarinografo.style.display = 'none';
-                }
+                causaBaja.style.display = 'none';
+                datosContacto.style.gridColumn = '1 / 3';
             }
         }
 
-        // Add event listeners for both select changes
-        tipoEquipoSelector.addEventListener('change', actualizarSecciones);
-        parametrosSelector.addEventListener('change', actualizarSecciones);
+        // Función para filtrar por aprobación
+        function filtrarPorAprobacion() {
+            const valorFiltro = filtroAprobacion.value;
+            const elementos = document.querySelectorAll('.formulario__campo');
 
-        // Run on page load to set initial state
-        actualizarSecciones();
+            elementos.forEach(elemento => {
+                if (valorFiltro === 'todos') {
+                    elemento.style.display = 'block';
+                } else {
+                    // Aquí puedes agregar la lógica para mostrar/ocultar elementos según el estado de aprobación
+                    // Por ejemplo, si tienes una clase o atributo que indique el estado de aprobación:
+                    const estadoAprobacion = elemento.getAttribute('data-aprobacion');
+                    if (estadoAprobacion === valorFiltro) {
+                        elemento.style.display = 'block';
+                    } else {
+                        elemento.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Agregar eventos a los selectores
+        estadoSelector.addEventListener('change', verCausaBaja);
+        filtroAprobacion.addEventListener('change', filtrarPorAprobacion);
+
+        // Ejecutar funciones al cargar la página
+        verCausaBaja();
+        filtrarPorAprobacion();
     </script>
 </body>
 
