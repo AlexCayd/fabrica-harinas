@@ -285,12 +285,12 @@ $parametros_farinografo = [
             }
             
             // Mostrar/ocultar secciones según el tipo de equipo cuando "Personalizados" está seleccionado
-            if (tipoSeleccionado === 'Alveografo') {
+            if (tipoSeleccionado === 'Alveógrafo') {
                 seccionAlveografo.style.display = 'block';
                 if (seccionFarinografo) {
                     seccionFarinografo.style.display = 'none';
                 }
-            } else if (tipoSeleccionado === 'Farinografo') {
+            } else if (tipoSeleccionado === 'Farinógrafo') {
                 seccionAlveografo.style.display = 'none';
                 if (seccionFarinografo) {
                     seccionFarinografo.style.display = 'block';
