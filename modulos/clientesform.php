@@ -311,19 +311,31 @@ $parametros_farinografo = [
         actualizarSecciones();
 
         // Función para validar los límites
-        function validarLimites(minInput, maxInput) {
+        function validarLimites(minInput, maxInput, changedInput) {
             const min = parseFloat(minInput.value);
             const max = parseFloat(maxInput.value);
             const parametro = minInput.dataset.parametro;
 
-            if (!isNaN(min) && !isNaN(max) && min > max) {
+            // Si ambos valores están vacíos, no hay problema
+            if (isNaN(min) && isNaN(max)) {
+                return true;
+            }
+
+            // Si solo uno de los valores está vacío, no hay problema
+            if (isNaN(min) || isNaN(max)) {
+                return true;
+            }
+
+            // Validar que el máximo sea mayor que el mínimo
+            if (min > max) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error de validación',
-                    text: `El límite inferior de "${parametro}" no puede ser mayor al límite superior.`,
+                    text: `El límite inferior (${min}) no puede ser mayor al límite superior (${max}) para "${parametro}".`,
                     confirmButtonColor: '#4c3325'
                 });
-                maxInput.value = '';
+                // Solo limpiar el input que causó el error
+                changedInput.value = '';
                 return false;
             }
             return true;
@@ -335,7 +347,7 @@ $parametros_farinografo = [
                 const row = this.closest('.parametro-row');
                 const minInput = row.querySelector('.min-input');
                 const maxInput = row.querySelector('.max-input');
-                validarLimites(minInput, maxInput);
+                validarLimites(minInput, maxInput, this);
             });
         });
 
@@ -345,7 +357,7 @@ $parametros_farinografo = [
             document.querySelectorAll('.parametro-row').forEach(row => {
                 const minInput = row.querySelector('.min-input');
                 const maxInput = row.querySelector('.max-input');
-                if (!validarLimites(minInput, maxInput)) {
+                if (!validarLimites(minInput, maxInput, minInput)) {
                     isValid = false;
                 }
             });
