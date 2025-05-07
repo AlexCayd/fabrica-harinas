@@ -1,3 +1,4 @@
+<?php include_once 'includes/config.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -12,7 +13,7 @@
     //Validamos si existe sesión actica para permitir o denegar el acceso a la página
     session_start();
     if (isset($_SESSION['user_id']) && isset($_SESSION['username'])) {
-        header("location: /fabrica-harinas/menu.php");
+        header("location: " . BASE_URL . "menu.php");
     }
     ?>
 </head>
@@ -39,7 +40,7 @@
                 <h3 class="login__subtitulo">¡Bienvenido de vuelta al portal de la Fábrica de Harinas Elizondo!</h3>
                 <!-- <p class="alerta__login">¡No tienes permitido acceder!</p>
                 -->
-                <form class="login__login" id="form" action="/fabrica-harinas/config/login.php" method="post">
+                <form class="login__login" id="form" action="<?= BASE_URL ?>config/login.php" method="post">
                     <div class="login__campo">
                         <label for="mail" class="login__label">Correo</label>
                         <input type="email" name="mail" id="correo" class="login__input" required placeholder="correo@ejemplo.com">

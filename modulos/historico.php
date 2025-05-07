@@ -1,6 +1,6 @@
 <?php
+include_once '../includes/config.php';
 require '../config/validar_permisos.php';
-include '../config/conn.php';
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);

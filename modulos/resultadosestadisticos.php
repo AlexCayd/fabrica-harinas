@@ -1,11 +1,12 @@
 <?php 
+include_once '../includes/config.php';
 require '../config/validar_permisos.php'; 
 require '../config/conn.php'; 
 
 // Validar que se acceda por POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     $_SESSION['error'] = 'Acceso denegado: se requiere el método POST.';
-    header ('Location: /fabrica-harinas/modulos/estadisticos.php');
+    header ('Location: ' . BASE_URL . 'modulos/estadisticos.php');
     exit;
 }
 
@@ -16,7 +17,7 @@ $fecha_fin = $_POST['fecha_fin'] ?? null;
 // Validar que las fechas no estén vacías6
 if (empty($fecha_ini) || empty($fecha_fin)) {
     $_SESSION['error'] = 'Fechas inválidas.';
-    header ('Location: /fabrica-harinas/modulos/estadisticos.php');
+    header ('Location: '. BASE_URL . 'modulos/estadisticos.php');
     exit;
 }
 

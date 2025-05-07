@@ -6,7 +6,8 @@
  * asociados a un cliente o equipo específico, determinando automáticamente
  * el tipo de equipo (Alveógrafo o Farinógrafo).
  */
-require './conn.php';
+include_once '../includes/config.php';
+require 'conn.php';
 // Iniciar sesión para almacenar los resultados
 session_start();
 
@@ -24,7 +25,7 @@ if (!isset($_GET['origen_parametros']) ||
    ($_GET['origen_parametros'] === 'equipo' && !isset($_GET['id_equipo']))) {
     
     $_SESSION['error'] = "Faltan datos necesarios para obtener los parámetros.";
-    header('Location: ../modulos/analisiscalidadform.php' . (isset($_GET['id_inspeccion']) ? '?id=' . $_GET['id_inspeccion'] : ''));
+    header('Location:  '. BASE_URL .' modulos/analisiscalidadform.php' . (isset($_GET['id_inspeccion']) ? '?id=' . $_GET['id_inspeccion'] : ''));
     exit;
 }
 
@@ -181,7 +182,7 @@ try {
         ": $nombre_objetivo";
         
     // Generar la URL de redirección, preservando el id_inspeccion si existe
-    $redirect_url = "../modulos/analisiscalidadform.php";
+    $redirect_url =  BASE_URL . "modulos/analisiscalidadform.php";
     $params = [];
     
     if (isset($_GET['id_inspeccion'])) {
@@ -200,7 +201,7 @@ try {
     $_SESSION['error'] = "Error al obtener parámetros: " . $e->getMessage();    
     
     // Generar la URL de redirección para caso de error, preservando el id_inspeccion si existe
-    $redirect_url = "../modulos/analisiscalidadform.php";
+    $redirect_url = BASE_URL . "modulos/analisiscalidadform.php";
     $params = [];
     
     if (isset($_GET['id_inspeccion'])) {

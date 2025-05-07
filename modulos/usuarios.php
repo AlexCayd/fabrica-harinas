@@ -1,4 +1,5 @@
 <?php
+    include_once '../includes/config.php';
 require '../config/validar_permisos.php';
 $orden = $_GET['orden'] ?? ''; // por defecto vacío
 ?>
@@ -83,7 +84,7 @@ $orden = $_GET['orden'] ?? ''; // por defecto vacío
                         require '../config/conn.php';
 
                         $rol = [];
-                        $sql = "SELECT * FROM usuarios";
+                        $sql = "SELECT * FROM Usuarios";
 
                         // Aplica filtro si hay valor de ordenamiento
                         if (!empty($orden)) {

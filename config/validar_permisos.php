@@ -1,17 +1,17 @@
 <?php
-// Validar permisos de TI
+    include_once '../config/conn.php';
     if (session_status() == PHP_SESSION_NONE){ //Solo inicia sesión si no está activa
         session_start();
     }
 
     if (!isset($_SESSION['user_id'])){
-        header('Location: /fabrica-harinas/index.php');
+        header('Location: ' . BASE_URL . 'index.php');
     } 
 
     if (isset($_SESSION['rol'])){
         $location = rtrim(strtok($_SERVER['REQUEST_URI'], '?'), '/');
         $rol = $_SESSION['rol'];
-        $path = '/fabrica-harinas/modulos/';
+        $path =  BASE_URL . 'modulos/';
         
         $permisos = [
             'TI' => [ 
@@ -50,15 +50,15 @@
         if (isset($permisos[$rol])) {
             if (!in_array($location, $permisos[$rol])) {
                 $_SESSION['error'] = 'No tienes permisos para acceder esta sección.';
-                header('Location: /fabrica-harinas/menu.php');
+                header('Location: ' . BASE_URL . 'menu.php');
                 exit;
             }
         } else {
             $_SESSION['error'] = 'Rol no reconocido.';
-            header('Location: /fabrica-harinas/menu.php');
+            header('Location: ' . BASE_URL . 'menu.php');
             exit;
         }
         
     }else{
-        header ('Location: /fabrica-harinas/index.php');
+        header ('Location: ' . BASE_URL . 'index.php');
     }

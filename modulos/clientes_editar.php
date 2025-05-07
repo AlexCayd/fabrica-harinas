@@ -1,4 +1,5 @@
 <?php
+include_once '../includes/config.php';
 require '../config/validar_permisos.php';
 include '../config/conn.php';
 include '../config/functions.php';
@@ -11,7 +12,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 if (!$id_cliente) {
-    header("Location: /fabrica-harinas/modulos/clientes.php");
+    header("Location: " . BASE_URL . "modulos/clientes.php");
     exit;
 }
 
@@ -23,7 +24,7 @@ $stmt_cliente->execute();
 $cliente = $stmt_cliente->fetch(PDO::FETCH_ASSOC);
 
 if (!$cliente) {
-    header("Location: /fabrica-harinas/modulos/clientes.php");
+    header("Location: ". BASE_URL ."modulos/clientes.php");
     exit;
 }
 

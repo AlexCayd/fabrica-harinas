@@ -1,4 +1,5 @@
 <?php
+include_once '../includes/config.php';
 require '../config/validar_permisos.php';
 include '../config/conn.php';
 // Consulta para recuperar a todos los clientes

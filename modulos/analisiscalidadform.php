@@ -1,4 +1,5 @@
 <?php
+include_once '../includes/config.php';
 require '../config/validar_permisos.php';
 require '../config/conn.php';
 
@@ -1190,16 +1191,6 @@ if (isset($_SESSION['lote_selection'])) {
 window.addEventListener('beforeunload', function (e) {
     // Solo enviar la solicitud si no es una redirección a obtener_parametros.php o procesar_analisis.php
     // o si no es el botón de cancelar verificación
-    const activeElement = document.activeElement;
-    if (activeElement && (
-        activeElement.id === 'btnVerificarParametros' || 
-        activeElement.id === 'btnCancelarVerificacion' ||
-        activeElement.type === 'submit'
-    )) {
-        // No hacer nada, estos botones ya manejan la sesión correctamente
-        return;
-    }
-
     // Crear una solicitud para limpiar la sesión
     const limpieza = new XMLHttpRequest();
     limpieza.open('GET', '../config/limpiar_parametros_sesion.php', false); // síncrono para garantizar que se ejecute

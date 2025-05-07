@@ -1,6 +1,7 @@
 <?php
-require './conn.php';
-require './validar_permisos.php'; // Esta línea ya incluye toda la validación necesaria
+include_once '../includes/config.php';
+require 'conn.php';
+require 'validar_permisos.php'; // Esta línea ya incluye toda la validación necesaria
 
 // Verificar si es una solicitud de eliminación
 if (isset($_GET['id']) && isset($_GET['accion']) && $_GET['accion'] == 'eliminar') {
@@ -49,7 +50,7 @@ if (isset($_GET['id']) && isset($_GET['accion']) && $_GET['accion'] == 'eliminar
         
         // Redirigir a la lista de análisis con mensaje de éxito
         $_SESSION['exito'] = "Análisis eliminado correctamente";
-        header("Location: ../modulos/analisiscalidad.php");
+        header("Location: " . BASE_URL . "modulos/analisiscalidad.php");
         exit;
         
     } catch (PDOException $e) {
@@ -58,7 +59,7 @@ if (isset($_GET['id']) && isset($_GET['accion']) && $_GET['accion'] == 'eliminar
         
         // Redirigir con mensaje de error
         $_SESSION['error'] = "Error al eliminar el análisis: " . $e->getMessage();
-        header("Location: ../modulos/analisiscalidad.php");
+        header("Location: " . BASE_URL . "modulos/analisiscalidad.php");
         exit;
     }
 }
@@ -66,7 +67,7 @@ if (isset($_GET['id']) && isset($_GET['accion']) && $_GET['accion'] == 'eliminar
 // Verificar que es una petición POST para las operaciones de crear/actualizar
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     $_SESSION['error'] = "Método no permitido";
-    header('Location: ../modulos/analisiscalidadform.php');
+    header('Location: ' . BASE_URL . 'modulos/analisiscalidadform.php');
     exit;
 }
 
@@ -91,13 +92,13 @@ if (isset($_POST['lote']) && !empty($_POST['lote'])) {
 // Validaciones básicas
 if (empty($lote)) {
     $_SESSION['error'] = "Debe especificar un lote";
-    header('Location: ../modulos/analisiscalidadform.php' . ($id_inspeccion ? "?id=$id_inspeccion" : ''));
+    header('Location: ' . BASE_URL . 'modulos/analisiscalidadform.php' . ($id_inspeccion ? "?id=$id_inspeccion" : ''));
     exit;
 }
 
 if (empty($tipo_equipo) || !in_array($tipo_equipo, ['Alveógrafo', 'Farinógrafo'])) {
     $_SESSION['error'] = "Tipo de equipo no válido";
-    header('Location: ../modulos/analisiscalidadform.php' . ($id_inspeccion ? "?id=$id_inspeccion" : ''));
+    header('Location: ' . BASE_URL . 'modulos/analisiscalidadform.php' . ($id_inspeccion ? "?id=$id_inspeccion" : ''));
     exit;
 }
 
@@ -106,7 +107,7 @@ $parametros_form = $tipo_equipo === 'Alveógrafo' ? ($_POST['alveografo'] ?? [])
 
 if (empty($parametros_form)) {
     $_SESSION['error'] = "No se recibieron parámetros para el análisis";
-    header('Location: ../modulos/analisiscalidadform.php' . ($id_inspeccion ? "?id=$id_inspeccion" : ''));
+    header('Location: ' . BASE_URL . 'modulos/analisiscalidadform.php' . ($id_inspeccion ? "?id=$id_inspeccion" : ''));
     exit;
 }
 
@@ -243,18 +244,18 @@ try {
     }
     
     $_SESSION['exito'] = $editando ? "Análisis actualizado correctamente" : "Análisis registrado correctamente";
-    header('Location: ../modulos/analisiscalidad.php');
+    header('Location: ' . BASE_URL . 'modulos/analisiscalidad.php');
     exit;
 
 } catch (PDOException $e) {
     $pdo->rollBack();
     $_SESSION['error'] = "Error al procesar el análisis: " . $e->getMessage();
-    header('Location: ../modulos/analisiscalidadform.php' . ($id_inspeccion ? "?id=$id_inspeccion" : ''));
+    header('Location: ' . BASE_URL . 'modulos/analisiscalidadform.php' . ($id_inspeccion ? "?id=$id_inspeccion" : ''));
     exit;
 } catch (Exception $e) {
     $pdo->rollBack();
     $_SESSION['error'] = $e->getMessage();
-    header('Location: ../modulos/analisiscalidadform.php' . ($id_inspeccion ? "?id=$id_inspeccion" : ''));
+    header('Location: ' . BASE_URL . 'modulos/analisiscalidadform.php' . ($id_inspeccion ? "?id=$id_inspeccion" : ''));
     exit;
 }
 

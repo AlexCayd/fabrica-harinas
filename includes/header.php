@@ -28,13 +28,13 @@ if (isset($_SESSION['error'])) {
     </h2>
     <p><?php echo $_SESSION["username"] . ' [' . $_SESSION["rol"]  . ']'?></p>
     <nav class="header__nav">
-        <a href="/fabrica-harinas/menu.php" class="header__btn">
-            <img class="header__icono" src="/fabrica-harinas/img/home.svg" alt="Home">
+        <a href="<?= BASE_URL ?>menu.php" class="header__btn">
+            <img class="header__icono" src="<?= BASE_URL ?>img/home.svg" alt="Home">
             <p class="header__textoicono">Home</p>
         </a>
 
-        <a href="/fabrica-harinas/config/logout.php" class="header__btn">
-            <img class="header__icono" src="/fabrica-harinas/img/exit.svg" alt="Home">
+        <a href="<?= BASE_URL ?>config/logout.php" class="header__btn">
+            <img class="header__icono" src="<?= BASE_URL ?>img/exit.svg" alt="Home">
             <p class="header__textoicono">Salir</p>
         </a>
     </nav>

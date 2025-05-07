@@ -1,6 +1,7 @@
 <?php
+include_once '../includes/config.php';
 // Incluir el archivo de configuración de la base de datos
-require './conn.php';
+require 'conn.php';
 
 // Iniciar sesión para poder almacenar datos temporales
 session_start();
@@ -54,7 +55,7 @@ if (isset($_GET['id']) && isset($_GET['accion']) && $_GET['accion'] == 'eliminar
         $pdo->commit();
         
         // Redirigir a la lista de equipos con mensaje de éxito
-        header("Location: ../modulos/laboratorios.php?success=1&action=delete");
+        header("Location: " . BASE_URL . "modulos/laboratorios.php?success=1&action=delete");
         exit;
         
     } catch (PDOException $e) {
@@ -62,7 +63,7 @@ if (isset($_GET['id']) && isset($_GET['accion']) && $_GET['accion'] == 'eliminar
         $pdo->rollBack();
         
         // Redirigir con mensaje de error
-        header("Location: ../modulos/laboratorios.php?error=1&message=" . urlencode($e->getMessage()));
+        header("Location: " . BASE_URL . "modulos/laboratorios.php?error=1&message=" . urlencode($e->getMessage()));
         exit;
     }
 }
@@ -180,9 +181,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Redirigir de vuelta al formulario con los errores
             if ($editando) {
-                header("Location: ../modulos/laboratoriosform.php?id=" . $id_equipo);
+                header("Location: " . BASE_URL . "modulos/laboratoriosform.php?id=" . $id_equipo);
             } else {
-                header("Location: ../modulos/laboratoriosform.php");
+                header("Location: " . BASE_URL . "modulos/laboratoriosform.php");
             }
             exit;
         }
@@ -293,7 +294,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         // Redirigir a la lista de equipos con mensaje de éxito
-        header("Location: ../modulos/laboratorios.php?success=1&action=" . ($editando ? 'update' : 'insert'));
+        header("Location: " . BASE_URL . "modulos/laboratorios.php?success=1&action=" . ($editando ? 'update' : 'insert'));
         exit;
         
     } catch (PDOException $e) {
@@ -306,16 +307,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Redirigir de vuelta al formulario con error general
         if ($editando) {
-            header("Location: ../modulos/laboratoriosform.php?id=" . $id_equipo);
+            header("Location: " . BASE_URL . "modulos/laboratoriosform.php?id=" . $id_equipo);
         } else {
-            header("Location: ../modulos/laboratoriosform.php");
+            header("Location: " . BASE_URL . "modulos/laboratoriosform.php");
         }
         exit;
     }
 } else {
     // Si no es una petición POST ni una solicitud de eliminación, redirigir
     if (!isset($_GET['id']) || !isset($_GET['accion'])) {
-        header("Location: ../modulos/laboratorios.php");
+        header("Location: " . BASE_URL . "modulos/laboratorios.php");
         exit;
     }
 }

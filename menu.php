@@ -1,10 +1,11 @@
 <?php
+    include_once 'includes/config.php';
     if (session_status() === PHP_SESSION_NONE) {
         session_start(); // Solo inicia la sesión si no está activa
     }  
         
     if (!isset($_SESSION['user_id'])){
-        header('Location: /fabrica-harinas/index.php');
+        header('Location: ' . BASE_URL . 'index.php');
     } 
 ?>
 <!DOCTYPE html>
@@ -31,43 +32,43 @@
                 // Definir módulos y los roles que tienen acceso
                 $modulos = [
                     'usuarios' => [
-                        'url' => '/fabrica-harinas/modulos/usuarios.php',
+                        'url' =>  BASE_URL . 'modulos/usuarios.php',
                         'img' => 'img/usuarios.svg',
                         'texto' => 'Usuarios',
                         'roles' => ['TI']
                     ],
                     'laboratorios' => [
-                        'url' => '/fabrica-harinas/modulos/laboratorios.php',
+                        'url' => BASE_URL . 'modulos/laboratorios.php',
                         'img' => 'img/laboratorios.svg',
                         'texto' => 'Equipos de Laboratorio',
                         'roles' => ['Laboratorio', 'TI', 'Gerencia de Control de Calidad']
                     ],
                     'clientes' => [
-                        'url' => '/fabrica-harinas/modulos/clientes.php',
+                        'url' => BASE_URL . 'modulos/clientes.php',
                         'img' => 'img/clientes.svg',
                         'texto' => 'Clientes',
                         'roles' => ['Laboratorio', 'TI', 'Gerencia de Control de Calidad']
                     ],
                     'parametros' => [
-                        'url' => '/fabrica-harinas/modulos/parametros.php?tipo=internacionales',
+                        'url' => BASE_URL . 'modulos/parametros.php?tipo=internacionales',
                         'img' => 'img/parametros.svg',
                         'texto' => 'Parámetros',
                         'roles' => ['Gerencia de Aseguramiento de Calidad', 'TI', 'Gerente de Planta', 'Director de Operaciones']
                     ],
                     'analisiscalidad' => [
-                        'url' => '/fabrica-harinas/modulos/analisiscalidad.php',
+                        'url' => BASE_URL . 'modulos/analisiscalidad.php',
                         'img' => 'img/quality.svg',
                         'texto' => 'Análisis de Calidad',
                         'roles' => ['Laboratorio', 'TI', 'Gerencia de Control de Calidad']
                     ],
                     'historico' => [
-                        'url' => '/fabrica-harinas/modulos/historico.php',
+                        'url' => BASE_URL . 'modulos/historico.php',
                         'img' => 'img/historico.svg',
                         'texto' => 'Certificados',
                         'roles' => ['Laboratorio', 'TI', 'Gerencia de Control de Calidad']
                     ],
                     'estadisticos' => [
-                        'url' => '/fabrica-harinas/modulos/estadisticos.php',
+                        'url' => BASE_URL . 'modulos/estadisticos.php',
                         'img' => 'img/stats.svg',
                         'texto' => 'Reportes estadísticos',
                         'roles' => ['Gerencia de Aseguramiento de Calidad', 'TI', 'Gerente de Planta', 'Director de Operaciones']

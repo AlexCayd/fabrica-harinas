@@ -1,5 +1,6 @@
 <?php
 session_start();
+include_once '../../config/config.php';
 include '../../config/conn.php';
 include '../../config/functions.php';
 
@@ -27,21 +28,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if(empty($certificado) || empty($nombre) || empty($rfc) || empty($nombre_contacto) || empty($puesto) || empty($correo) || empty($telefono) || empty($direccion_fiscal) 
     || empty($estado) ){
         $_SESSION['error'] = 'Debes de llenar todos los campos.';
-        header("Location: /fabrica-harinas/modulos/clientes_editar.php?id=$id");
+        header("Location: ". BASE_URL . "modulos/clientes_editar.php?id=$id");
         exit;
     }
 
     // Verificamos si el telefono tiene 10 digitos
     if(strlen($telefono) != 10) {
         $_SESSION['error'] = 'El telefono debe de tener 10 digitos.';
-        header("Location: /fabrica-harinas/modulos/clientes_editar.php?id=$id");
+        header("Location: ". BASE_URL . "modulos/clientes_editar.php?id=$id");
         exit;
     }
 
     // Verificamos si el RFC tiene 13 digitos
     if(strlen($rfc) != 13 && strlen($rfc) != 12) {
         $_SESSION['error'] = 'El RFC debe de tener 13 digitos.';
-        header("Location: /fabrica-harinas/modulos/clientes_editar.php?id=$id");
+        header("Location: ". BASE_URL . "modulos/clientes_editar.php?id=$id");
         exit;
     }
 
@@ -122,9 +123,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
 
-    header("Location: /fabrica-harinas/modulos/clientes.php");
+    header("Location: ". BASE_URL . "modulos/clientes.php");
     exit;
 } else {
-    header("Location: /fabrica-harinas/menu.php");
+    header("Location: ". BASE_URL . "menu.php");
     exit;
 }

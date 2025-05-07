@@ -1,6 +1,5 @@
     <?php
-
-    include '../config/conn.php';
+    include_once '../includes/config.php';
     include '../fpdf186/fpdf.php';
     session_start();
     ini_set('display_errors', 1);

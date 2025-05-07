@@ -1,4 +1,6 @@
-<?php require '../config/validar_permisos.php';
+<?php 
+include_once '../includes/config.php';
+require '../config/validar_permisos.php';
 //session_start();
 $parametros_alveografo = [
     ['nombre' => 'Humedad', 'id_parametro' => 'Humedad', 'lim_Inferior' => '', 'lim_Superior' => ''],

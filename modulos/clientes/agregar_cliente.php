@@ -1,5 +1,5 @@
 <?php
-
+include_once '../../config/config.php';
 include '../../config/conn.php';
 include '../../config/functions.php';
 session_start();
@@ -28,21 +28,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     empty($estado) || empty($parametros) || empty($tipo)) {
         $_SESSION['error'] = 'Debes llenar todos los campos.';
         $pdo->rollBack();
-        header("Location: /fabrica-harinas/modulos/clientesform.php");
+        header("Location: " . BASE_URL . "modulos/clientesform.php");
         exit;
     }
 
     if(strlen($telefono) != 10) {
         $_SESSION['error'] = 'El teléfono debe tener 10 dígitos.';
         $pdo->rollBack();
-        header("Location: /fabrica-harinas/modulos/clientesform.php");
+        header("Location: ". BASE_URL . "/modulos/clientesform.php");
         exit;
     }
 
     if(strlen($rfc) != 13) {
         $_SESSION['error'] = 'El RFC debe tener 13 dígitos.';
         $pdo->rollBack();
-        header("Location: /fabrica-harinas/modulos/clientesform.php");
+        header("Location: ". BASE_URL . "/modulos/clientesform.php");
         exit;
     }
 
@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if($min > $max) {
                     $_SESSION['error'] = 'El límite inferior de "'.$parametro_id.'" no puede ser mayor al límite superior.';
                     $pdo->rollBack();
-                    header("Location: /fabrica-harinas/modulos/clientesform.php?error_parametro=".$parametro_id);
+                    header("Location: modulos/clientesform.php?error_parametro=".$parametro_id);
                     exit;
                 }
 
@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 ])) {
                     $_SESSION['error'] = 'Error al insertar parámetros.';
                     $pdo->rollBack();
-                    header("Location: /fabrica-harinas/modulos/clientesform.php");
+                    header("Location: ". BASE_URL . "/modulos/clientesform.php");
                     exit;
                 }
             }
@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if($min > $max) {
                     $_SESSION['error'] = 'El límite inferior de "'.$parametro_id.'" no puede ser mayor al límite superior.';
                     $pdo->rollBack();
-                    header("Location: /fabrica-harinas/modulos/clientesform.php?error_parametro=".$parametro_id);
+                    header("Location: ". BASE_URL . "/modulos/clientesform.php?error_parametro=".$parametro_id);
                     exit;
                 }
 
@@ -129,21 +129,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 ])) {
                     $_SESSION['error'] = 'Error al insertar parámetros.';
                     $pdo->rollBack();
-                    header("Location: /fabrica-harinas/modulos/clientesform.php");
+                    header("Location: ". BASE_URL . "/modulos/clientesform.php");
                     exit;
                 }
             }
         }
     }
 
-    // Todo salió bien
     $pdo->commit();
     $_SESSION['exito'] = 'Cliente agregado correctamente.';
-    header("Location: /fabrica-harinas/modulos/clientes.php?success");
+    header("Location: " . BASE_URL . "modulos/clientes.php?success");
     exit();
 
 } else {
-    header("Location: /fabrica-harinas/menu.php");
+    header("Location: ". BASE_URL . "menu.php");
     exit();
 }
 ?>

@@ -1,7 +1,7 @@
 <?php
+include_once '../includes/config.php';
 require '../config/validar_permisos.php';
 
-require '../config/conn.php';
 
 $update = isset($_GET['id']);
 
@@ -13,7 +13,7 @@ $usuario = [
 ];
 
 if ($update) {
-    $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE id_usuario = ?");
+    $stmt = $pdo->prepare("SELECT * FROM Usuarios WHERE id_usuario = ?");
     $stmt->execute([$_GET['id']]);
     $usuario = $stmt->fetch();
 
@@ -68,7 +68,7 @@ if ($update) {
             <a href="usuarios.php" class="atras">Ir atrás</a>
             <h2 class="heading"><?php echo $update ? 'Editar' : 'Agregar'; ?> Usuario</h2>
             <form id="formUsuario"
-                action="<?= $update ? '/fabrica-harinas/config/usuarios/updateUser.php' : '/fabrica-harinas/config/usuarios/createUser.php'; ?>"
+                action="<?= $update ? BASE_URL .'config/usuarios/updateUser.php' : BASE_URL . 'config/usuarios/createUser.php'; ?>"
                 method="post" class="formulario">
 
                 <?php if ($update): ?>

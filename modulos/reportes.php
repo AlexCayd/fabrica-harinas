@@ -1,4 +1,7 @@
-<?php require '../config/validar_permisos.php'; ?>
+<?php 
+require '../config/validar_permisos.php'; 
+include_once '../includes/config.php';
+?>
 
 <!DOCTYPE html>
 <html lang="en">

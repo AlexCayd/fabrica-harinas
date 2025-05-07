@@ -1,5 +1,5 @@
 <?php
-
+include_once '../includes/config.php';
 require '../config/validar_permisos.php';
 require '../config/conn.php';
 

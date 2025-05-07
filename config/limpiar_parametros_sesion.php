@@ -1,4 +1,5 @@
 <?php
+include_once '../includes/config.php';
 // Iniciar sesión
 session_start();
 
@@ -9,7 +10,7 @@ if (isset($_SESSION['parametros_consulta'])) {
 
 // Redirigir de vuelta al formulario
 // Si hay id de inspección, preservarla
-$redirect_url = '../modulos/analisiscalidadform.php';
+$redirect_url =  BASE_URL . 'modulos/analisiscalidadform.php';
 if (isset($_GET['id'])) {
     $redirect_url .= '?id=' . $_GET['id'];
 }

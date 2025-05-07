@@ -1,8 +1,10 @@
 <?php 
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+    include_once '../includes/config.php';
     require 'conn.php';
-    
     include 'functions.php';
-
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST'){
         session_start();
@@ -12,7 +14,7 @@
         $passwd = test_data($_POST['passwd']);
 
         // Consulta preparada a la db en base al correo 
-        $stmt = $pdo->prepare("SELECT id_usuario, nombre, contrasena, rol FROM usuarios WHERE correo = ?");
+        $stmt = $pdo->prepare("SELECT id_usuario, nombre, contrasena, rol FROM Usuarios WHERE correo = ?");
         $stmt->execute([$mail]);
         // Resultado de la consulta
         $res = $stmt->fetch();
@@ -23,14 +25,14 @@
             $_SESSION['username'] = $res['nombre'];
             $_SESSION['rol'] = $res['rol'];
             $_SESSION['exito'] = 'Bienvenido ' . $res['nombre'] ;
-            header("Location: /fabrica-harinas/menu.php");
+            header("Location: " . BASE_URL . "menu.php");
             exit;
         } else {
             $_SESSION['error'] = 'Credenciales no válidas';
-            header("Location: /fabrica-harinas/index.php");
+            header("Location: " . BASE_URL . "index.php");
             exit;
         }
     } else {
-        header("Location: /fabrica-harinas/index.php");
+        header("Location: " . BASE_URL . "index.php");
         exit;
     }

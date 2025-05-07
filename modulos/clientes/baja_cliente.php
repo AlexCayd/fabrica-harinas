@@ -1,5 +1,6 @@
 <?php 
 session_start(); 
+include_once '../../config/config.php';
 include '../../config/conn.php';
 include '../../config/functions.php';
 
@@ -27,7 +28,7 @@ $id = $_GET['id'];
         $_SESSION['texto'] = 'No se pudo eliminar el cliente.';
     }
 
-    header("Location: /fabrica-harinas/modulos/clientes.php");
+    header("Location: ". BASE_URL . "modulos/clientes.php");
 
 // }else{
 //     echo $sql;

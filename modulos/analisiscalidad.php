@@ -1,4 +1,5 @@
 <?php
+include_once '../includes/config.php';
 require '../config/validar_permisos.php';
 require '../config/conn.php';
 
@@ -188,7 +189,7 @@ function determinarTipoEquipo($item) {
 </head>
 <body>
     <main class="contenedor hoja">
-        <?php include '../includes/header.php'; ?>
+        <?php include BASE_URL . 'includes/header.php'; ?>
 
         <div class="contenedor__modulo">
             <a href="../menu.php" class="atras">Ir atrás</a>
