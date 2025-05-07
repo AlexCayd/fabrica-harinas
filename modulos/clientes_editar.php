@@ -2,7 +2,7 @@
 require '../config/validar_permisos.php';
 include '../config/conn.php';
 include '../config/functions.php';
-session_start();
+// session_start();
 
 // Obtener el ID del cliente a editar
 $id_cliente = $_GET['id'];
@@ -270,13 +270,13 @@ foreach ($parametros as $param) {
 
             elementos.forEach(elemento => {
                 if (valorFiltro === 'todos') {
-                    elemento.style.display = 'block';
+                    elemento.style.display = 'flex';
                 } else {
                     // Aquí puedes agregar la lógica para mostrar/ocultar elementos según el estado de aprobación
                     // Por ejemplo, si tienes una clase o atributo que indique el estado de aprobación:
                     const estadoAprobacion = elemento.getAttribute('data-aprobacion');
                     if (estadoAprobacion === valorFiltro) {
-                        elemento.style.display = 'block';
+                        elemento.style.display = 'flex';
                     } else {
                         elemento.style.display = 'none';
                     }
