@@ -77,8 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($parametros == 'Personalizados') {
         if ($tipo == 'Alveografo' && isset($_POST['alveografo'])) {
             foreach ($_POST['alveografo'] as $parametro_id => $valores) {
-                $min = test_data($valores['min']);
-                $max = test_data($valores['max']);
+                $min = floatval(test_data($valores['min']));
+                $max = floatval(test_data($valores['max']));
 
                 if($min > $max) {
                     $_SESSION['error'] = 'El límite inferior de "'.$parametro_id.'" no puede ser mayor al límite superior.';
