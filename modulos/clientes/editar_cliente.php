@@ -1,6 +1,6 @@
 <?php
 session_start();
-include_once '../../config/config.php';
+include_once '../../includes/config.php';
 include '../../config/conn.php';
 include '../../config/functions.php';
 
