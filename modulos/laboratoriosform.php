@@ -2,7 +2,7 @@
 include_once '../includes/config.php';
 require '../config/validar_permisos.php';
 require '../config/conn.php';
-
+//Prueba de pull y push 
 $editando = false;
 $equipo = null;
 $errores = [];
