@@ -30,6 +30,10 @@ $parametros_farinografo = [
     ['nombre' => 'Grado Decaimiento', 'id_parametro' => 'Farinograma_Grado_Decaimiento', 'lim_Inferior' => '', 'lim_Superior' => '']
 
 ];
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 ?>
 <!DOCTYPE html>
 <html lang="en">
