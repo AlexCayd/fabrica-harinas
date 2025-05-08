@@ -2,7 +2,7 @@
 include_once '../includes/config.php';
 require '../config/validar_permisos.php';
 require '../config/conn.php';
-//Prueba de pull y push 
+
 $editando = false;
 $equipo = null;
 $errores = [];
@@ -124,7 +124,7 @@ $proveedor_personalizado = false;
 $ubicacion_personalizada = false;
 
 if ($editando) {
-
+    // Consultar parámetros del equipo para llenado automático
     $sql_parametros = "SELECT nombre_parametro, lim_Inferior, lim_Superior 
                        FROM Parametros 
                        WHERE id_equipo = :id_equipo";
@@ -134,8 +134,8 @@ if ($editando) {
     
     $parametros_equipo = $stmt_parametros->fetchAll(PDO::FETCH_ASSOC);
 
-     // Asignar los valores a los arrays de parámetros correspondientes
-     foreach ($parametros_equipo as $param) {
+    // Asignar los valores a los arrays de parámetros correspondientes
+    foreach ($parametros_equipo as $param) {
         // Para parámetros de Alveógrafo
         foreach ($parametros_alveografo as $key => $alv_param) {
             if ($param['nombre_parametro'] == $alv_param['id_parametro']) {
@@ -152,7 +152,6 @@ if ($editando) {
             }
         }
     }
-
 
     $marca_personalizada = !in_array($equipo['marca'], $marcas);
     $proveedor_personalizado = !in_array($equipo['proveedor'], $proveedores);
@@ -536,7 +535,7 @@ if (isset($datos_form)) {
                     </select>
                 </div>
 
-                <!-- Sección para seleccionar parámetros -->
+                <!-- Sección para seleccionar parámetros del Alveógrafo -->
                 <div id="parametros-alveografo" class="parametros-section" style="display: none;">
                     <div class="parametros-title">Valores de referencia internacionales - Alveógrafo</div>
                     
@@ -567,7 +566,7 @@ if (isset($datos_form)) {
                     <?php endforeach; ?>
                 </div>
 
-                
+                <!-- Sección para seleccionar parámetros del Farinógrafo -->
                 <div id="parametros-farinografo" class="parametros-section" style="display: none;">
                     <div class="parametros-title">Valores de referencia internacionales - Farinógrafo</div>
                     
@@ -577,7 +576,8 @@ if (isset($datos_form)) {
                         <div class="parametro-inputs">
                             <div>
                                 <input type="number" step="0.01" class="parametro-input min-input" 
-                                       name="farinografo[<?php echo $param['id_parametro']; ?>][min]"  
+                                       name="farinografo[<?php echo $param['id_parametro']; ?>][min]" 
+                                       value="<?php echo htmlspecialchars($param['lim_Inferior']); ?>" 
                                        placeholder="Mínimo"
                                        data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>"
                                        >
@@ -586,6 +586,7 @@ if (isset($datos_form)) {
                             <div>
                                 <input type="number" step="0.01" class="parametro-input max-input" 
                                        name="farinografo[<?php echo $param['id_parametro']; ?>][max]" 
+                                       value="<?php echo htmlspecialchars($param['lim_Superior']); ?>" 
                                        placeholder="Máximo"
                                        data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>"
                                        >
