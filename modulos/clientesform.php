@@ -299,14 +299,14 @@ error_reporting(E_ALL);
 
             // Mostrar/ocultar secciones según el tipo de equipo cuando "Personalizados" está seleccionado
             if (tipoSeleccionado === 'Alveógrafo') {
-                seccionAlveografo.style.display = 'flex';
+                seccionAlveografo.style.display = 'block';
                 if (seccionFarinografo) {
                     seccionFarinografo.style.display = 'none';
                 }
             } else if (tipoSeleccionado === 'Farinógrafo') {
                 seccionAlveografo.style.display = 'none';
                 if (seccionFarinografo) {
-                    seccionFarinografo.style.display = 'flex';
+                    seccionFarinografo.style.display = 'block';
                 }
             } else {
                 seccionAlveografo.style.display = 'none';
