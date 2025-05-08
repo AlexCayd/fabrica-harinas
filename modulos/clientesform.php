@@ -1,7 +1,6 @@
-<?php 
-include_once '../includes/config.php';
-require '../config/validar_permisos.php';
-//session_start();
+<?php require '../config/validar_permisos.php';
+
+$editando = false;
 $parametros_alveografo = [
     ['nombre' => 'Humedad', 'id_parametro' => 'Humedad', 'lim_Inferior' => '', 'lim_Superior' => ''],
     ['nombre' => 'Cenizas', 'id_parametro' => 'Cenizas', 'lim_Inferior' => '', 'lim_Superior' => ''],
@@ -15,7 +14,7 @@ $parametros_alveografo = [
     ['nombre' => 'Valor W (10⁻⁴ J)', 'id_parametro' => 'Alveograma_W', 'lim_Inferior' => '', 'lim_Superior' => ''],
     ['nombre' => 'Relación P/L', 'id_parametro' => 'Alveograma_PL', 'lim_Inferior' => '', 'lim_Superior' => ''],
     ['nombre' => 'Índice de elasticidad (Ie)', 'id_parametro' => 'Alveograma_IE', 'lim_Inferior' => '', 'lim_Superior' => '']
-    
+
 ];
 
 $parametros_farinografo = [
@@ -31,7 +30,6 @@ $parametros_farinografo = [
     ['nombre' => 'Grado Decaimiento', 'id_parametro' => 'Farinograma_Grado_Decaimiento', 'lim_Inferior' => '', 'lim_Superior' => '']
 
 ];
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -47,7 +45,7 @@ $parametros_farinografo = [
 
 <body>
 
-<style>
+    <style>
         .parametros-section {
             margin-top: 20px;
             padding: 15px;
@@ -56,7 +54,7 @@ $parametros_farinografo = [
             background-color: #f9f9f9;
             grid-column: 1 / 3;
         }
-        
+
         .parametros-title {
             font-weight: bold;
             margin-bottom: 15px;
@@ -64,7 +62,7 @@ $parametros_farinografo = [
             border-bottom: 1px solid #ddd;
             padding-bottom: 8px;
         }
-        
+
         .parametro-row {
             display: flex;
             gap: 20px;
@@ -72,18 +70,18 @@ $parametros_farinografo = [
             margin-bottom: 10px;
             align-items: center;
         }
-        
+
         .parametro-nombre {
             flex: 1;
             font-weight: bold;
         }
-        
+
         .parametro-inputs {
             flex: 1;
             display: flex;
             gap: 10px;
         }
-        
+
         .parametro-input {
             width: 100px;
             padding: 8px;
@@ -95,7 +93,7 @@ $parametros_farinografo = [
             gap: 15px;
             font-family: inherit;
         }
-        
+
         .parametro-label {
             font-size: 12px;
             color: #666;
@@ -120,7 +118,19 @@ $parametros_farinografo = [
         }
     </style>
     <main class="contenedor hoja">
-        <?php include '../includes/header.php' ?>
+        <?php if (isset($_SESSION['error'])): ?>
+            <script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: '<?= addslashes($_SESSION['error']) ?>'
+                });
+            </script>
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
+
+        <?php include '../includes/header.php'; ?>
+
 
         <div class="contenedor__modulo">
             <a href="clientes.php" class="atras">Ir atrás</a>
@@ -138,12 +148,12 @@ $parametros_farinografo = [
                         <option value="0"> No </option>
                     </select>
                 </div>
-                
+
                 <div class="formulario__campo">
                     <label for="rfc" class="formulario__label"> RFC </label>
                     <input type="text" name="rfc" class="formulario__input" placeholder="RFC" required>
-                </div> 
-                
+                </div>
+
                 <div class="formulario__campo">
                     <label for="rol" class="formulario__label">Estado</label>
                     <select name="categoria" id="categoria" class="formulario__select" required>
@@ -164,74 +174,69 @@ $parametros_farinografo = [
                     <label for="tipo_equipo" class="formulario__label">Tipo de Equipo</label>
                     <select class="formulario__input" id="tipo_equipo" name="tipo_equipo" required>
                         <option value="" disabled <?php echo !$editando ? 'selected' : ''; ?>>-- Seleccione tipo de equipo --</option>
-                        <option value="Alveógrafo" >Alveógrafo</option>
+                        <option value="Alveógrafo">Alveógrafo</option>
                         <option value="Farinógrafo">Farinógrafo</option>
                     </select>
-                </div>
-
-                <!-- Mensaje de carga para los parámetros -->
-                <div id="loading-message" class="loading-message" style="display: none;">
-                    Cargando valores de referencia...
                 </div>
 
                 <!-- Sección para Alveógrafos -->
                 <div id="parametros-alveografo" class="parametros-section" style="display: none;">
                     <div class="parametros-title">Valores de referencia internacionales - Alveógrafo</div>
-                    
+
                     <?php foreach ($parametros_alveografo as $param): ?>
-                    <div class="parametro-row">
-                        <div class="parametro-nombre"><?php echo htmlspecialchars($param['nombre']); ?></div>
-                        <div class="parametro-inputs">
-                            <div>
-                                <input type="number" step="0.01" class="parametro-input min-input" 
-                                       name="alveografo[<?php echo $param['id_parametro']; ?>][min]" 
-                                       value="<?php echo htmlspecialchars($param['lim_Inferior']); ?>" 
-                                       placeholder="Mínimo"
-                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>">
-                                <div class="parametro-label">Límite inferior</div>
-                            </div>
-                            <div>
-                                <input type="number" step="0.01" class="parametro-input max-input" 
-                                       name="alveografo[<?php echo $param['id_parametro']; ?>][max]" 
-                                       value="<?php echo htmlspecialchars($param['lim_Superior']); ?>" 
-                                       placeholder="Máximo"
-                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>">
-                                <div class="parametro-label">Límite superior</div>
+                        <div class="parametro-row">
+                            <div class="parametro-nombre"><?php echo htmlspecialchars($param['nombre']); ?></div>
+                            <div class="parametro-inputs">
+                                <div>
+                                    <input type="number" step="0.01" class="parametro-input min-input"
+                                        name="alveografo[<?php echo $param['id_parametro']; ?>][min]"
+                                        value="<?php echo htmlspecialchars($param['lim_Inferior']); ?>"
+                                        placeholder="Mínimo"
+                                        data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>">
+                                    <div class="parametro-label">Límite inferior</div>
+                                </div>
+                                <div>
+                                    <input type="number" step="0.01" class="parametro-input max-input"
+                                        name="alveografo[<?php echo $param['id_parametro']; ?>][max]"
+                                        value="<?php echo htmlspecialchars($param['lim_Superior']); ?>"
+                                        placeholder="Máximo"
+                                        data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>">
+                                    <div class="parametro-label">Límite superior</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     <?php endforeach; ?>
                 </div>
 
                 <!-- Sección para Farinógrafos -->
                 <div id="parametros-farinografo" class="parametros-section" style="display: none;">
                     <div class="parametros-title">Valores de referencia internacionales - Farinógrafo</div>
-                    
+
                     <?php foreach ($parametros_farinografo as $param): ?>
-                    <div class="parametro-row">
-                        <div class="parametro-nombre"><?php echo htmlspecialchars($param['nombre']); ?></div>
-                        <div class="parametro-inputs">
-                            <div>
-                                <input type="number" step="0.01" class="parametro-input min-input" 
-                                       name="farinografo[<?php echo $param['id_parametro']; ?>][min]"  
-                                       placeholder="Mínimo"
-                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>">
-                                <div class="parametro-label">Límite inferior</div>
-                            </div>
-                            <div>
-                                <input type="number" step="0.01" class="parametro-input max-input" 
-                                       name="farinografo[<?php echo $param['id_parametro']; ?>][max]" 
-                                       placeholder="Máximo"
-                                       data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>">
-                                <div class="parametro-label">Límite superior</div>
+                        <div class="parametro-row">
+                            <div class="parametro-nombre"><?php echo htmlspecialchars($param['nombre']); ?></div>
+                            <div class="parametro-inputs">
+                                <div>
+                                    <input type="number" step="0.01" class="parametro-input min-input"
+                                        name="farinografo[<?php echo $param['id_parametro']; ?>][min]"
+                                        placeholder="Mínimo"
+                                        data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>">
+                                    <div class="parametro-label">Límite inferior</div>
+                                </div>
+                                <div>
+                                    <input type="number" step="0.01" class="parametro-input max-input"
+                                        name="farinografo[<?php echo $param['id_parametro']; ?>][max]"
+                                        placeholder="Máximo"
+                                        data-parametro="<?php echo htmlspecialchars($param['nombre']); ?>">
+                                    <div class="parametro-label">Límite superior</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     <?php endforeach; ?>
-                </div>  
+                </div>
 
                 <div class="formulario__campo">
-                    <h1>Datos de contacto</h1> 
+                    <h1>Datos de contacto</h1>
                 </div> <br>
 
                 <div class="formulario__campo">
@@ -243,7 +248,7 @@ $parametros_farinografo = [
                     <label for="puesto" class="formulario__label"> Puesto </label>
                     <input type="text" name="puesto" class="formulario__input" placeholder="Puesto" required>
                 </div>
-                
+
                 <div class="formulario__campo">
                     <label for="email" class="formulario__label">Correo electrónico</label>
                     <input type="email" name="email" class="formulario__input" placeholder="Correo electrónico" required>
@@ -276,7 +281,7 @@ $parametros_farinografo = [
         function actualizarSecciones() {
             const tipoSeleccionado = tipoEquipoSelector.value;
             const parametrosSeleccionados = parametrosSelector.value;
-            
+
             // Ocultar ambas secciones si "Internacionales" está seleccionado
             if (parametrosSeleccionados === 'Internacionales') {
                 seccionAlveografo.style.display = 'none';
@@ -285,14 +290,14 @@ $parametros_farinografo = [
                 }
                 return;
             }
-            
+
             // Mostrar/ocultar secciones según el tipo de equipo cuando "Personalizados" está seleccionado
-            if (tipoSeleccionado === 'Alveografo') {
+            if (tipoSeleccionado === 'Alveógrafo') {
                 seccionAlveografo.style.display = 'block';
                 if (seccionFarinografo) {
                     seccionFarinografo.style.display = 'none';
                 }
-            } else if (tipoSeleccionado === 'Farinografo') {
+            } else if (tipoSeleccionado === 'Farinógrafo') {
                 seccionAlveografo.style.display = 'none';
                 if (seccionFarinografo) {
                     seccionFarinografo.style.display = 'block';
@@ -311,52 +316,8 @@ $parametros_farinografo = [
 
         // Ejecutar al cargar la página para establecer el estado inicial
         actualizarSecciones();
-
-        // Función para validar los límites
-        function validarLimites(minInput, maxInput) {
-            const min = parseFloat(minInput.value);
-            const max = parseFloat(maxInput.value);
-            const parametro = minInput.dataset.parametro;
-
-            if (!isNaN(min) && !isNaN(max) && min > max) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error de validación',
-                    text: `El límite inferior de "${parametro}" no puede ser mayor al límite superior.`,
-                    confirmButtonColor: '#4c3325'
-                });
-                maxInput.value = '';
-                return false;
-            }
-            return true;
-        }
-
-        // Agregar event listeners a todos los inputs
-        document.querySelectorAll('.parametro-input').forEach(input => {
-            input.addEventListener('input', function() {
-                const row = this.closest('.parametro-row');
-                const minInput = row.querySelector('.min-input');
-                const maxInput = row.querySelector('.max-input');
-                validarLimites(minInput, maxInput);
-            });
-        });
-
-        // Validar antes de enviar el formulario
-        document.querySelector('form').addEventListener('submit', function(e) {
-            let isValid = true;
-            document.querySelectorAll('.parametro-row').forEach(row => {
-                const minInput = row.querySelector('.min-input');
-                const maxInput = row.querySelector('.max-input');
-                if (!validarLimites(minInput, maxInput)) {
-                    isValid = false;
-                }
-            });
-
-            if (!isValid) {
-                e.preventDefault();
-            }
-        });
     </script>
+
 </body>
 
 </html>
