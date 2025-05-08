@@ -24,8 +24,8 @@ if (empty($fecha_ini) || empty($fecha_fin)) {
 // Primer query: parámetros no aprobados
 $query1 = "
     SELECT nombre_parametro, COUNT(aprobado) AS cantidad
-    FROM resultado_inspeccion RI
-    JOIN inspeccion I ON I.id_inspeccion = RI.id_inspeccion
+    FROM Resultado_Inspeccion RI
+    JOIN Inspeccion I ON I.id_inspeccion = RI.id_inspeccion
     WHERE aprobado = 0
     AND fecha_inspeccion BETWEEN :fecha_ini AND :fecha_fin
     GROUP BY nombre_parametro
@@ -54,8 +54,8 @@ $query2 = "
             WHEN MAX(CASE WHEN aprobado = 0 THEN 1 ELSE 0 END) = 1 THEN 'No aprobado'
             ELSE 'Aprobado'
         END AS clasificacion
-        FROM resultado_inspeccion RI
-        JOIN inspeccion I ON I.id_inspeccion = RI.id_inspeccion
+        FROM Resultado_Inspeccion RI
+        JOIN Inspeccion I ON I.id_inspeccion = RI.id_inspeccion
         WHERE fecha_inspeccion BETWEEN :fecha_ini AND :fecha_fin
         GROUP BY I.id_inspeccion
     ) subquery
