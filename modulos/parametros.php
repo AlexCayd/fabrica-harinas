@@ -74,10 +74,10 @@ if ($filtro != 'internacionales' && $filtro != 'personalizados') {
                 A.clave AS origen,
                 A.tipo_equipo AS tipo,
                 A.id_equipo AS id
-            FROM parametros P 
-            LEFT JOIN equipos_laboratorio A ON A.id_equipo = P.id_equipo 
+            FROM Parametros P 
+            LEFT JOIN Equipos_Laboratorio A ON A.id_equipo = P.id_equipo 
             WHERE P.id_equipo = :id";
-                        $sql = "SELECT DISTINCT id_equipo FROM parametros";
+                        $sql = "SELECT DISTINCT id_equipo FROM Parametros";
                         $campo = 'tipo_equipo';
                     } else {
                         $sql_id = "SELECT 
@@ -87,14 +87,14 @@ if ($filtro != 'internacionales' && $filtro != 'personalizados') {
                 P.lim_Inferior, 
                 A.nombre AS origen,
                 A.id_cliente AS id
-            FROM parametros P 
-            LEFT JOIN clientes A ON A.id_cliente = P.id_cliente 
+            FROM Parametros P 
+            LEFT JOIN Clientes A ON A.id_cliente = P.id_cliente 
             WHERE P.id_cliente = :id";
 
                         $tabla = "clientes";
                         $tipo_param = 'id_cliente';
                         $campo = 'nombre';
-                        $sql = "SELECT DISTINCT id_cliente FROM parametros";
+                        $sql = "SELECT DISTINCT id_cliente FROM Parametros";
                     }
 
                     $stmt = $pdo->prepare($sql);

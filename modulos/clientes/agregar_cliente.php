@@ -1,5 +1,5 @@
 <?php
-include '../../config/validar_permisos.php';
+include '../../includes/config.php';
 include '../../config/conn.php';
 include '../../config/functions.php';
 include_once '../../includes/config.php';
@@ -33,21 +33,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     ) {
         $_SESSION['error'] = 'Debes llenar todos los campos.';
         $pdo->rollBack();
-        header("Location: /fabrica-harinas/modulos/clientesform.php");
+        header("Location: " . BASE_URL . "modulos/clientesform.php");
         exit();
     }
 
     if (strlen($telefono) != 10) {
         $_SESSION['error'] = 'El teléfono debe tener 10 dígitos.';
         $pdo->rollBack();
-        header("Location: /fabrica-harinas/modulos/clientesform.php");
+        header("Location: " . BASE_URL . "modulos/clientesform.php");
         exit();
     }
 
     if (strlen($rfc) != 13) {
         $_SESSION['error'] = 'El RFC debe tener 13 dígitos.';
         $pdo->rollBack();
-        header("Location: /fabrica-harinas/modulos/clientesform.php");
+        header("Location: " . BASE_URL . "modulos/clientesform.php");
         exit();
     }
 
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 if (!is_numeric($min_raw) || !is_numeric($max_raw)) {
                     $_SESSION['error'] = 'Los valores de límite para el parámetro "' . $parametro_id . '" deben ser numéricos.';
-                    header("Location: /fabrica-harinas/modulos/clientesform.php?error_parametro=" . $parametro_id);
+                    header("Location: " . BASE_URL . "modulos/clientesform.php?error_parametro=" . $parametro_id);
                     exit();
                 }
 
@@ -87,13 +87,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 if ($min > $max) {
                     $_SESSION['error'] = 'El límite inferior de "' . $parametro_id . '" no puede ser mayor al límite superior.';
-                    header("Location: /fabrica-harinas/modulos/clientesform.php?error_parametro=" . $parametro_id);
+                    header("Location: " . BASE_URL . "modulos/clientesform.php?error_parametro=" . $parametro_id);
                     exit();
                 } else if (isset($parametros_referencia[$parametro_id])) {
                     $ref = $parametros_referencia[$parametro_id];
                     if ($min < $ref['min'] || $max > $ref['max']) {
                         $_SESSION['error'] = 'El parámetro "' . $parametro_id . '" debe estar dentro del rango internacional (' . $ref['min'] . ' - ' . $ref['max'] . ').';
-                        header("Location: /fabrica-harinas/modulos/clientesform.php?error_parametro=" . $parametro_id);
+                        header("Location: " . BASE_URL . "modulos/clientesform.php?error_parametro=" . $parametro_id);
                         exit;
                     } else {
                         // Guardamos el dato validado en caso de que esté dentro de los límites. 
@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 if (!is_numeric($min_raw) || !is_numeric($max_raw)) {
                     $_SESSION['error'] = 'Los valores de límite para el parámetro "' . $parametro_id . '" deben ser numéricos.';
-                    header("Location: /fabrica-harinas/modulos/clientesform.php?error_parametro=" . $parametro_id);
+                    header("Location: " . BASE_URL . "modulos/clientesform.php?error_parametro=" . $parametro_id);
                 }
 
                 $min = floatval($min_raw);
@@ -137,14 +137,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 if ($min > $max) {
                     $_SESSION['error'] = 'El límite inferior de "' . $parametro_id . '" no puede ser mayor al límite superior.';
-                    header("Location: /fabrica-harinas/modulos/clientesform.php?error_parametro=" . $parametro_id);
+                    header("Location: " . BASE_URL . "modulos/clientesform.php?error_parametro=" . $parametro_id);
 
                 } else if (isset($parametros_referencia[$parametro_id])) {
                     $ref = $parametros_referencia[$parametro_id];
                     if ($min < $ref['min'] || $max > $ref['max']) {
 
                         $_SESSION['error'] = 'El parámetro "' . $parametro_id . '" debe estar dentro del rango internacional (' . $ref['min'] . ' - ' . $ref['max'] . ').';
-                        header("Location: /fabrica-harinas/modulos/clientesform.php?error_parametro=" . $parametro_id);
+                        header("Location: " . BASE_URL . "modulos/clientesform.php?error_parametro=" . $parametro_id);
                         exit;
                     }
                 } else {
@@ -178,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         ])) {
             $_SESSION['error'] = 'Error al insertar el cliente.';
             $pdo->rollBack();
-            header("Location: /fabrica-harinas/modulos/clientesform.php");
+            header("Location: " . BASE_URL . "modulos/clientesform.php");
             exit;
         }
 
@@ -200,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ])) {
                 $_SESSION['error'] = 'Error al insertar parámetros.';
                 $pdo->rollBack();
-                header("Location: /fabrica-harinas/modulos/clientesform.php");
+                header("Location: " . BASE_URL . "modulos/clientesform.php");
                 exit;
             }
         }
@@ -228,7 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         ])) {
             $_SESSION['error'] = 'Error al insertar el cliente.';
             $pdo->rollBack();
-            header("Location: /fabrica-harinas/modulos/clientesform.php");
+            header("Location: " . BASE_URL . "modulos/clientesform.php");
             exit();
         }
     }
@@ -236,9 +236,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Todo salió bien
     $pdo->commit();
     $_SESSION['exito'] = 'Cliente agregado correctamente.';
-    header("Location: /fabrica-harinas/modulos/clientes.php?success");
+    header("Location: " . BASE_URL . "modulos/clientes.php?success");
     exit();
 } else {
-    header("Location: /fabrica-harinas/menu.php");
+    header("Location: " . BASE_URL . "menu.php");
     exit();
 }
