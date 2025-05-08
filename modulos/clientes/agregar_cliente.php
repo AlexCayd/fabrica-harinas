@@ -2,7 +2,7 @@
 include_once '../../includes/config.php';
 include '../../config/conn.php';
 include '../../config/functions.php';
-// session_start();
+session_start();
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
