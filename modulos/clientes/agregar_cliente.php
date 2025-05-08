@@ -1,8 +1,7 @@
 <?php
-include '../../includes/config.php';
+include_once '../../includes/config.php';
 include '../../config/conn.php';
 include '../../config/functions.php';
-include_once '../../includes/config.php';
 // session_start();
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
