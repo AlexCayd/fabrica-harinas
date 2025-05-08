@@ -170,15 +170,6 @@ foreach ($parametros as $param) {
                         <option value="inactivo" <?php echo $cliente['estado'] == 'Inactivo' ? 'selected' : ''; ?>>Inactivo</option>
                     </select>
                 </div>
-
-                <div class="formulario__campo">
-                    <label for="filtro-aprobacion" class="formulario__label">Filtrar por aprobación</label>
-                    <select name="filtro-aprobacion" id="filtro-aprobacion" class="formulario__select">
-                        <option value="todos">Todos</option>
-                        <option value="aprobado">Aprobado</option>
-                        <option value="desaprobado">Desaprobado</option>
-                    </select>
-                </div>
                 
                 <div class="formulario__campo formulario-baja" id="causa-baja">
                     <label for="causa-baja" class="formulario__label"> Causa de la baja </label>
@@ -264,34 +255,11 @@ foreach ($parametros as $param) {
             }
         }
 
-        // Función para filtrar por aprobación
-        function filtrarPorAprobacion() {
-            const valorFiltro = filtroAprobacion.value;
-            const elementos = document.querySelectorAll('.formulario__campo');
-
-            elementos.forEach(elemento => {
-                if (valorFiltro === 'todos') {
-                    elemento.style.display = 'block';
-                } else {
-                    // Aquí puedes agregar la lógica para mostrar/ocultar elementos según el estado de aprobación
-                    // Por ejemplo, si tienes una clase o atributo que indique el estado de aprobación:
-                    const estadoAprobacion = elemento.getAttribute('data-aprobacion');
-                    if (estadoAprobacion === valorFiltro) {
-                        elemento.style.display = 'block';
-                    } else {
-                        elemento.style.display = 'none';
-                    }
-                }
-            });
-        }
-
         // Agregar eventos a los selectores
         estadoSelector.addEventListener('change', verCausaBaja);
-        filtroAprobacion.addEventListener('change', filtrarPorAprobacion);
 
         // Ejecutar funciones al cargar la página
         verCausaBaja();
-        filtrarPorAprobacion();
     </script>
 </body>
 
