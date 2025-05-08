@@ -3,7 +3,6 @@ include_once '../includes/config.php';
 require '../config/validar_permisos.php';
 include '../config/conn.php';
 include '../config/functions.php';
-session_start();
 
 // Obtener el ID del cliente a editar
 $id_cliente = $_GET['id'];
