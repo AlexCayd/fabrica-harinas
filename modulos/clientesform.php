@@ -1,4 +1,6 @@
-<?php require '../config/validar_permisos.php';
+<?php 
+include_once '../includes/config.php';
+require '../config/validar_permisos.php';
 
 $editando = false;
 $parametros_alveografo = [
