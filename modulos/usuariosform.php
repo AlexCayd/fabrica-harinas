@@ -74,23 +74,29 @@ if ($update) {
                 <?php if ($update): ?>
                     <div class="formulario__campo">
                         <label for="id" class="formulario__label">Id usuario [lectura]</label>
-                        <input type="text" value="<?php echo $usuario['id_usuario'] ?>" name="id" id="id"
+                        <input type="text" value="<?php echo htmlspecialchars($usuario['id_usuario']) ?>" name="id" id="id"
                             class="formulario__input" readonly>
                     </div>
                 <?php endif; ?>
 
                 <div class="formulario__campo">
                     <label for="nombre" class="formulario__label">Nombre</label>
-                    <input type="text" name="name" value="<?php echo $usuario['nombre'] ?>" class="formulario__input">
+                    <input type="text" name="name" value="<?php echo htmlspecialchars($usuario['nombre']) ?>" class="formulario__input">
                 </div>
 
                 <div class="formulario__campo">
                     <label for="email" class="formulario__label">Correo electrónico</label>
-                    <input type="email" name="mail" value="<?php echo $usuario['correo'] ?>" class="formulario__input">
+                    <input type="email" name="mail" value="<?php echo htmlspecialchars($usuario['correo']) ?>" class="formulario__input">
                 </div>
 
-                <div class="formulario__campo tooltip-container">
-                    <label for="password" class="formulario__label">Contraseña</label>
+                <div class="formulario__campo tooltip-container ">
+                    <label for="password" class="formulario__label">Contraseña
+                    <?php if ($update): ?>
+                    <span onmouseenter="tooltip.style.display = 'block'" 
+                        onmouseleave="tooltip.style.display = 'none'" 
+                        style="cursor: help;">❓</span>
+                        <?php endif; ?>
+                    </label>
                     <input type="password" name="passwd" id="passwd" class="formulario__input"
                         placeholder="<?php echo $update ? 'Nueva contraseña (opcional)' : 'Contraseña'; ?>">
                     <?php if ($update): ?>
@@ -129,7 +135,7 @@ if ($update) {
 
                     </select>
                 </div>
-                <<button type="button" id="btnSubmit" class="formulario__submit">
+                <button type="button" id="btnSubmit" class="formulario__submit">
                     <?php echo $update ? 'Actualizar usuario' : 'Agregar usuario'; ?>
                     </button>
             </form>
@@ -139,27 +145,6 @@ if ($update) {
 </body>
 <script>
     const passwordInput = document.getElementById('passwd');
-    const tooltip = document.getElementById('tooltip');
-
-    passwordInput.addEventListener('input', () => {
-        if (passwordInput.value.trim().length > 0) {
-            tooltip.style.display = 'block';
-        } else {
-            tooltip.style.display = 'none';
-        }
-    });
-
-    passwordInput.addEventListener('mouseenter', () => {
-        if (passwordInput.value.trim().length === 0) {
-            tooltip.style.display = 'block';
-        }
-    });
-
-    passwordInput.addEventListener('mouseleave', () => {
-        if (passwordInput.value.trim().length === 0) {
-            tooltip.style.display = 'none';
-        }
-    });
 
     const viewPasswd = document.getElementById('viewPasswd');
 

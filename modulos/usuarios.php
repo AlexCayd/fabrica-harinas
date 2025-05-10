@@ -14,8 +14,6 @@ $orden = $_GET['orden'] ?? ''; // por defecto vacío
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-
 </head>
 <script>
     function deleteUser(id, name) {
@@ -39,6 +37,7 @@ $orden = $_GET['orden'] ?? ''; // por defecto vacío
         <?php include '../includes/header.php'; ?>
 
         <div class="contenedor__modulo">
+            <a href="../menu.php" class="atras">Ir atrás</a>
             <h2 class="heading">Usuarios</h2>
 
             <div class="controles">
@@ -80,40 +79,36 @@ $orden = $_GET['orden'] ?? ''; // por defecto vacío
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="tabla__fila">
-
                         <?php
                         require '../config/conn.php';
 
-                        $params = [];
+                        $rol = [];
                         $sql = "SELECT * FROM usuarios";
 
                         // Aplica filtro si hay valor de ordenamiento
                         if (!empty($orden)) {
 
                             $sql .= " WHERE rol = ?";
-                            $params[] = $orden;
+                            $rol[] = $orden;
                         }
 
                         $stmt = $pdo->prepare($sql);
-                        $stmt->execute($params);
+                        $stmt->execute($rol);
 
                         while ($res = $stmt->fetch()) {
                             echo '<tr class="tabla__fila">';
-                            echo '<td>' . $res['id_usuario'] . '</td>';
-                            echo '<td>' . $res['nombre'] . '</td>';
-                            echo '<td>' . $res['correo'] . '</td>';
-                            echo '<td>' . $res['rol'] . '</td>';
+                            echo '<td>' . htmlspecialchars( $res['id_usuario'] ). '</td>';
+                            echo '<td>' . htmlspecialchars( $res['nombre'] ). '</td>';
+                            echo '<td>' . htmlspecialchars( $res['correo'] ) . '</td>';
+                            echo '<td>' . htmlspecialchars( $res['rol'] ) . '</td>';
                             echo '<td class="tabla__botones">';
                             echo '<a href="usuariosform.php?id=' . $res['id_usuario'] . '"><img src="../img/edit.svg" alt="Editar" class="tabla__boton"></a>';
-                            echo '<a href="#" onclick="deleteUser(' . $res['id_usuario'] . ', \'' . $res['nombre'] . '\'); return false;"><img src="../img/delete.svg" alt="Eliminar" class="tabla__boton"></a>';
+                            echo '<a href="#" onclick="deleteUser(' . $res['id_usuario'] . ', ' . json_encode($res['nombre']) . '); return false;"><img src="../img/delete.svg" alt="Eliminar" class="tabla__boton"></a>';
                             echo '</td>';
                             echo '</tr>';
                         }
 
                         ?>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -150,6 +145,5 @@ $orden = $_GET['orden'] ?? ''; // por defecto vacío
             }
         });
     });
-    // string = buscador.value;
 </script>
 </html>

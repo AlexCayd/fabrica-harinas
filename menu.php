@@ -48,6 +48,12 @@
                         'texto' => 'Clientes',
                         'roles' => ['Laboratorio', 'TI', 'Gerencia de Control de Calidad']
                     ],
+                    'parametros' => [
+                        'url' => '/fabrica-harinas/modulos/parametros.php?tipo=internacionales',
+                        'img' => 'img/parametros.svg',
+                        'texto' => 'Parámetros',
+                        'roles' => ['Gerencia de Aseguramiento de Calidad', 'TI', 'Gerente de Planta', 'Director de Operaciones']
+                    ],
                     'analisiscalidad' => [
                         'url' => '/fabrica-harinas/modulos/analisiscalidad.php',
                         'img' => 'img/quality.svg',
@@ -65,7 +71,7 @@
                         'img' => 'img/stats.svg',
                         'texto' => 'Reportes estadísticos',
                         'roles' => ['Gerencia de Aseguramiento de Calidad', 'TI', 'Gerente de Planta', 'Director de Operaciones']
-                    ],
+                    ]
                 ];
                 
                 // Recorrer módulos y mostrar solo los que coincidan con el rol

@@ -15,19 +15,23 @@
         
         $permisos = [
             'TI' => [ 
-                $path.'analisiscalidad.php', $path.'analisiscalidadform.php', $path.'certificadosform.php',
+                $path.'analisiscalidad.php', $path.'analisiscalidadform.php','/fabrica-harinas/config/procesar_analisis.php', $path.'certificadosform.php',
                 $path.'clientes_editar.php', $path.'clientes.php', $path.'clientesform.php', $path.'estadisticos.php',
-                $path.'historico.php', $path.'laboratorios.php', $path.'laboratoriosform.php', $path.'reportes.php', $path.'usuarios.php', $path.'usuariosform.php'
+                $path.'historico.php', $path.'laboratorios.php', $path.'laboratoriosform.php', $path.'reportes.php', 
+                $path.'usuarios.php', $path.'usuariosform.php', $path.'resultadosestadisticos.php', $path.'parametros.php', 
+                $path.'parametrosform.php', $path.'generar_certificadoform.php'
                 ],
             'Laboratorio' => [ 
-                $path.'analisiscalidad.php', $path.'analisiscalidadform.php', $path.'certificadosform.php',
+                $path.'analisiscalidad.php', $path.'analisiscalidadform.php', '/fabrica-harinas/config/procesar_analisis.php', $path.'certificadosform.php',
                 $path.'clientes_editar.php', $path.'clientes.php', $path.'clientesform.php', $path.'estadisticos.php',
-                $path.'historico.php', $path.'laboratorios.php', $path.'laboratoriosform.php'
+                $path.'historico.php', $path.'laboratorios.php', $path.'laboratoriosform.php', $path.'parametros.php', 
+                $path.'parametrosform.php', $path.'generar_certificadoform.php'
                 ],
             'Gerencia de Control de Calidad' => [ 
-                $path.'analisiscalidad.php', $path.'analisiscalidadform.php', $path.'certificadosform.php',
+                $path.'analisiscalidad.php', $path.'analisiscalidadform.php', '/fabrica-harinas/config/procesar_analisis.php', $path.'certificadosform.php',
                 $path.'clientes_editar.php', $path.'clientes.php', $path.'clientesform.php', $path.'estadisticos.php',
-                $path.'historico.php', $path.'laboratorios.php', $path.'laboratoriosform.php'
+                $path.'historico.php', $path.'laboratorios.php', $path.'laboratoriosform.php', $path.'parametros.php', 
+                $path.'parametrosform.php',  $path.'generar_certificadoform.php'
             ],
             'Gerencia de Aseguramiento de Calidad' => [ 
                 $path.'analisiscalidad.php', $path.'analisiscalidadform.php', $path.'certificadosform.php',

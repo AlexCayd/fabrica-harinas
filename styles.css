@@ -33,7 +33,7 @@ img {
 }
 
 body {
-    /* background-image: url(img/bg-login.webp); */
+    background-image: url(img/bg-login.webp);
     font-family: var(--fuenteBody);
 }
 
@@ -149,7 +149,7 @@ h1, h2, h3, h4 {
 
 .botones__buscar,
 .botones__crear {
-    font-size: 18px;
+    font-size: 14px;
     padding: 15px 50px;
     background-color: var(--colorSecundario);
     color: var(--colorPrimario);
@@ -192,12 +192,22 @@ h1, h2, h3, h4 {
     text-align: center;
     vertical-align: middle;
 }
+.tabla__fila--sep td {
+    background-color: #857166;
+    text-align: center;
+    vertical-align: middle;
+    color: white;
+}
 
 
 .tabla__boton {
     height: 30px;
-    margin-bottom: 25px;
     cursor: pointer;
+}
+
+.tabla__descargar {
+    font-weight: bold;
+    color: var(--colorSecundario);
 }
 
 .formulario {
@@ -246,4 +256,21 @@ h1, h2, h3, h4 {
     font-size: 14px;
     display: inline-block;
     margin-bottom: 30px;
+}
+
+/* GRAFICA */
+.contenedor-graficas{
+    display: flex;
+    gap: 20px;
+    flex-direction: row;
+}
+.grafica {
+    width: 100%;
+    padding: 20px 40px;
+    font-family: inherit;
+    display: flex;
+    gap: 40px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }

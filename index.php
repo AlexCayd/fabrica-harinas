@@ -59,7 +59,6 @@
                         <input class="login__btn" type="submit" value="Iniciar sesión">
                     </div>
                 </form>
-                <a href="menu.php" style="margin-top: 25px;">Atajo a menú</a>
             </div>
             <div class="login__imagen">
                 <img src="img/pan-login.jpg" alt="Imagen de login" class="login__img">

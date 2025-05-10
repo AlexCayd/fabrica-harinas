@@ -17,8 +17,8 @@
         // Resultado de la consulta
         $res = $stmt->fetch();
 
-        //if ($res && password_verify($passwd, $res['contrasena']) ) {
-        if ($res ) {
+        if ($res && password_verify($passwd, $res['contrasena']) ) {
+        //if ($res ) {
             $_SESSION['user_id'] = $res['id_usuario'];
             $_SESSION['username'] = $res['nombre'];
             $_SESSION['rol'] = $res['rol'];
@@ -26,7 +26,7 @@
             header("Location: /fabrica-harinas/menu.php");
             exit;
         } else {
-            $_SESSION['error'] = 'Credenciales incorrectas';
+            $_SESSION['error'] = 'Credenciales no válidas';
             header("Location: /fabrica-harinas/index.php");
             exit;
         }

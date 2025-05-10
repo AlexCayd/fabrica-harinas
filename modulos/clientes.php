@@ -1,29 +1,13 @@
 <?php
 require '../config/validar_permisos.php';
-
 include '../config/conn.php';
-
 // Consulta para recuperar a todos los clientes
-$estado = $_GET['estado'];
-$busqueda = $_GET['busqueda'];
+$estado = $_GET['estado'] ?? 'activo';
 
 $sql = "SELECT id_cliente, nombre, correo_contacto, estado FROM Clientes WHERE estado = '$estado'";
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Si no hay búsqueda, no aplicamos el filtro LIKE
-// if (empty($busqueda)) {
-//     $sql = "SELECT id_cliente, nombre, correo_contacto, estado FROM Clientes WHERE estado = '$estado'";
-//     $stmt = $pdo->prepare($sql);
-//     $stmt->execute([$estado]);
-// } else {
-//     // Si hay búsqueda, usamos LIKE
-//     $sql = "SELECT id_cliente, nombre, correo_contacto, estado FROM Clientes WHERE estado = ? AND nombre LIKE ?";
-//     $stmt = $pdo->prepare($sql);
-//     $stmt->execute([$estado, "%$busqueda%"]);
-// }
-
 
 ?>
 <!DOCTYPE html>
@@ -35,30 +19,31 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>FHE | Clientes</title>
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../css/menu.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
     <main class="contenedor hoja">
         <?php include '../includes/header.php' ?>
 
-
         <div class="contenedor__modulo">
+            <a href="../menu.php" class="atras">Ir atrás</a>
             <h2 class="heading">Clientes</h2>
 
             <div class="controles">
                 <div class="buscador">
                     <h4 class="buscador__label">Buscar</h4>
-                    <input type="text" class="buscador__input" id="busqueda-nombre" placeholder="Nombre del cliente">
+                    <input type="text" class="buscador__input" id="searchBar" placeholder="Nombre del cliente">
                 </div>
                 <div class="ordenar">
                     <h4 class="ordenar__label">Estado</h4>
-                    <select name="estado" id="estado" class="ordenar__select">
+                    <select name="estado" id="ordenarPor" class="ordenar__select">
                         <option value="activo" <?php if ($estado == 'activo') echo 'selected'; ?>>Activo</option>
                         <option value="inactivo" <?php if ($estado == 'inactivo') echo 'selected'; ?>>Inactivo</option>
                     </select>
                 </div>
                 <h2 class="botones__buscar">Buscar</h2>
-                <a href="clientesform.html" class="botones__crear">Agregar cliente</a>
+                <a href="clientesform.php" class="botones__crear">Agregar cliente</a>
             </div>
 
             <table class="tabla">
@@ -82,7 +67,7 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </a>
 
                                 <a href="clientes/baja_cliente.php?id=<?php echo $cliente['id_cliente']; ?>"
-                                    onclick="return confirm('¿Estás seguro de que deseas eliminar este cliente?');">
+                                    class="eliminar-cliente">
                                     <img src="../img/delete.svg" alt="Eliminar" class="tabla__boton">
                                 </a>
 
@@ -96,22 +81,9 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </main>
 
     <script>
-        // Script para actualizar las tablas
+        // // Script para seleccionar un estado
         document.addEventListener("DOMContentLoaded", function() {
-            const selectEstado = document.getElementById("estado");
-            const inputNombre = document.getElementById("busqueda-nombre");
-
-            inputNombre.addEventListener("change", function() {
-
-                const nombre = this.value;
-
-                const nuevaUrl = new URL(window.location);
-                nuevaUrl.searchParams.set("busqueda", nombre);
-                history.pushState({}, "", nuevaUrl);
-
-                location.reload();
-
-            });
+            const selectEstado = document.getElementById("ordenarPor");
 
             selectEstado.addEventListener("change", function() {
                 // alert("Opción seleccionada: " + this.value);
@@ -122,6 +94,51 @@ $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 history.pushState({}, "", nuevaUrl);
 
                 location.reload();
+            });
+        });
+
+        // Script para mandar mensaje de confirmacion cuando se quiere eliminar a un cliente
+        document.addEventListener('DOMContentLoaded', function() {
+            const enlacesEliminar = document.querySelectorAll('.eliminar-cliente');
+
+            enlacesEliminar.forEach(function(enlace) {
+                enlace.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = this.getAttribute('href');
+
+                    Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: "¡Esta acción no se puede deshacer!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Sí, eliminar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = url;
+                        }
+                    });
+                });
+            });
+        });
+
+        // Buscar por nombre
+        const buscador = document.getElementById('searchBar');
+        const filasUsuarios = document.querySelectorAll('.tabla__fila');
+
+        buscador.addEventListener('input', () => {
+            busquedaUsuario = buscador.value.toLowerCase();
+
+            filasUsuarios.forEach((fila) => {
+                const contenidoFila = fila.textContent.toLocaleLowerCase();
+
+                if (contenidoFila.includes(busquedaUsuario)) {
+                    fila.style.display = '';
+                } else {
+                    fila.style.display = 'none';
+                }
             });
         });
     </script>
